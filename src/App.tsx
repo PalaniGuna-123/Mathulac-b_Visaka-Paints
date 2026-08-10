@@ -2,11 +2,11 @@ import { useEffect, useRef, useState, useCallback } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import {
-  ArrowRight, Phone, Mail, MapPin, Menu, X, Download, ChevronRight, Sparkles,
+  ArrowRight, Phone, MapPin, Menu, X, ChevronRight, Sparkles, Check, Instagram, Facebook, Linkedin,
 } from 'lucide-react';
 import {
   categories, services, palette, heroSlides, surfaces, companyFacts,
-  trustPillars, timeline, roomColors, navItems,
+  trustPillars, timeline, roomColors, navItems, featuredProducts, type Product,
 } from '@/data';
 
 gsap.registerPlugin(ScrollTrigger);
@@ -16,6 +16,8 @@ const phoneNumbers = ['+91 93631 14343', '+91 96009 09066'];
 export default function App() {
   const [activeSlide, setActiveSlide] = useState(0);
   const [activeCategory, setActiveCategory] = useState(0);
+  const [productFilter, setProductFilter] = useState('All');
+  const [activeProduct, setActiveProduct] = useState<Product | null>(null);
   const [activeColor, setActiveColor] = useState(palette[0]);
   const [menuOpen, setMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
@@ -179,6 +181,9 @@ export default function App() {
       <ProductShowcase
         activeCategory={activeCategory}
         setActiveCategory={setActiveCategory}
+        productFilter={productFilter}
+        setProductFilter={setProductFilter}
+        setActiveProduct={setActiveProduct}
         scrollTo={scrollTo}
       />
 
@@ -196,7 +201,7 @@ export default function App() {
 
       <ColorScrollSection />
 
-      <BeforeAfter baPos={baPos} setBaPos={setBaPos} baDragging={baDragging} onBaMove={onBaMove} />
+      <BeforeAfter baPos={baPos} baDragging={baDragging} onBaMove={onBaMove} />
 
       <CompanyStory />
 
@@ -206,7 +211,8 @@ export default function App() {
 
       <Footer scrollTo={scrollTo} />
 
-      {menuOpen && <MobileMenu scrollTo={scrollTo} setMenuOpen={setMenuOpen} />}
+      {menuOpen && <MobileMenu scrollTo={scrollTo} />}
+      {activeProduct && <ProductModal product={activeProduct} onClose={() => setActiveProduct(null)} scrollTo={scrollTo} />}
     </div>
   );
 }
@@ -267,7 +273,7 @@ function Header({ scrolled, menuOpen, setMenuOpen, scrollTo }: {
   );
 }
 
-function MobileMenu({ scrollTo, setMenuOpen }: { scrollTo: (id: string) => void; setMenuOpen: (v: boolean) => void }) {
+function MobileMenu({ scrollTo }: { scrollTo: (id: string) => void }) {
   return (
     <div className="fixed top-16 left-0 right-0 z-50 lg:hidden glass border-t border-white/10 p-5">
       <div className="flex flex-col gap-1">
@@ -294,10 +300,11 @@ function MobileMenu({ scrollTo, setMenuOpen }: { scrollTo: (id: string) => void;
 
 /* ---------- Hero ---------- */
 function Hero({ activeSlide, setActiveSlide, scrollTo }: {
-  activeSlide: number; setActiveSlide: (fn: (s: number) => number) => void; scrollTo: (id: string) => void;
+  activeSlide: number; setActiveSlide: React.Dispatch<React.SetStateAction<number>>; scrollTo: (id: string) => void;
 }) {
   const slide = heroSlides[activeSlide];
   const titleRef = useRef<HTMLDivElement>(null);
+  const dragStart = useRef<number | null>(null);
 
   useEffect(() => {
     if (!titleRef.current) return;
@@ -312,7 +319,7 @@ function Hero({ activeSlide, setActiveSlide, scrollTo }: {
   };
 
   return (
-    <section id="top" className="relative h-screen min-h-[640px] w-full overflow-hidden">
+    <section id="top" className="relative h-screen min-h-[700px] w-full overflow-hidden" onPointerDown={(e) => { dragStart.current = e.clientX; }} onPointerUp={(e) => { if (dragStart.current === null) return; const delta = e.clientX - dragStart.current; if (Math.abs(delta) > 48) go(delta > 0 ? -1 : 1); dragStart.current = null; }}>
       {/* Slides */}
       {heroSlides.map((s, i) => (
         <div
@@ -332,6 +339,8 @@ function Hero({ activeSlide, setActiveSlide, scrollTo }: {
             className="absolute inset-0 opacity-40 mix-blend-multiply"
             style={{ background: `radial-gradient(circle at 70% 30%, ${s.accent}40, transparent 60%)` }}
           />
+          <div className="paint-orb paint-orb-one" style={{ background: s.accent }} />
+          <div className="paint-orb paint-orb-two" style={{ background: '#FFD400' }} />
         </div>
       ))}
 
@@ -346,13 +355,13 @@ function Hero({ activeSlide, setActiveSlide, scrollTo }: {
               {String(activeSlide + 1).padStart(2, '0')} / {String(heroSlides.length).padStart(2, '0')}
             </span>
           </div>
-          <h1 className="font-display text-5xl sm:text-7xl md:text-8xl lg:text-[9rem] leading-[0.95] text-white max-w-5xl">
-            Color <br />
-            <span className="gradient-text">Changes</span> <br />
-            Everything.
+          <h1 className="font-display text-[2.9rem] sm:text-6xl md:text-7xl lg:text-[6.8rem] leading-[0.91] text-white max-w-5xl tracking-[-0.045em]">
+            Transform your world.<br />
+            <span className="gradient-text">Protect your assets.</span><br />
+            Inspire with color.
           </h1>
           <p className="mt-6 text-base md:text-lg text-white/80 max-w-xl leading-relaxed">
-            {slide.description}
+            {slide.description} Premium performance, expressive colour and protection that holds its ground—every day.
           </p>
           <div className="mt-8 flex flex-wrap gap-3">
             <button
@@ -386,11 +395,19 @@ function Hero({ activeSlide, setActiveSlide, scrollTo }: {
         </button>
       </div>
       {/* Progress dots */}
-      <div className="absolute bottom-10 left-1/2 -translate-x-1/2 z-10 flex gap-2">
+      <div className="absolute bottom-8 left-5 md:left-8 z-10 hidden xl:flex gap-2">
+        {heroSlides.map((item, i) => (
+          <button key={item.id} onClick={() => setActiveSlide(i)} className={`hero-thumb ${i === activeSlide ? 'is-active' : ''}`} aria-label={`Show ${item.title}`}>
+            <img src={item.image} alt="" />
+            <span>{item.category}</span>
+          </button>
+        ))}
+      </div>
+      <div className="absolute bottom-10 left-1/2 -translate-x-1/2 z-10 flex gap-2 xl:hidden">
         {heroSlides.map((_, i) => (
           <button
             key={i}
-            onClick={() => setActiveSlide(() => i)}
+            onClick={() => setActiveSlide(i)}
             className="h-1.5 rounded-full transition-all duration-500"
             style={{
               width: i === activeSlide ? 40 : 14,
@@ -566,11 +583,18 @@ function ColorVisualizer({ activeColor, setActiveColor }: {
 }
 
 /* ---------- Product Showcase ---------- */
-function ProductShowcase({ activeCategory, setActiveCategory, scrollTo }: {
-  activeCategory: number; setActiveCategory: (fn: (i: number) => number) => void; scrollTo: (id: string) => void;
+function ProductShowcase({ activeCategory, setActiveCategory, productFilter, setProductFilter, setActiveProduct, scrollTo }: {
+  activeCategory: number; setActiveCategory: React.Dispatch<React.SetStateAction<number>>; productFilter: string; setProductFilter: (filter: string) => void; setActiveProduct: (product: Product) => void; scrollTo: (id: string) => void;
 }) {
+  // Kept as a display of the wider system; product cards below provide the focused catalogue interaction.
   const cat = categories[activeCategory];
   const Icon = cat.icon;
+  const productGridRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!productGridRef.current || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    gsap.fromTo(productGridRef.current.children, { opacity: 0, y: 18, scale: 0.97 }, { opacity: 1, y: 0, scale: 1, duration: 0.52, stagger: 0.07, ease: 'power3.out', overwrite: true });
+  }, [productFilter]);
   return (
     <section id="products" className="relative py-24 md:py-32 px-5 md:px-8 bg-gradient-to-b from-ink to-[#1a0b2e]">
       <div className="max-w-[1400px] mx-auto">
@@ -635,9 +659,76 @@ function ProductShowcase({ activeCategory, setActiveCategory, scrollTo }: {
             </button>
           </div>
         </div>
+
+        <div className="mt-24" data-reveal>
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-5 mb-8">
+            <div>
+              <span className="text-cyan font-bold uppercase tracking-widest text-sm">Featured collection</span>
+              <h3 className="font-display text-3xl md:text-5xl text-white mt-2">Finish with confidence.</h3>
+            </div>
+            <p className="max-w-sm text-sm text-white/60">Select a system for every surface—then open any product for its complete specification.</p>
+          </div>
+          <div className="flex flex-wrap gap-2 mb-7">
+            {['All', 'Interior', 'Exterior', 'Wood', 'Metal', 'Decorative', 'Automotive'].map((filter) => (
+              <button key={filter} onClick={() => setProductFilter(filter)} className={`px-4 py-2 rounded-full text-sm font-bold transition-all ${productFilter === filter ? 'bg-white text-ink' : 'bg-white/5 border border-white/15 text-white/70 hover:bg-white/10 hover:text-white'}`}>{filter}</button>
+            ))}
+          </div>
+          <div ref={productGridRef} className="grid sm:grid-cols-2 xl:grid-cols-3 gap-5">
+            {featuredProducts.filter((product) => productFilter === 'All' || product.category === productFilter).map((product) => (
+              <article key={product.id} className="product-card group" style={{ '--product-color': product.color } as React.CSSProperties}>
+                <div className="product-card-image">
+                  <img src={product.image} alt="" loading="lazy" />
+                  <div className="product-bucket" aria-hidden="true">
+                    <div className="bucket-lid" />
+                    <div className="bucket-label"><span>Mathulac</span><small>{product.category}</small></div>
+                  </div>
+                  <span className="product-category">{product.category}</span>
+                </div>
+                <div className="p-6 relative">
+                  <h4 className="font-display text-3xl text-white leading-none">{product.name}</h4>
+                  <p className="mt-3 text-sm leading-relaxed text-white/65">{product.description}</p>
+                  <div className="product-reveal mt-5 flex items-center justify-between gap-4">
+                    <div className="text-xs text-white/55"><span className="text-white font-bold">{product.finish}</span><br />{product.surfaces}</div>
+                    <button onClick={() => setActiveProduct(product)} className="product-open" data-cursor="view" aria-label={`View ${product.name}`}><ArrowRight className="w-4 h-4" /></button>
+                  </div>
+                </div>
+              </article>
+            ))}
+          </div>
+        </div>
       </div>
     </section>
   );
+}
+
+function ProductModal({ product, onClose, scrollTo }: { product: Product; onClose: () => void; scrollTo: (id: string) => void }) {
+  useEffect(() => {
+    const close = (event: KeyboardEvent) => { if (event.key === 'Escape') onClose(); };
+    window.addEventListener('keydown', close);
+    document.body.style.overflow = 'hidden';
+    return () => { window.removeEventListener('keydown', close); document.body.style.overflow = ''; };
+  }, [onClose]);
+
+  return <div className="fixed inset-0 z-[100] grid place-items-center p-4 md:p-8" role="dialog" aria-modal="true" aria-label={`${product.name} details`}>
+    <button className="absolute inset-0 bg-ink/85 backdrop-blur-xl" onClick={onClose} aria-label="Close product details" />
+    <div className="product-modal relative w-full max-w-4xl overflow-hidden rounded-[2rem] border border-white/15 bg-[#131a31] shadow-2xl">
+      <button onClick={onClose} className="absolute right-5 top-5 z-10 w-10 h-10 rounded-full bg-black/30 text-white grid place-items-center hover:bg-black/50" aria-label="Close"><X className="w-5 h-5" /></button>
+      <div className="grid md:grid-cols-2">
+        <div className="relative min-h-[300px] md:min-h-[560px] overflow-hidden" style={{ backgroundColor: product.color }}>
+          <img className="absolute inset-0 h-full w-full object-cover mix-blend-multiply opacity-70" src={product.image} alt="" />
+          <div className="product-bucket product-bucket-large" aria-hidden="true"><div className="bucket-lid" /><div className="bucket-label"><span>Mathulac</span><small>{product.category}</small></div></div>
+        </div>
+        <div className="p-8 md:p-12 flex flex-col justify-center">
+          <span className="text-sm font-bold uppercase tracking-[0.2em]" style={{ color: product.color }}>{product.category} system</span>
+          <h2 className="font-display text-4xl md:text-5xl leading-none text-white mt-4">{product.name}</h2>
+          <p className="text-white/70 leading-relaxed mt-5">{product.description}</p>
+          <div className="mt-7 space-y-3">{product.benefits.map((benefit) => <div className="flex items-center gap-3 text-white/90" key={benefit}><span className="grid place-items-center h-5 w-5 rounded-full" style={{ background: product.color }}><Check className="w-3 h-3" /></span>{benefit}</div>)}</div>
+          <div className="mt-8 grid grid-cols-2 gap-3 text-sm"><div className="rounded-xl bg-white/5 p-4"><small className="text-white/45 uppercase">Finish</small><strong className="block text-white mt-1">{product.finish}</strong></div><div className="rounded-xl bg-white/5 p-4"><small className="text-white/45 uppercase">Suitable for</small><strong className="block text-white mt-1">{product.surfaces}</strong></div></div>
+          <button onClick={() => { onClose(); scrollTo('contact'); }} className="mt-7 inline-flex items-center justify-center gap-2 rounded-xl py-4 font-bold text-white" style={{ background: product.color }}>Request an enquiry <ArrowRight className="w-4 h-4" /></button>
+        </div>
+      </div>
+    </div>
+  </div>;
 }
 
 /* ---------- One Brand Many Surfaces (horizontal) ---------- */
@@ -964,8 +1055,8 @@ function ColorScrollSection() {
 }
 
 /* ---------- Before / After ---------- */
-function BeforeAfter({ baPos, setBaPos, baDragging, onBaMove }: {
-  baPos: number; setBaPos: (v: number) => void; baDragging: React.MutableRefObject<boolean>; onBaMove: (x: number, rect: DOMRect) => void;
+function BeforeAfter({ baPos, baDragging, onBaMove }: {
+  baPos: number; baDragging: React.MutableRefObject<boolean>; onBaMove: (x: number, rect: DOMRect) => void;
 }) {
   const ref = useRef<HTMLDivElement>(null);
   return (
@@ -1147,6 +1238,9 @@ function Footer({ scrollTo }: { scrollTo: (id: string) => void }) {
               </div>
             </div>
             <p className="text-white/60 text-sm leading-relaxed">Color that inspires. Protection that lasts.</p>
+            <div className="flex gap-2 mt-5">
+              {[Instagram, Facebook, Linkedin].map((Social, index) => <a key={index} href="#top" aria-label="Mathulac social profile" className="w-9 h-9 grid place-items-center rounded-full border border-white/15 text-white/70 hover:text-white hover:border-magenta hover:bg-magenta/20 transition-colors"><Social className="w-4 h-4" /></a>)}
+            </div>
           </div>
           <div>
             <h4 className="text-white font-bold mb-4 text-sm uppercase tracking-wider">Quick Links</h4>
@@ -1184,7 +1278,7 @@ function Footer({ scrollTo }: { scrollTo: (id: string) => void }) {
         </div>
         <div className="pt-8 border-t border-white/10 flex flex-col md:flex-row justify-between items-center gap-4">
           <div className="text-white/50 text-xs">© {new Date().getFullYear()} Visaka Paints & Chemicals India. All rights reserved.</div>
-          <div className="text-white/50 text-xs">Exceeds Expectation</div>
+          <div className="flex items-center gap-2 text-[10px] text-white/60 font-bold uppercase tracking-wider"><span className="rounded-full border border-cyan/50 px-2 py-1 text-cyan">Quality assured</span><span className="rounded-full border border-leaf/50 px-2 py-1 text-leaf">ISO process</span></div>
         </div>
       </div>
     </footer>

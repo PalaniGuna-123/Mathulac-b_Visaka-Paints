@@ -264,12 +264,32 @@ export const roomColors = [
 ];
 
 export const navItems = [
-  { id: 'about', label: 'About' },
-  { id: 'products', label: 'Products' },
+  { id: 'top', label: 'Home' },
   { id: 'spaces', label: 'Spaces' },
   { id: 'auto', label: 'Auto' },
   { id: 'wood', label: 'Wood' },
   { id: 'decor', label: 'Decor' },
-  { id: 'services', label: 'Services' },
+  { id: 'products', label: 'Products' },
   { id: 'contact', label: 'Contact' },
+];
+
+export type Product = {
+  id: string;
+  name: string;
+  category: 'Interior' | 'Exterior' | 'Wood' | 'Metal' | 'Decorative' | 'Automotive';
+  description: string;
+  benefits: string[];
+  finish: string;
+  surfaces: string;
+  color: string;
+  image: string;
+};
+
+export const featuredProducts: Product[] = [
+  { id: 'velvet-matt', name: 'Velvet Matt Emulsion', category: 'Interior', description: 'A velvety, low-sheen interior coat with a rich depth of colour and everyday stain resistance.', benefits: ['Washable finish', 'Low odour', 'Deep colour retention'], finish: 'Luxury Matt', surfaces: 'Interior walls & ceilings', color: '#E6007E', image: 'https://images.pexels.com/photos/8146318/pexels-photo-8146318.jpeg?auto=compress&cs=tinysrgb&w=900' },
+  { id: 'weather-shield', name: 'Weather Shield+', category: 'Exterior', description: 'A resilient exterior shield engineered for intense sun, heavy rain and humid tropical conditions.', benefits: ['UV defence', 'Anti-algal', 'Crack bridging'], finish: 'Soft Sheen', surfaces: 'Exterior masonry', color: '#00C8FF', image: 'https://images.pexels.com/photos/30667883/pexels-photo-30667883.jpeg?auto=compress&cs=tinysrgb&w=900' },
+  { id: 'grain-lustre', name: 'Grain Lustre PU', category: 'Wood', description: 'A premium clear wood system that brings out character while guarding natural grain.', benefits: ['Hard wearing', 'Grain enhancing', 'Moisture resistant'], finish: 'Satin', surfaces: 'Furniture, doors & panels', color: '#B45309', image: 'https://images.pexels.com/photos/4705928/pexels-photo-4705928.jpeg?auto=compress&cs=tinysrgb&w=900' },
+  { id: 'ironclad', name: 'Ironclad Enamel', category: 'Metal', description: 'A high-build enamel made for clean coverage, high gloss and long service on metal.', benefits: ['Rust protection', 'High coverage', 'Fast drying'], finish: 'High Gloss', surfaces: 'Gates, grills & machinery', color: '#146BFF', image: 'https://images.pexels.com/photos/17977773/pexels-photo-17977773.jpeg?auto=compress&cs=tinysrgb&w=900' },
+  { id: 'artisan-stucco', name: 'Artisan Stucco', category: 'Decorative', description: 'A tactile decorative finish for feature walls that deserve a little theatre.', benefits: ['Handcrafted texture', 'Layerable depth', 'Designer finish'], finish: 'Textured', surfaces: 'Interior feature walls', color: '#7B2CFF', image: 'https://images.pexels.com/photos/271805/pexels-photo-271805.jpeg?auto=compress&cs=tinysrgb&w=900' },
+  { id: 'mirror-clear', name: 'Mirror Clear Coat', category: 'Automotive', description: 'A showroom-grade clearcoat designed for brilliant depth, protection and polish.', benefits: ['Mirror clarity', 'UV resistant', 'Polishable'], finish: 'Ultra Gloss', surfaces: 'Automotive panels', color: '#F51B24', image: 'https://images.pexels.com/photos/34042808/pexels-photo-34042808.jpeg?auto=compress&cs=tinysrgb&w=900' },
 ];
