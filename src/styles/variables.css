@@ -1,0 +1,57 @@
+:root {
+  /* ==========================================================================
+     Mathulac Design System — Global Color Tokens
+     ========================================================================== */
+  
+  /* Primary Brand Vibrants */
+  --color-magenta: #E6007E;
+  --color-magenta-rgb: 230, 0, 126;
+  --color-hotpink: #FF1493;
+  --color-hotpink-rgb: 255, 20, 147;
+  --color-electric: #146BFF;
+  --color-electric-rgb: 20, 107, 255;
+  --color-cyan: #00C8FF;
+  --color-cyan-rgb: 0, 200, 255;
+  --color-leaf: #67D600;
+  --color-leaf-rgb: 103, 214, 0;
+  --color-sun: #FFD400;
+  --color-sun-rgb: 255, 212, 0;
+  --color-flame: #FF7A00;
+  --color-flame-rgb: 255, 122, 0;
+  --color-ember: #F51B24;
+  --color-ember-rgb: 245, 27, 36;
+  --color-violet: #7B2CFF;
+  --color-violet-rgb: 123, 44, 255;
+
+  /* Surfaces & Dark Neutral Tones */
+  --color-ink: #0B1020;
+  --color-ink-rgb: 11, 16, 32;
+  --color-midnight: #131A31;
+  --color-midnight-rgb: 19, 26, 49;
+  --color-surface-dark: #1A0B2E;
+  --color-surface-deep: #0A1525;
+  --color-cream: #FFF8F1;
+  --color-cream-rgb: 255, 248, 241;
+
+  /* Light Studio Tokens */
+  --color-studio-bg: #FFF8F0;
+  --color-studio-text: #252033;
+  --color-studio-muted: #655D6C;
+  --color-studio-card: rgba(255, 255, 255, 0.78);
+  --color-studio-border: rgba(78, 55, 80, 0.12);
+
+  /* Legacy aliases for seamless compatibility */
+  --ink: var(--color-ink);
+  --cream: var(--color-cream);
+
+  /* Typography Tokens */
+  --font-display: "DM Serif Display", Georgia, serif;
+  --font-sans: "Manrope", Inter, system-ui, -apple-system, sans-serif;
+  --font-body: "Inter", system-ui, -apple-system, sans-serif;
+
+  /* Elevation & Shadows */
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.15);
+  --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.25);
+  --shadow-lg: 0 16px 40px rgba(0, 0, 0, 0.35);
+  --shadow-glow: 0 0 35px rgba(230, 0, 126, 0.35);
+}
