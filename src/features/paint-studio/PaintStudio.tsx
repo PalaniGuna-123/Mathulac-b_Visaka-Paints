@@ -2,8 +2,6 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import gsap from 'gsap';
 import {
   Check,
-  ChevronLeft,
-  ChevronRight,
   Heart,
   Search,
   Share2,
@@ -16,12 +14,21 @@ import {
   Image as ImageIcon,
   Palette,
   RotateCcw,
-  Sliders,
   Info,
   Loader2,
+  Filter,
+  CheckCircle2,
 } from 'lucide-react';
-import { paintShades, roomScenes, familySwatches, colorFamilies, type PaintShade } from '../../data';
-import { Link } from '../../routes/Router';
+import {
+  paintShades,
+  familySwatches,
+  colorFamilies,
+  visualizationScenes,
+  sceneCategoryTabs,
+  type PaintShade,
+  type VisualizationScene,
+} from '../../data';
+import { Link, useNavigate } from '../../routes/Router';
 import {
   renderPaintedRoomCanvas,
   getComplementaryPalette,
@@ -39,21 +46,33 @@ interface PaintStudioProps {
 }
 
 export function PaintStudio({ scrollTo, initialShadeId }: PaintStudioProps) {
-  const defaultShade = useMemo(() => {
-    if (initialShadeId) {
-      const found = paintShades.find((s) => s.id === initialShadeId || s.code === initialShadeId);
-      if (found) return found;
-    }
-    return paintShades[0]; // Warm Beige MB-101
+  const navigate = useNavigate();
+
+  // URL Query Param state resolution e.g. /studio?shade=MB-101
+  const queryShadeId = useMemo(() => {
+    if (typeof window === 'undefined') return null;
+    const params = new URLSearchParams(window.location.search);
+    return params.get('shade') || initialShadeId || null;
   }, [initialShadeId]);
 
+  const defaultShade = useMemo(() => {
+    if (queryShadeId) {
+      const found = paintShades.find(
+        (s) => s.id.toUpperCase() === queryShadeId.toUpperCase() || s.code.toUpperCase() === queryShadeId.toUpperCase()
+      );
+      if (found) return found;
+    }
+    return paintShades[0]; // Default: Warm Beige MB-101
+  }, [queryShadeId]);
+
   const [shade, setShade] = useState<PaintShade>(defaultShade);
-  const [roomIndex, setRoomIndex] = useState(0);
+  const [activeScene, setActiveScene] = useState<VisualizationScene>(visualizationScenes[0]); // Default: Living Room
+  const [selectedSceneTab, setSelectedSceneTab] = useState<string>('ALL');
+
   const [family, setFamily] = useState<string>('ALL');
   const [query, setQuery] = useState('');
   const [lighting, setLighting] = useState<LightingMode>('Natural');
   const [finish, setFinish] = useState<FinishMode>('Matte');
-  const [before, setBefore] = useState(50);
   const [favourites, setFavourites] = useState<string[]>([]);
   const [showFavourites, setShowFavourites] = useState(false);
   const [toast, setToast] = useState('');
@@ -66,12 +85,14 @@ export function PaintStudio({ scrollTo, initialShadeId }: PaintStudioProps) {
   const [segmentInfo, setSegmentInfo] = useState<string | null>(null);
 
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
-  const beforeCanvasRef = useRef<HTMLCanvasElement | null>(null);
   const paletteRef = useRef<HTMLDivElement | null>(null);
+  const scenesGridRef = useRef<HTMLDivElement | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
-  const dragging = useRef(false);
 
-  const currentRoom = roomScenes[roomIndex];
+  // Sync initial URL shade change
+  useEffect(() => {
+    if (defaultShade) setShade(defaultShade);
+  }, [defaultShade]);
 
   // Load Favourites from localStorage
   useEffect(() => {
@@ -99,12 +120,12 @@ export function PaintStudio({ scrollTo, initialShadeId }: PaintStudioProps) {
     return () => clearTimeout(timer);
   }, [toast]);
 
-  // Animate Swatch Grid Changes
+  // Animate Scene Grid Changes
   useEffect(() => {
-    const cards = paletteRef.current?.querySelectorAll('.studio-palette-card');
+    const cards = scenesGridRef.current?.querySelectorAll('.scene-card');
     if (!cards || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-    gsap.fromTo(cards, { opacity: 0, y: 12 }, { opacity: 1, y: 0, stagger: 0.03, duration: 0.35, ease: 'power2.out', overwrite: true });
-  }, [family, query]);
+    gsap.fromTo(cards, { opacity: 0, scale: 0.95 }, { opacity: 1, scale: 1, stagger: 0.02, duration: 0.3, ease: 'power2.out', overwrite: true });
+  }, [selectedSceneTab]);
 
   // Main Photorealistic Wall Canvas Render Loop
   const renderCanvas = useCallback(() => {
@@ -121,49 +142,25 @@ export function PaintStudio({ scrollTo, initialShadeId }: PaintStudioProps) {
         lighting,
       });
     } else {
-      // Render selected preset room scene
+      // Render selected preset scene
       const img = new Image();
       img.crossOrigin = 'anonymous';
-      img.src = currentRoom.image;
+      img.src = activeScene.image;
       img.onload = () => {
         renderPaintedRoomCanvas(canvas, {
           image: img,
-          maskPolygon: currentRoom.mask,
+          maskPolygon: activeScene.mask,
           hex: shade.hex,
           finish,
           lighting,
         });
       };
     }
-  }, [userImage, userMaskCanvas, shade.hex, finish, lighting, currentRoom]);
-
-  // Render Before (Original) Canvas for Comparison
-  const renderBeforeCanvas = useCallback(() => {
-    const beforeCanvas = beforeCanvasRef.current;
-    if (!beforeCanvas) return;
-    const ctx = beforeCanvas.getContext('2d');
-    if (!ctx) return;
-
-    if (userImage) {
-      beforeCanvas.width = userImage.naturalWidth || 1600;
-      beforeCanvas.height = userImage.naturalHeight || 1000;
-      ctx.drawImage(userImage, 0, 0, beforeCanvas.width, beforeCanvas.height);
-    } else {
-      const img = new Image();
-      img.crossOrigin = 'anonymous';
-      img.src = currentRoom.image;
-      img.onload = () => {
-        beforeCanvas.width = img.naturalWidth || 1600;
-        beforeCanvas.height = img.naturalHeight || 1000;
-        ctx.drawImage(img, 0, 0, beforeCanvas.width, beforeCanvas.height);
-      };
-    }
-  }, [userImage, currentRoom]);
+  }, [userImage, userMaskCanvas, shade.hex, finish, lighting, activeScene]);
 
   useEffect(() => {
     renderCanvas();
-    renderBeforeCanvas();
-  }, [renderCanvas, renderBeforeCanvas]);
+  }, [renderCanvas]);
 
   // Handle User File Upload
   const processUploadedFile = (file: File) => {
@@ -182,7 +179,7 @@ export function PaintStudio({ scrollTo, initialShadeId }: PaintStudioProps) {
         setUserMaskCanvas(seg.maskCanvas);
         setSegmentInfo(seg.message);
         setIsUploading(false);
-        setToast('Your room was loaded! Apply Visaka shades live below.');
+        setToast('Your room photo was loaded! Apply Visaka shades live below.');
       };
       img.src = e.target?.result as string;
     };
@@ -209,6 +206,14 @@ export function PaintStudio({ scrollTo, initialShadeId }: PaintStudioProps) {
     setSegmentInfo(null);
     setToast('Reset to default room scenes');
   };
+
+  // Filter Scenes by Category
+  const filteredScenes = useMemo(() => {
+    if (selectedSceneTab === 'ALL') return visualizationScenes;
+    return visualizationScenes.filter(
+      (s) => s.category === selectedSceneTab || s.subCategory === selectedSceneTab
+    );
+  }, [selectedSceneTab]);
 
   // Filter Shades
   const filteredShades = useMemo(() => {
@@ -243,10 +248,6 @@ export function PaintStudio({ scrollTo, initialShadeId }: PaintStudioProps) {
     });
   };
 
-  const updateBeforeSlider = useCallback((clientX: number, rect: DOMRect) => {
-    setBefore(Math.max(5, Math.min(95, ((clientX - rect.left) / rect.width) * 100)));
-  }, []);
-
   const shareShade = async () => {
     const shareText = `VISAKA MATHULAC — ${shade.name} (${shade.id}) | ${shade.family} Collection`;
     if (navigator.share) {
@@ -269,7 +270,7 @@ export function PaintStudio({ scrollTo, initialShadeId }: PaintStudioProps) {
   };
 
   return (
-    <section id="studio" className="studio-shell relative py-16 md:py-28 px-4 md:px-8 overflow-hidden">
+    <section id="studio" className="studio-shell relative py-16 md:py-24 px-4 md:px-8 overflow-hidden">
       {/* Animated Liquid Paint Background */}
       <div className="liquid-paint-bg">
         <div className="liquid-paint-blob liquid-paint-blob-1" />
@@ -286,7 +287,7 @@ export function PaintStudio({ scrollTo, initialShadeId }: PaintStudioProps) {
           See Your Space in a <em>New Colour.</em>
         </h2>
         <p className="mx-auto">
-          Explore thousands of VISAKA shades and experience how they transform your walls in real time with true ambient lighting, realistic surface finishes, and instant custom photo upload.
+          Explore thousands of VISAKA shades and experience how they transform your walls, facades, wood, and automotive surfaces in real time.
         </p>
 
         <div className="studio-hero-ctas">
@@ -299,15 +300,18 @@ export function PaintStudio({ scrollTo, initialShadeId }: PaintStudioProps) {
             <Palette className="w-4 h-4" /> Start Visualizing
           </button>
 
-          <Link to="/colours" className="studio-secondary">
+          <button
+            onClick={() => navigate('/colours')}
+            className="studio-secondary cursor-pointer"
+          >
             Explore Shade Library <ArrowRight className="w-4 h-4" />
-          </Link>
+          </button>
         </div>
       </div>
 
       {/* MAIN VISUALIZER WORKSPACE */}
       <div id="main-visualizer" className="max-w-[1400px] mx-auto mt-14 studio-grid">
-        {/* Left Column: Photorealistic Canvas Room & Controls */}
+        {/* Left Column: Photorealistic Canvas Room & 25+ Scene Selector */}
         <div className="space-y-5">
           <div className="studio-visual-card">
             {/* Photorealistic Canvas Frame */}
@@ -317,7 +321,7 @@ export function PaintStudio({ scrollTo, initialShadeId }: PaintStudioProps) {
               {isUploading && (
                 <div className="absolute inset-0 bg-black/60 backdrop-blur-sm z-20 flex items-center justify-center text-white gap-3">
                   <Loader2 className="w-6 h-6 animate-spin text-magenta" />
-                  <span className="text-sm font-bold">Analyzing wall surfaces...</span>
+                  <span className="text-sm font-bold">Analyzing surface contours...</span>
                 </div>
               )}
 
@@ -325,7 +329,7 @@ export function PaintStudio({ scrollTo, initialShadeId }: PaintStudioProps) {
               <div className="studio-room-toolbar">
                 <span className="flex items-center">
                   <span className="studio-live-dot" />
-                  {userImage ? 'Uploaded Custom Photo' : currentRoom.name}
+                  {userImage ? 'Uploaded Custom Photo' : activeScene.name}
                 </span>
                 <div className="flex items-center gap-2">
                   <span className="bg-black/50 px-3 py-1 rounded-full backdrop-blur-md border border-white/10">
@@ -355,29 +359,84 @@ export function PaintStudio({ scrollTo, initialShadeId }: PaintStudioProps) {
               )}
             </div>
 
-            {/* Room Selector Strip & Photo Upload Button */}
-            <div className="mt-4 flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3">
-              <div className="flex-1">
-                <span className="studio-room-selector-label">Select Default Room Scene</span>
-                <div className="studio-room-strip no-scrollbar">
-                  {roomScenes.map((item, idx) => (
+            {/* CATEGORY-BASED SCENE NAVIGATION & 25+ SCENE CARDS */}
+            <div className="mt-5 space-y-3">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-extrabold uppercase tracking-widest text-[#252033] flex items-center gap-1.5">
+                  <Filter className="w-3.5 h-3.5 text-[#d43b7a]" /> Select Visualization Scene ({filteredScenes.length})
+                </span>
+                <span className="text-xs text-black/50">{activeScene.name} Selected</span>
+              </div>
+
+              {/* Category Filter Pills */}
+              <div className="flex gap-2 overflow-x-auto no-scrollbar pb-1">
+                {sceneCategoryTabs.map((tab) => (
+                  <button
+                    key={tab.id}
+                    onClick={() => setSelectedSceneTab(tab.id)}
+                    className={`px-3.5 py-1.5 rounded-full text-[11px] font-bold uppercase tracking-wider transition-all whitespace-nowrap cursor-pointer ${
+                      selectedSceneTab === tab.id
+                        ? 'bg-[#272037] text-white shadow-md'
+                        : 'bg-white/70 text-[#5c5364] hover:bg-white hover:text-[#272037] border border-black/5'
+                    }`}
+                  >
+                    {tab.label}
+                  </button>
+                ))}
+              </div>
+
+              {/* Scene Cards Grid */}
+              <div ref={scenesGridRef} className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-6 gap-2.5 max-h-64 overflow-y-auto no-scrollbar p-1">
+                {filteredScenes.map((scene) => {
+                  const isSelected = !userImage && activeScene.id === scene.id;
+                  return (
                     <button
-                      key={item.id}
+                      key={scene.id}
                       onClick={() => {
                         setUserImage(null);
-                        setRoomIndex(idx);
+                        setActiveScene(scene);
                       }}
-                      className={!userImage && idx === roomIndex ? 'is-active cursor-pointer' : 'cursor-pointer'}
-                      aria-label={`Switch to ${item.name}`}
+                      className={`scene-card group relative aspect-[4/3] rounded-xl overflow-hidden border-2 text-left transition-all cursor-pointer ${
+                        isSelected ? 'border-[#d43b7a] shadow-lg scale-[1.02]' : 'border-transparent hover:scale-105'
+                      }`}
                     >
-                      <img src={item.image} alt={item.name} />
-                      <span>{item.name}</span>
+                      <img src={scene.image} alt={scene.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300" />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+                      <span className="absolute bottom-1.5 left-1.5 right-1.5 text-[10px] font-bold text-white leading-tight drop-shadow-md">
+                        {scene.name}
+                      </span>
+                      {isSelected && (
+                        <span className="absolute top-1.5 right-1.5 bg-[#d43b7a] text-white p-0.5 rounded-full shadow">
+                          <CheckCircle2 className="w-3 h-3" />
+                        </span>
+                      )}
                     </button>
-                  ))}
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Photo Upload Trigger & Drag-and-Drop */}
+            <div className="mt-4 flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3 pt-3 border-t border-black/10">
+              <div className="flex-1">
+                <div
+                  onDragOver={(e) => {
+                    e.preventDefault();
+                    setUploadDragOver(true);
+                  }}
+                  onDragLeave={() => setUploadDragOver(false)}
+                  onDrop={handleDrop}
+                  className={`upload-drop-zone ${uploadDragOver ? 'is-dragging' : ''}`}
+                >
+                  <div className="flex items-center justify-center gap-3 text-xs text-[#6d6471]">
+                    <ImageIcon className="w-4 h-4 text-[#d43b7a]" />
+                    <span>
+                      <strong>Drag & drop your room/surface photo here</strong> (JPG, PNG, WEBP)
+                    </span>
+                  </div>
                 </div>
               </div>
 
-              {/* Upload Button Trigger */}
               <div className="flex-shrink-0">
                 <input
                   ref={fileInputRef}
@@ -390,26 +449,8 @@ export function PaintStudio({ scrollTo, initialShadeId }: PaintStudioProps) {
                   onClick={() => fileInputRef.current?.click()}
                   className="w-full md:w-auto px-5 py-3 rounded-xl bg-gradient-to-r from-magenta to-violet text-white font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 shadow-lg hover:opacity-95 transition-opacity cursor-pointer"
                 >
-                  <Upload className="w-4 h-4" /> + Upload Your Room
+                  <Upload className="w-4 h-4" /> + Upload Custom Photo
                 </button>
-              </div>
-            </div>
-
-            {/* Drag & Drop Zone when Dragging File */}
-            <div
-              onDragOver={(e) => {
-                e.preventDefault();
-                setUploadDragOver(true);
-              }}
-              onDragLeave={() => setUploadDragOver(false)}
-              onDrop={handleDrop}
-              className={`upload-drop-zone mt-3 ${uploadDragOver ? 'is-dragging' : ''}`}
-            >
-              <div className="flex items-center justify-center gap-3 text-xs text-[#6d6471]">
-                <ImageIcon className="w-4 h-4 text-[#d43b7a]" />
-                <span>
-                  <strong>Drag & drop your room photo here</strong> (JPG, PNG, WEBP) to test Visaka colours on your real wall.
-                </span>
               </div>
             </div>
 
@@ -420,56 +461,6 @@ export function PaintStudio({ scrollTo, initialShadeId }: PaintStudioProps) {
                 <span>{segmentInfo}</span>
               </div>
             )}
-          </div>
-
-          {/* Interactive Before / After Split Comparison */}
-          <div className="studio-visual-card p-5">
-            <div className="studio-compare-label flex items-center justify-between">
-              <span className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-[#252033]">
-                <Sliders className="w-4 h-4 text-[#d43b7a]" /> Wall Transformation Comparison
-              </span>
-              <span className="text-xs text-black/50 font-normal">Drag handle left/right</span>
-            </div>
-
-            <div
-              className="studio-compare-image cursor-ew-resize select-none relative h-44 rounded-xl overflow-hidden shadow-inner"
-              onMouseDown={(e) => {
-                dragging.current = true;
-                updateBeforeSlider(e.clientX, e.currentTarget.getBoundingClientRect());
-              }}
-              onMouseMove={(e) => {
-                if (dragging.current) updateBeforeSlider(e.clientX, e.currentTarget.getBoundingClientRect());
-              }}
-              onMouseUp={() => {
-                dragging.current = false;
-              }}
-              onTouchStart={(e) => {
-                dragging.current = true;
-                updateBeforeSlider(e.touches[0].clientX, e.currentTarget.getBoundingClientRect());
-              }}
-              onTouchMove={(e) => {
-                if (dragging.current) updateBeforeSlider(e.touches[0].clientX, e.currentTarget.getBoundingClientRect());
-              }}
-              onTouchEnd={() => {
-                dragging.current = false;
-              }}
-            >
-              {/* Original Unpainted Canvas */}
-              <canvas ref={beforeCanvasRef} className="absolute inset-0 w-full h-full object-cover" />
-              <div className="studio-before-label">Original Wall</div>
-
-              {/* Painted Split Canvas Container */}
-              <div className="studio-compare-after" style={{ width: `${100 - before}%` }}>
-                <div style={{ backgroundColor: shade.hex, height: '100%', width: '100%', opacity: 0.85 }} />
-                <div className="studio-after-label">VISAKA {shade.name}</div>
-              </div>
-
-              {/* Draggable Handle */}
-              <div className="studio-compare-handle" style={{ left: `${before}%` }}>
-                <ChevronLeft className="w-3.5 h-3.5 -mr-1 text-[#252033]" />
-                <ChevronRight className="w-3.5 h-3.5 -ml-1 text-[#252033]" />
-              </div>
-            </div>
           </div>
         </div>
 
@@ -677,12 +668,12 @@ export function PaintStudio({ scrollTo, initialShadeId }: PaintStudioProps) {
             </div>
 
             <div className="mt-4 text-center">
-              <Link
-                to="/colours"
-                className="text-xs font-extrabold uppercase tracking-widest text-[#d43b7a] hover:underline inline-flex items-center gap-1"
+              <button
+                onClick={() => navigate('/colours')}
+                className="text-xs font-extrabold uppercase tracking-widest text-[#d43b7a] hover:underline inline-flex items-center gap-1 cursor-pointer"
               >
                 OPEN FULL 1,000+ SHADE LIBRARY <ArrowRight className="w-3.5 h-3.5" />
-              </Link>
+              </button>
             </div>
           </div>
         </div>
