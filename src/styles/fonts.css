@@ -1,0 +1,46 @@
+/* ==========================================================================
+   Mathulac Design System — Typography & Font Declarations
+   ========================================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Inter:wght@300;400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap');
+
+/* Typography Utility Classes */
+.font-display {
+  font-family: var(--font-display);
+}
+
+.font-sans {
+  font-family: var(--font-sans);
+}
+
+.font-body {
+  font-family: var(--font-body);
+}
+
+/* Fluid Heading Styles */
+.heading-hero {
+  font-family: var(--font-display);
+  font-size: clamp(2.75rem, 7.5vw, 6.5rem);
+  line-height: 0.94;
+  letter-spacing: -0.035em;
+}
+
+.heading-section {
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 5vw, 4rem);
+  line-height: 1.05;
+  letter-spacing: -0.025em;
+}
+
+.heading-sub {
+  font-family: var(--font-display);
+  font-size: clamp(1.5rem, 3.5vw, 2.5rem);
+  line-height: 1.15;
+}
+
+.eyebrow {
+  font-size: 0.75rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+}

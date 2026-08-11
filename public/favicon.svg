@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
+  <defs>
+    <linearGradient id="mathulac-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#E6007E" />
+      <stop offset="50%" stop-color="#FF7A00" />
+      <stop offset="100%" stop-color="#7B2CFF" />
+    </linearGradient>
+  </defs>
+  <rect width="64" height="64" rx="16" fill="#0B1020" />
+  <path d="M32 10 C32 10 16 28 16 40 C16 48.8 23.2 56 32 56 C40.8 56 48 48.8 48 40 C48 28 32 10 32 10 Z" fill="url(#mathulac-grad)" />
+  <circle cx="28" cy="34" r="3" fill="#ffffff" opacity="0.6" />
+</svg>
