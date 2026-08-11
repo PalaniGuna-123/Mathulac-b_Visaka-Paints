@@ -120,8 +120,8 @@ export interface RouteProps {
   element: React.ReactNode;
 }
 
-export function Route(_props: RouteProps): React.ReactElement | null {
-  return null;
+export function Route({ element }: RouteProps): React.ReactElement | null {
+  return (element as React.ReactElement) || null;
 }
 
 export function Routes({ children }: { children: React.ReactNode }): React.ReactElement | null {

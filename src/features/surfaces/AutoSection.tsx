@@ -1,4 +1,4 @@
-import { ArrowRight, ShieldCheck, Zap } from 'lucide-react';
+import { ArrowRight, Zap } from 'lucide-react';
 import { Link } from '../../routes/Router';
 
 export function AutoSection() {
