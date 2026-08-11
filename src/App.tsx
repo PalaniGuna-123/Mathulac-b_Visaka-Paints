@@ -2,26 +2,25 @@ import { useEffect, useRef, useState, useCallback } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import {
-  ArrowRight, Phone, MapPin, Menu, X, ChevronRight, Sparkles, Check, Instagram, Facebook, Linkedin,
+  ArrowRight, Phone, MapPin, X, ChevronRight, Sparkles, Check, Instagram, Facebook, Linkedin,
 } from 'lucide-react';
 import {
-  categories, services, palette, heroSlides, surfaces, companyFacts,
-  trustPillars, timeline, roomColors, navItems, featuredProducts, type Product,
+  categories, services, palette, surfaces, companyFacts,
+  trustPillars, timeline, navItems, featuredProducts, phoneNumbers, type Product,
 } from '@/data';
+import { PaintStudio } from '@/PaintStudio';
+import Navbar from '@/Navbar';
+import Hero from '@/Hero';
+import brandImg from '../assets/brand.jpeg';
+import colourFan from '../assets/colours.jpeg';
 
 gsap.registerPlugin(ScrollTrigger);
 
-const phoneNumbers = ['+91 93631 14343', '+91 96009 09066'];
-
 export default function App() {
-  const [activeSlide, setActiveSlide] = useState(0);
   const [activeCategory, setActiveCategory] = useState(0);
   const [productFilter, setProductFilter] = useState('All');
   const [activeProduct, setActiveProduct] = useState<Product | null>(null);
-  const [activeColor, setActiveColor] = useState(palette[0]);
-  const [menuOpen, setMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-  const [roomColor, setRoomColor] = useState(roomColors[0]);
   const [baPos, setBaPos] = useState(50);
   const baDragging = useRef(false);
   const cursorRef = useRef<HTMLDivElement>(null);
@@ -76,12 +75,6 @@ export default function App() {
     };
     document.addEventListener('mouseover', onOver);
     return () => document.removeEventListener('mouseover', onOver);
-  }, []);
-
-  // Hero autoplay
-  useEffect(() => {
-    const id = setInterval(() => setActiveSlide((s) => (s + 1) % heroSlides.length), 6000);
-    return () => clearInterval(id);
   }, []);
 
   // GSAP scroll reveals
@@ -152,7 +145,6 @@ export default function App() {
   }, []);
 
   const scrollTo = (id: string) => {
-    setMenuOpen(false);
     document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
   };
 
@@ -166,17 +158,11 @@ export default function App() {
       <div ref={cursorRef} className="cursor-dot" />
       <div ref={ringRef} className="cursor-ring" />
 
-      <Header scrolled={scrolled} menuOpen={menuOpen} setMenuOpen={setMenuOpen} scrollTo={scrollTo} />
+      <Navbar scrolled={scrolled} scrollTo={scrollTo} />
 
-      <Hero
-        activeSlide={activeSlide}
-        setActiveSlide={setActiveSlide}
-        scrollTo={scrollTo}
-      />
+      <Hero scrollTo={scrollTo} />
 
-      <PaintYourWorld roomColor={roomColor} setRoomColor={setRoomColor} />
-
-      <ColorVisualizer activeColor={activeColor} setActiveColor={setActiveColor} />
+      <PaintStudio scrollTo={scrollTo} />
 
       <ProductShowcase
         activeCategory={activeCategory}
@@ -211,374 +197,8 @@ export default function App() {
 
       <Footer scrollTo={scrollTo} />
 
-      {menuOpen && <MobileMenu scrollTo={scrollTo} />}
       {activeProduct && <ProductModal product={activeProduct} onClose={() => setActiveProduct(null)} scrollTo={scrollTo} />}
     </div>
-  );
-}
-
-/* ---------- Header ---------- */
-function Header({ scrolled, menuOpen, setMenuOpen, scrollTo }: {
-  scrolled: boolean; menuOpen: boolean; setMenuOpen: (v: boolean) => void; scrollTo: (id: string) => void;
-}) {
-  return (
-    <>
-      <header
-        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
-          scrolled ? 'glass shadow-lg shadow-black/20' : 'bg-transparent'
-        }`}
-      >
-        <div className="max-w-[1400px] mx-auto px-5 md:px-8 h-16 md:h-20 flex items-center justify-between">
-          <button onClick={() => scrollTo('top')} className="flex items-center gap-3" data-cursor="home">
-            <div className="w-9 h-9 md:w-11 md:h-11 rounded-full bg-gradient-to-br from-magenta via-flame to-sun flex items-center justify-center font-display text-white text-lg md:text-xl shadow-lg shadow-magenta/40">
-              M
-            </div>
-            <div className="text-left leading-tight">
-              <div className="font-display text-lg md:text-xl text-white">Mathulac</div>
-              <div className="text-[9px] md:text-[10px] tracking-[0.2em] uppercase text-white/60">by Visaka Paints</div>
-            </div>
-          </button>
-
-          <nav className="hidden lg:flex items-center gap-7">
-            {navItems.map((n) => (
-              <button
-                key={n.id}
-                onClick={() => scrollTo(n.id)}
-                className="brush-underline text-sm font-semibold text-white/80 hover:text-white transition-colors"
-              >
-                {n.label}
-              </button>
-            ))}
-          </nav>
-
-          <div className="flex items-center gap-3">
-            <div className="hidden md:flex items-center gap-2 text-white/90">
-              <Phone className="w-4 h-4 text-magenta" />
-              <a href={`tel:${phoneNumbers[0].replace(/\s/g, '')}`} className="text-sm font-semibold hover:text-magenta transition-colors">
-                {phoneNumbers[0]}
-              </a>
-            </div>
-            <button
-              onClick={() => setMenuOpen(!menuOpen)}
-              className="lg:hidden w-10 h-10 flex items-center justify-center text-white"
-              aria-label="Menu"
-            >
-              {menuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-            </button>
-          </div>
-        </div>
-      </header>
-      {menuOpen && <div className="fixed inset-0 z-40 bg-ink/80 lg:hidden" onClick={() => setMenuOpen(false)} />}
-    </>
-  );
-}
-
-function MobileMenu({ scrollTo }: { scrollTo: (id: string) => void }) {
-  return (
-    <div className="fixed top-16 left-0 right-0 z-50 lg:hidden glass border-t border-white/10 p-5">
-      <div className="flex flex-col gap-1">
-        {navItems.map((n) => (
-          <button
-            key={n.id}
-            onClick={() => scrollTo(n.id)}
-            className="text-left py-3 px-4 rounded-xl text-white font-semibold hover:bg-white/10 transition-colors"
-          >
-            {n.label}
-          </button>
-        ))}
-        <div className="mt-3 pt-3 border-t border-white/10 flex flex-col gap-2 text-white/90">
-          {phoneNumbers.map((p) => (
-            <a key={p} href={`tel:${p.replace(/\s/g, '')}`} className="flex items-center gap-2 py-2">
-              <Phone className="w-4 h-4 text-magenta" /> {p}
-            </a>
-          ))}
-        </div>
-      </div>
-    </div>
-  );
-}
-
-/* ---------- Hero ---------- */
-function Hero({ activeSlide, setActiveSlide, scrollTo }: {
-  activeSlide: number; setActiveSlide: React.Dispatch<React.SetStateAction<number>>; scrollTo: (id: string) => void;
-}) {
-  const slide = heroSlides[activeSlide];
-  const titleRef = useRef<HTMLDivElement>(null);
-  const dragStart = useRef<number | null>(null);
-
-  useEffect(() => {
-    if (!titleRef.current) return;
-    gsap.fromTo(titleRef.current,
-      { opacity: 0, y: 30, clipPath: 'inset(0 0 100% 0)' },
-      { opacity: 1, y: 0, clipPath: 'inset(0 0 0% 0)', duration: 0.9, ease: 'power3.out' }
-    );
-  }, [activeSlide]);
-
-  const go = (dir: number) => {
-    setActiveSlide((s) => (s + dir + heroSlides.length) % heroSlides.length);
-  };
-
-  return (
-    <section id="top" className="relative h-screen min-h-[700px] w-full overflow-hidden" onPointerDown={(e) => { dragStart.current = e.clientX; }} onPointerUp={(e) => { if (dragStart.current === null) return; const delta = e.clientX - dragStart.current; if (Math.abs(delta) > 48) go(delta > 0 ? -1 : 1); dragStart.current = null; }}>
-      {/* Slides */}
-      {heroSlides.map((s, i) => (
-        <div
-          key={s.id}
-          className="absolute inset-0 transition-opacity duration-1000"
-          style={{ opacity: i === activeSlide ? 1 : 0 }}
-        >
-          <div
-            className="absolute inset-0 bg-cover bg-center transition-transform duration-[2000ms] ease-out"
-            style={{
-              backgroundImage: `url(${s.image})`,
-              transform: i === activeSlide ? 'scale(1.08)' : 'scale(1)',
-            }}
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-ink via-ink/40 to-ink/30" />
-          <div
-            className="absolute inset-0 opacity-40 mix-blend-multiply"
-            style={{ background: `radial-gradient(circle at 70% 30%, ${s.accent}40, transparent 60%)` }}
-          />
-          <div className="paint-orb paint-orb-one" style={{ background: s.accent }} />
-          <div className="paint-orb paint-orb-two" style={{ background: '#FFD400' }} />
-        </div>
-      ))}
-
-      {/* Content */}
-      <div className="relative z-10 h-full max-w-[1400px] mx-auto px-5 md:px-8 flex flex-col justify-end pb-16 md:pb-24">
-        <div ref={titleRef} key={activeSlide}>
-          <div className="flex items-center gap-3 mb-5">
-            <span className="px-3 py-1 rounded-full text-xs font-bold uppercase tracking-widest text-white" style={{ background: slide.accent }}>
-              {slide.category}
-            </span>
-            <span className="text-white/70 text-sm font-mono">
-              {String(activeSlide + 1).padStart(2, '0')} / {String(heroSlides.length).padStart(2, '0')}
-            </span>
-          </div>
-          <h1 className="font-display text-[2.9rem] sm:text-6xl md:text-7xl lg:text-[6.8rem] leading-[0.91] text-white max-w-5xl tracking-[-0.045em]">
-            Transform your world.<br />
-            <span className="gradient-text">Protect your assets.</span><br />
-            Inspire with color.
-          </h1>
-          <p className="mt-6 text-base md:text-lg text-white/80 max-w-xl leading-relaxed">
-            {slide.description} Premium performance, expressive colour and protection that holds its ground—every day.
-          </p>
-          <div className="mt-8 flex flex-wrap gap-3">
-            <button
-              onClick={() => scrollTo('palette')}
-              data-cursor="explore"
-              className="group relative overflow-hidden px-6 py-3.5 rounded-xl bg-magenta text-white font-bold flex items-center gap-2 shadow-lg shadow-magenta/40"
-            >
-              <span className="relative z-10 flex items-center gap-2">
-                Explore Colors <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
-              </span>
-              <span className="absolute inset-0 bg-gradient-to-r from-flame to-sun translate-y-full group-hover:translate-y-0 transition-transform duration-500" />
-            </button>
-            <button
-              onClick={() => scrollTo('products')}
-              data-cursor="view"
-              className="group px-6 py-3.5 rounded-xl glass text-white font-bold flex items-center gap-2 hover:bg-white/15 transition-colors"
-            >
-              Explore Products <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
-            </button>
-          </div>
-        </div>
-      </div>
-
-      {/* Controls */}
-      <div className="absolute bottom-8 right-5 md:right-8 z-10 flex items-center gap-4">
-        <button onClick={() => go(-1)} className="w-10 h-10 rounded-full glass flex items-center justify-center text-white hover:bg-white/20" aria-label="Previous">
-          <ChevronRight className="w-5 h-5 rotate-180" />
-        </button>
-        <button onClick={() => go(1)} className="w-10 h-10 rounded-full glass flex items-center justify-center text-white hover:bg-white/20" aria-label="Next">
-          <ChevronRight className="w-5 h-5" />
-        </button>
-      </div>
-      {/* Progress dots */}
-      <div className="absolute bottom-8 left-5 md:left-8 z-10 hidden xl:flex gap-2">
-        {heroSlides.map((item, i) => (
-          <button key={item.id} onClick={() => setActiveSlide(i)} className={`hero-thumb ${i === activeSlide ? 'is-active' : ''}`} aria-label={`Show ${item.title}`}>
-            <img src={item.image} alt="" />
-            <span>{item.category}</span>
-          </button>
-        ))}
-      </div>
-      <div className="absolute bottom-10 left-1/2 -translate-x-1/2 z-10 flex gap-2 xl:hidden">
-        {heroSlides.map((_, i) => (
-          <button
-            key={i}
-            onClick={() => setActiveSlide(i)}
-            className="h-1.5 rounded-full transition-all duration-500"
-            style={{
-              width: i === activeSlide ? 40 : 14,
-              background: i === activeSlide ? slide.accent : 'rgba(255,255,255,0.4)',
-            }}
-            aria-label={`Slide ${i + 1}`}
-          />
-        ))}
-      </div>
-    </section>
-  );
-}
-
-/* ---------- Paint Your World ---------- */
-function PaintYourWorld({ roomColor, setRoomColor }: { roomColor: typeof roomColors[0]; setRoomColor: (c: typeof roomColors[0]) => void }) {
-  return (
-    <section id="spaces" className="relative py-24 md:py-32 px-5 md:px-8 overflow-hidden bg-gradient-to-b from-ink to-[#1a0b2e]">
-      <div className="max-w-[1400px] mx-auto">
-        <div className="text-center mb-12" data-reveal>
-          <span className="text-magenta font-bold uppercase tracking-widest text-sm">Interactive</span>
-          <h2 className="font-display text-4xl md:text-6xl text-white mt-3">Paint Your World</h2>
-          <p className="text-white/70 mt-4 max-w-xl mx-auto">Pick a colour and watch the room repaint itself. This is colour as an experience, not a swatch.</p>
-        </div>
-
-        <div className="grid lg:grid-cols-2 gap-10 items-center">
-          <div className="relative aspect-[4/3] rounded-2xl overflow-hidden shadow-2xl" data-reveal-left>
-            <div className="absolute inset-0 bg-gradient-to-br from-stone-700 to-stone-900" />
-            {/* Room illustration */}
-            <svg viewBox="0 0 400 300" className="absolute inset-0 w-full h-full">
-              {/* back wall */}
-              <rect x="40" y="40" width="320" height="180" fill={roomColor.hex} style={{ transition: 'fill 0.8s cubic-bezier(0.16,1,0.3,1)' }} />
-              {/* side wall shading */}
-              <polygon points="0,0 40,40 40,220 0,300" fill="#000" opacity="0.25" />
-              <polygon points="360,40 400,0 400,300 360,220" fill="#000" opacity="0.25" />
-              {/* floor */}
-              <polygon points="0,300 40,220 360,220 400,300" fill="#3a2a1a" />
-              {/* window */}
-              <rect x="120" y="80" width="80" height="60" fill="#a0d8ff" opacity="0.7" rx="2" />
-              <line x1="160" y1="80" x2="160" y2="140" stroke="#fff" strokeWidth="2" opacity="0.6" />
-              <line x1="120" y1="110" x2="200" y2="110" stroke="#fff" strokeWidth="2" opacity="0.6" />
-              {/* sofa */}
-              <rect x="240" y="150" width="100" height="50" rx="6" fill="#2a2a3a" />
-              <rect x="240" y="140" width="100" height="20" rx="6" fill="#3a3a4a" />
-              {/* painting */}
-              <rect x="70" y="90" width="40" height="50" fill="#fff" opacity="0.85" rx="2" />
-              <rect x="74" y="94" width="32" height="42" fill={roomColor.hex} opacity="0.6" rx="1" />
-            </svg>
-            <div className="absolute bottom-4 left-4 glass rounded-xl px-4 py-2 text-white">
-              <div className="text-xs uppercase tracking-wider text-white/60">Current Colour</div>
-              <div className="font-bold">{roomColor.name}</div>
-            </div>
-          </div>
-
-          <div data-reveal-right>
-            <h3 className="text-white font-bold text-xl mb-5">Choose a colour</h3>
-            <div className="grid grid-cols-4 gap-3">
-              {roomColors.map((c) => (
-                <button
-                  key={c.hex}
-                  onClick={() => setRoomColor(c)}
-                  data-cursor="color"
-                  className={`group relative aspect-square rounded-xl transition-transform hover:scale-105 ${
-                    roomColor.hex === c.hex ? 'ring-2 ring-white ring-offset-2 ring-offset-ink' : ''
-                  }`}
-                  style={{ background: c.hex }}
-                  aria-label={c.name}
-                >
-                  <span className="absolute inset-x-0 -bottom-6 text-center text-xs text-white/70 opacity-0 group-hover:opacity-100 transition-opacity">
-                    {c.name}
-                  </span>
-                </button>
-              ))}
-            </div>
-            <div className="mt-8 p-5 rounded-2xl glass">
-              <div className="flex items-center gap-4">
-                <div className="w-14 h-14 rounded-xl shadow-lg" style={{ background: roomColor.hex }} />
-                <div>
-                  <div className="text-white font-bold">{roomColor.name}</div>
-                  <div className="text-white/60 text-sm font-mono">{roomColor.hex}</div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-  );
-}
-
-/* ---------- Color Visualizer ---------- */
-function ColorVisualizer({ activeColor, setActiveColor }: {
-  activeColor: typeof palette[0]; setActiveColor: (c: typeof palette[0]) => void;
-}) {
-  const [accent, setAccent] = useState(false);
-  return (
-    <section className="relative py-24 md:py-32 px-5 md:px-8 bg-gradient-to-b from-[#1a0b2e] to-ink overflow-hidden">
-      <div className="max-w-[1400px] mx-auto">
-        <div className="text-center mb-12" data-reveal>
-          <span className="text-cyan font-bold uppercase tracking-widest text-sm">Color Visualizer</span>
-          <h2 className="font-display text-4xl md:text-6xl text-white mt-3">Find Your Perfect Color</h2>
-        </div>
-
-        <div className="grid lg:grid-cols-[1.4fr_1fr] gap-8">
-          <div className="relative aspect-[16/10] rounded-2xl overflow-hidden shadow-2xl" data-reveal-left>
-            <div className="absolute inset-0 bg-gradient-to-br from-stone-600 to-stone-800" />
-            <svg viewBox="0 0 400 250" className="absolute inset-0 w-full h-full">
-              {/* back wall */}
-              <rect x="30" y="20" width="240" height="160" fill={activeColor.hex} style={{ transition: 'fill 0.8s cubic-bezier(0.16,1,0.3,1)' }} />
-              {/* accent wall (right) */}
-              <rect x="270" y="20" width="100" height="160" fill={accent ? activeColor.hex : '#3a3a4a'} style={{ transition: 'fill 0.8s cubic-bezier(0.16,1,0.3,1)' }} />
-              {/* floor */}
-              <polygon points="0,250 30,180 370,180 400,250" fill="#2a1a0a" />
-              {/* sofa */}
-              <rect x="80" y="120" width="120" height="50" rx="6" fill="#1a1a2a" />
-              <rect x="80" y="110" width="120" height="20" rx="6" fill="#2a2a3a" />
-              {/* cushions */}
-              <rect x="95" y="125" width="25" height="20" rx="4" fill={activeColor.hex} opacity="0.7" />
-              <rect x="130" y="125" width="25" height="20" rx="4" fill={activeColor.hex} opacity="0.5" />
-              {/* lamp */}
-              <line x1="280" y1="180" x2="280" y2="130" stroke="#fff" strokeWidth="2" opacity="0.4" />
-              <circle cx="280" cy="125" r="12" fill="#ffe9a0" opacity="0.8" />
-            </svg>
-            <div className="absolute top-4 left-4 flex gap-2">
-              <button onClick={() => setAccent(false)} className={`px-3 py-1.5 rounded-lg text-xs font-bold ${!accent ? 'bg-white text-ink' : 'glass text-white'}`}>Wall</button>
-              <button onClick={() => setAccent(true)} className={`px-3 py-1.5 rounded-lg text-xs font-bold ${accent ? 'bg-white text-ink' : 'glass text-white'}`}>Accent Wall</button>
-            </div>
-          </div>
-
-          <div data-reveal-right>
-            <div className="p-5 rounded-2xl glass mb-5">
-              <div className="flex items-center gap-4 mb-4">
-                <div className="w-16 h-16 rounded-xl shadow-lg" style={{ background: activeColor.hex }} />
-                <div>
-                  <div className="text-white font-bold text-lg">{activeColor.name}</div>
-                  <div className="text-white/60 text-sm font-mono">{activeColor.hex}</div>
-                </div>
-              </div>
-              <div className="grid grid-cols-2 gap-3 text-sm">
-                <div>
-                  <div className="text-white/50 text-xs uppercase">Finish</div>
-                  <div className="text-white font-semibold">Matt</div>
-                </div>
-                <div>
-                  <div className="text-white/50 text-xs uppercase">Mood</div>
-                  <div className="text-white font-semibold">{activeColor.mood}</div>
-                </div>
-                <div className="col-span-2">
-                  <div className="text-white/50 text-xs uppercase">Recommended Space</div>
-                  <div className="text-white font-semibold">{activeColor.space}</div>
-                </div>
-              </div>
-            </div>
-            <h3 className="text-white font-bold mb-3">Pick a shade</h3>
-            <div className="grid grid-cols-6 gap-2">
-              {palette.slice(0, 18).map((c) => (
-                <button
-                  key={c.hex}
-                  onClick={() => setActiveColor(c)}
-                  data-cursor="color"
-                  className={`aspect-square rounded-lg transition-transform hover:scale-110 ${
-                    activeColor.hex === c.hex ? 'ring-2 ring-white' : ''
-                  }`}
-                  style={{ background: c.hex }}
-                  aria-label={c.name}
-                />
-              ))}
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
   );
 }
 
@@ -957,12 +577,16 @@ function ServicesSection() {
 /* ---------- Color Palette ---------- */
 function ColorPaletteSection() {
   const [selected, setSelected] = useState<typeof palette[0] | null>(null);
-  const families = ['All', 'Reds', 'Oranges', 'Yellows', 'Greens', 'Blues', 'Purples', 'Pinks', 'Neutrals'];
+  const families = ['All', 'Reds', 'Oranges', 'Yellows', 'Greens', 'Blues', 'Purples', 'Pinks', 'Browns', 'Beiges', 'Creams', 'Whites', 'Greys', 'Blacks', 'Neutrals'];
   const [family, setFamily] = useState('All');
   const shown = family === 'All' ? palette : palette.filter((c) => c.family === family);
 
   return (
     <section id="palette" className="relative py-24 md:py-32 px-5 md:px-8 bg-ink">
+      <div
+        className="absolute inset-0 pointer-events-none opacity-[0.07]"
+        style={{ backgroundImage: `url(${colourFan})`, backgroundSize: 'cover', backgroundPosition: 'center' }}
+      />
       <div className="max-w-[1400px] mx-auto">
         <div className="text-center mb-10" data-reveal>
           <span className="text-magenta font-bold uppercase tracking-widest text-sm">Color Library</span>
@@ -1126,6 +750,12 @@ function CompanyStory() {
                 </div>
               ))}
             </div>
+            <img
+              src={brandImg}
+              alt="Visaka Paints & Chemicals India"
+              loading="lazy"
+              className="mt-8 w-full rounded-2xl object-cover shadow-2xl border border-white/10"
+            />
           </div>
           <div data-reveal-right>
             <h3 className="text-white font-bold text-xl mb-6">Our Journey</h3>
