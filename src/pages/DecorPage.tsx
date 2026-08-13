@@ -31,12 +31,16 @@ export function DecorPage() {
       <DecorSection />
 
       {/* Specialty Architectural Finishes */}
-      <section className="py-24 px-5 md:px-8 bg-ink border-t border-white/10">
+      <section className="py-16 md:py-20 px-4 md:px-8 bg-ink border-t border-white/10">
         <div className="max-w-[1400px] mx-auto">
-          <div className="text-center mb-16">
-            <span className="text-violet font-bold uppercase tracking-widest text-xs">Designer Feature Walls</span>
-            <h2 className="font-display text-4xl md:text-6xl text-white mt-2">Sculpted Light &amp; Texture</h2>
-            <p className="text-white/70 max-w-xl mx-auto mt-4 text-sm md:text-base">
+          <div className="text-center max-w-3xl mx-auto mb-10">
+            <div className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-violet/20 text-violet text-[11px] font-extrabold uppercase tracking-widest border border-violet/30 mb-3">
+              Designer Feature Walls
+            </div>
+            <h2 className="font-display text-2xl sm:text-3xl md:text-4xl text-white leading-tight tracking-tight">
+              Sculpted Light &amp; Texture
+            </h2>
+            <p className="text-white/70 text-xs sm:text-sm mt-2.5 max-w-xl mx-auto leading-relaxed">
               Turn hospitality spaces, master suites, and commercial reception areas into unforgettable visual focal points.
             </p>
           </div>
@@ -45,11 +49,11 @@ export function DecorPage() {
             {finishes.map((f) => (
               <div
                 key={f.title}
-                className="p-8 rounded-3xl glass border border-white/10 shadow-2xl flex flex-col justify-between"
+                className="p-8 rounded-xl glass border border-white/10 shadow-2xl flex flex-col justify-between"
               >
                 <div>
                   <div
-                    className="w-12 h-12 rounded-2xl flex items-center justify-center mb-6 shadow-lg"
+                    className="w-12 h-12 rounded-xl flex items-center justify-center mb-6 shadow-lg"
                     style={{ background: `${f.color}25`, border: `1px solid ${f.color}60` }}
                   >
                     <Sparkles className="w-6 h-6" style={{ color: f.color }} />
@@ -57,7 +61,7 @@ export function DecorPage() {
                   <div className="text-xs uppercase font-extrabold tracking-wider" style={{ color: f.color }}>
                     {f.subtitle}
                   </div>
-                  <h3 className="font-display text-3xl text-white mt-2 mb-3">{f.title}</h3>
+                  <h3 className="font-display text-2xl text-white mt-2 mb-3">{f.title}</h3>
                   <p className="text-white/65 text-sm leading-relaxed">{f.desc}</p>
                 </div>
 

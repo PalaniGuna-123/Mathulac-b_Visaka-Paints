@@ -32,24 +32,28 @@ export function AutoPage() {
       <AutoSection />
 
       {/* Automotive 4-Step Refinishing Flow */}
-      <section className="py-24 px-5 md:px-8 bg-ink border-t border-white/10">
+      <section className="py-16 md:py-20 px-4 md:px-8 bg-ink border-t border-white/10">
         <div className="max-w-[1400px] mx-auto">
-          <div className="text-center mb-16">
-            <span className="text-red-400 font-bold uppercase tracking-widest text-xs">Complete Workshop System</span>
-            <h2 className="font-display text-4xl md:text-6xl text-white mt-2">The 4-Step Refinishing Standard</h2>
-            <p className="text-white/70 max-w-xl mx-auto mt-4 text-sm md:text-base">
+          <div className="text-center max-w-3xl mx-auto mb-10">
+            <div className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-red-500/20 text-red-300 text-[11px] font-extrabold uppercase tracking-widest border border-red-500/30 mb-3">
+              Complete Workshop System
+            </div>
+            <h2 className="font-display text-2xl sm:text-3xl md:text-4xl text-white leading-tight tracking-tight">
+              The 4-Step Refinishing Standard
+            </h2>
+            <p className="text-white/70 text-xs sm:text-sm mt-2.5 max-w-xl mx-auto leading-relaxed">
               Engineered for bodyshop pros seeking shorter drying cycles, flawless levelling, and mirror durability.
             </p>
           </div>
 
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {autoSteps.map((s) => (
-              <div key={s.step} className="p-7 rounded-2xl glass border border-red-500/20 shadow-xl relative group">
-                <div className="font-display text-6xl text-red-500/20 group-hover:text-red-500/40 transition-colors mb-4">
+              <div key={s.step} className="p-7 rounded-xl glass border border-red-500/20 shadow-xl relative group">
+                <div className="font-display text-5xl text-red-500/20 group-hover:text-red-500/40 transition-colors mb-4">
                   {s.step}
                 </div>
-                <h3 className="font-display text-2xl text-white mb-2">{s.title}</h3>
-                <p className="text-white/65 text-sm leading-relaxed">{s.desc}</p>
+                <h3 className="font-display text-xl text-white mb-2">{s.title}</h3>
+                <p className="text-white/65 text-xs sm:text-sm leading-relaxed">{s.desc}</p>
               </div>
             ))}
           </div>

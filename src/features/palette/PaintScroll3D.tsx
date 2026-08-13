@@ -194,12 +194,31 @@ export function PaintScroll3D() {
         ctx.restore();
       });
 
-      animFrameId = requestAnimationFrame(render);
+      if (isVisible) {
+        animFrameId = requestAnimationFrame(render);
+      }
     };
 
-    render();
+    let isVisible = false;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          isVisible = entry.isIntersecting;
+          if (isVisible) {
+            cancelAnimationFrame(animFrameId);
+            animFrameId = requestAnimationFrame(render);
+          } else {
+            cancelAnimationFrame(animFrameId);
+          }
+        });
+      },
+      { threshold: 0.05 }
+    );
+
+    observer.observe(section);
 
     return () => {
+      observer.disconnect();
       window.removeEventListener('resize', resize);
       cancelAnimationFrame(animFrameId);
       scrollTriggerInstance.kill();
@@ -220,16 +239,17 @@ export function PaintScroll3D() {
       <canvas ref={canvasRef} className="absolute inset-0 w-full h-full pointer-events-none z-0" />
 
       <div className="max-w-[1400px] mx-auto px-5 md:px-8 relative z-10 text-center pointer-events-auto">
-        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-magenta/20 text-magenta text-xs font-bold uppercase tracking-widest border border-magenta/30 mb-6 backdrop-blur-md">
-          <Sparkles className="w-4 h-4" /> 3D Liquid Paint Stream Experience
+        <div className="text-center max-w-3xl mx-auto mb-10">
+          <div className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-magenta/20 text-magenta text-[11px] font-extrabold uppercase tracking-widest border border-magenta/30 mb-3 backdrop-blur-md">
+            <Sparkles className="w-3.5 h-3.5" /> 3D Liquid Paint Stream Experience
+          </div>
+          <h2 className="font-display text-2xl sm:text-3xl md:text-4xl text-white leading-tight tracking-tight">
+            Colour in Motion
+          </h2>
+          <p className="text-white/70 text-xs sm:text-sm mt-2.5 max-w-xl mx-auto leading-relaxed">
+            Scroll down to experience Visaka pigments poured live — splitting seamlessly into 8 precision colour families.
+          </p>
         </div>
-
-        <h2 className="heading-section text-white font-display">
-          Colour in Motion.
-        </h2>
-        <p className="text-white/70 max-w-2xl mx-auto mt-4 text-base md:text-lg">
-          Scroll down to experience Visaka pigments poured live — splitting seamlessly into 8 precision colour families.
-        </p>
 
         {/* Floating Colour Family Interactive Nodes */}
         <div className="mt-72 md:mt-96 grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-3 max-w-6xl mx-auto">

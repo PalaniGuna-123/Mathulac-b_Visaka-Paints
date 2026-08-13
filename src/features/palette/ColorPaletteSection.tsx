@@ -35,29 +35,31 @@ export function ColorPaletteSection() {
   };
 
   return (
-    <section id="palette" className="relative py-24 md:py-32 px-5 md:px-8 bg-ink">
+    <section id="palette" className="relative py-16 md:py-20 px-4 md:px-8 bg-ink">
       <div
         className="absolute inset-0 pointer-events-none opacity-[0.07]"
         style={{ backgroundImage: `url(${colourFan})`, backgroundSize: 'cover', backgroundPosition: 'center' }}
       />
       <div className="max-w-[1400px] mx-auto relative z-10">
-        <div className="text-center mb-10" data-reveal>
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-magenta/20 text-magenta text-xs font-bold uppercase tracking-widest mb-3 border border-magenta/30">
+        <div className="text-center max-w-3xl mx-auto mb-10" data-reveal>
+          <div className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-magenta/20 text-magenta text-[11px] font-extrabold uppercase tracking-widest border border-magenta/30 mb-3">
             <Sparkles className="w-3.5 h-3.5" /> Color Library
           </div>
-          <h2 className="font-display text-4xl md:text-6xl text-white mt-2">Color Has No Limits</h2>
-          <p className="text-white/70 max-w-xl mx-auto mt-4">
+          <h2 className="font-display text-2xl sm:text-3xl md:text-4xl text-white leading-tight tracking-tight">
+            Color Has No Limits
+          </h2>
+          <p className="text-white/70 text-xs sm:text-sm mt-2.5 max-w-xl mx-auto leading-relaxed">
             Curated precision pigments designed to hold their emotional tone in direct sunlight and interior lamp warmth.
           </p>
         </div>
 
         {/* Filter Pills */}
-        <div className="flex flex-wrap justify-center gap-2 mb-10" data-reveal>
+        <div className="flex flex-wrap justify-center gap-1.5 mb-8" data-reveal>
           {families.map((f) => (
             <button
               key={f}
               onClick={() => setFamily(f)}
-              className={`px-4 py-2 rounded-xl text-sm font-bold transition-all ${
+              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
                 family === f ? 'bg-magenta text-white shadow-lg' : 'glass text-white/70 hover:text-white'
               }`}
             >
@@ -99,7 +101,7 @@ export function ColorPaletteSection() {
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-5" onClick={() => setSelected(null)}>
           <div className="absolute inset-0 bg-ink/80 backdrop-blur-sm" />
           <div
-            className="relative w-full max-w-2xl rounded-3xl overflow-hidden shadow-2xl bg-[#1a0b2e] border border-white/15 animate-menu-drop"
+            className="relative w-full max-w-2xl rounded-xl overflow-hidden shadow-2xl bg-surface-dark border border-white/15 animate-menu-drop"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="h-64 relative" style={{ background: selected.hex }}>
@@ -115,7 +117,7 @@ export function ColorPaletteSection() {
               <div className="flex items-center justify-between">
                 <div>
                   <span className="text-xs uppercase font-extrabold text-magenta tracking-widest">{selected.family}</span>
-                  <div className="font-display text-3xl md:text-4xl text-white mt-1">{selected.name}</div>
+                  <div className="font-display text-2xl sm:text-3xl text-white mt-1">{selected.name}</div>
                 </div>
                 <button
                   onClick={() => copyHex(selected.hex)}

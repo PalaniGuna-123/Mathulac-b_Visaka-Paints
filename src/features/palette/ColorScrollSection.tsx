@@ -39,16 +39,14 @@ export function ColorScrollSection() {
     <section
       id="color-scroll"
       ref={sectionRef}
-      className="relative py-32 md:py-48 px-5 md:px-8 transition-colors duration-500"
+      className="relative py-16 md:py-20 px-4 md:px-8"
       style={{ background: '#FF1493' }}
     >
-      <div className="max-w-[1400px] mx-auto text-center">
-        <h2 className="font-display text-5xl md:text-8xl text-white leading-[0.95] mix-blend-difference">
-          Paint is not just
-          <br />
-          something you apply.
+      <div className="max-w-[1000px] mx-auto text-center">
+        <h2 className="font-display text-2xl sm:text-3xl md:text-4xl text-white leading-tight drop-shadow-md">
+          Paint is not just something you apply.
         </h2>
-        <p className="font-display text-3xl md:text-5xl text-white mt-6 mix-blend-difference">
+        <p className="font-display text-base sm:text-lg md:text-xl text-white/95 mt-2.5 drop-shadow-sm">
           It's something you experience.
         </p>
       </div>

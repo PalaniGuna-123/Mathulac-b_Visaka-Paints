@@ -86,14 +86,16 @@ export function ShadeLibrary() {
   };
 
   return (
-    <section className="w-full bg-[#0b1020] text-white py-16 md:py-24 px-4 md:px-8 relative min-h-screen">
+    <section className="w-full bg-ink text-white py-16 md:py-20 px-4 md:px-8 relative min-h-screen">
       {/* Header Banner */}
-      <div className="max-w-[1400px] mx-auto text-center mb-12">
-        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-magenta/20 text-magenta text-xs font-bold uppercase tracking-widest border border-magenta/30 mb-4">
-          <Sparkles className="w-4 h-4" /> Visaka Shade Library
+      <div className="max-w-3xl mx-auto text-center mb-10">
+        <div className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-magenta/20 text-magenta text-[11px] font-extrabold uppercase tracking-widest border border-magenta/30 mb-3">
+          <Sparkles className="w-3.5 h-3.5" /> Visaka Shade Library
         </div>
-        <h1 className="heading-hero text-white">Discover Your Colour.</h1>
-        <p className="text-white/70 max-w-2xl mx-auto mt-4 text-base md:text-lg">
+        <h1 className="font-display text-2xl sm:text-3xl md:text-4xl text-white leading-tight tracking-tight">
+          Discover Your Colour
+        </h1>
+        <p className="text-white/70 text-xs sm:text-sm mt-2.5 max-w-xl mx-auto leading-relaxed">
           Explore our complete collection of shades, crafted for every mood, material and space.
         </p>
 
@@ -103,10 +105,10 @@ export function ShadeLibrary() {
             <Search className="w-5 h-5 absolute left-4 top-1/2 -translate-y-1/2 text-white/40" />
             <input
               type="text"
-              placeholder="Search 1000+ shades by name, code or tone..."
+              placeholder="Search by shade name, code (e.g. MB-101), family, or room..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-12 pr-10 py-3.5 rounded-2xl bg-white/10 border border-white/15 text-white placeholder-white/40 text-sm focus:outline-none focus:border-magenta focus:ring-1 focus:ring-magenta transition-all"
+              className="w-full pl-12 pr-10 py-3.5 rounded-xl bg-white/10 border border-white/15 text-white placeholder-white/40 text-sm focus:outline-none focus:border-magenta focus:ring-1 focus:ring-magenta transition-all"
             />
             {searchQuery && (
               <button
@@ -120,10 +122,10 @@ export function ShadeLibrary() {
 
           <button
             onClick={() => setShowFavouritesOnly(!showFavouritesOnly)}
-            className={`w-full sm:w-auto px-5 py-3.5 rounded-2xl text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2 border transition-all cursor-pointer ${
+            className={`w-full sm:w-auto px-5 py-3.5 rounded-xl text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2 border transition-all cursor-pointer ${
               showFavouritesOnly
                 ? 'bg-magenta text-white border-magenta shadow-lg shadow-magenta/30'
-                : 'bg-white/5 text-white/80 border-white/15 hover:bg-white/10'
+                : 'bg-white/5 hover:bg-white/10 text-white/80 border-white/15'
             }`}
           >
             <Heart className="w-4 h-4" fill={showFavouritesOnly ? 'currentColor' : 'none'} />
@@ -149,10 +151,10 @@ export function ShadeLibrary() {
               <button
                 key={fam}
                 onClick={() => setSelectedFamily(fam)}
-                className={`group relative p-2 rounded-2xl border transition-all cursor-pointer flex flex-col items-center gap-1.5 text-center ${
+                className={`group relative p-2 rounded-xl border transition-all cursor-pointer flex flex-col items-center gap-1.5 text-center ${
                   isSelected
-                    ? 'border-magenta bg-magenta/20 shadow-lg shadow-magenta/20 scale-105 z-10'
-                    : 'border-white/10 bg-white/5 hover:bg-white/10 hover:border-white/20'
+                    ? 'bg-white/15 border-white shadow-lg shadow-magenta/20 ring-2 ring-magenta/60 scale-[1.03]'
+                    : 'bg-white/5 hover:bg-white/10 border-white/10 hover:border-white/30'
                 }`}
               >
                 <div
@@ -171,7 +173,7 @@ export function ShadeLibrary() {
       {/* Responsive Shade Grid */}
       <div className="max-w-[1400px] mx-auto">
         {filteredShades.length === 0 ? (
-          <div className="text-center py-16 bg-white/5 rounded-3xl border border-white/10">
+          <div className="text-center py-16 bg-white/5 rounded-xl border border-white/10">
             <p className="text-white/60 text-base">No shades found matching your filter criteria.</p>
             <button
               onClick={() => {
@@ -191,8 +193,11 @@ export function ShadeLibrary() {
               return (
                 <div
                   key={shadeItem.id}
-                  onClick={() => setActiveShadeModal(shadeItem)}
-                  className="group relative bg-[#151b2e] border border-white/10 hover:border-magenta/50 rounded-2xl p-3.5 transition-all duration-300 hover:-translate-y-1.5 hover:shadow-xl hover:shadow-magenta/10 cursor-pointer flex flex-col justify-between"
+                  onClick={() => {
+                    setActiveShadeModal(shadeItem);
+                    setCopiedHex(false);
+                  }}
+                  className="group relative bg-surface-card border border-white/10 hover:border-magenta/50 rounded-xl p-3.5 transition-all duration-300 hover:-translate-y-1.5 hover:shadow-xl hover:shadow-magenta/10 cursor-pointer flex flex-col justify-between"
                 >
                   <div>
                     {/* Organic Swatch */}
@@ -248,7 +253,7 @@ export function ShadeLibrary() {
           onClick={() => setActiveShadeModal(null)}
         >
           <div
-            className="relative w-full max-w-2xl bg-[#161d31] border border-white/20 rounded-3xl overflow-hidden shadow-2xl animate-menu-drop text-white"
+            className="relative w-full max-w-2xl bg-midnight border border-white/20 rounded-xl overflow-hidden shadow-2xl animate-menu-drop text-white"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Swatch Header Box */}
@@ -273,7 +278,7 @@ export function ShadeLibrary() {
             <div className="p-6 md:p-8 space-y-5">
               <div className="flex items-start justify-between gap-4">
                 <div>
-                  <h2 className="font-display text-3xl md:text-4xl text-white">{activeShadeModal.name}</h2>
+                  <h2 className="font-display text-2xl sm:text-3xl text-white">{activeShadeModal.name}</h2>
                   <p className="text-white/70 text-sm mt-1">{activeShadeModal.description}</p>
                 </div>
 

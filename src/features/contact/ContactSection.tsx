@@ -18,7 +18,7 @@ export function ContactSection() {
   };
 
   return (
-    <section id="contact" className="relative py-24 md:py-32 px-5 md:px-8 overflow-hidden">
+    <section id="contact" className="relative py-16 md:py-20 px-4 md:px-8 overflow-hidden">
       {/* Dynamic Background */}
       <div
         className="absolute inset-0"
@@ -33,31 +33,32 @@ export function ContactSection() {
       />
 
       <div className="relative z-10 max-w-[1200px] mx-auto">
-        <div className="text-center mb-12" data-reveal>
-          <div className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-white/20 text-white text-xs font-bold uppercase tracking-widest mb-4 backdrop-blur-md">
+        <div className="text-center max-w-3xl mx-auto mb-10" data-reveal>
+          <div className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-white/20 text-white text-[11px] font-extrabold uppercase tracking-widest mb-3 backdrop-blur-md">
             <Sparkles className="w-3.5 h-3.5 text-yellow-300" /> Start Your Project
           </div>
-          <h2 className="font-display text-4xl sm:text-6xl md:text-7xl text-white leading-[0.95]">
-            Ready to Add
-            <br />
-            Color to Your World?
+          <h2 className="font-display text-2xl sm:text-3xl md:text-4xl text-white leading-tight tracking-tight">
+            Ready to Add Color to Your World?
           </h2>
+          <p className="text-white/80 text-xs sm:text-sm mt-2.5 max-w-xl mx-auto leading-relaxed">
+            Direct hotline &amp; technical inquiry desk for painters, architects, contractors, and homeowners.
+          </p>
 
-          <div className="mt-8 flex flex-wrap justify-center gap-4">
+          <div className="mt-5 flex flex-wrap justify-center gap-3">
             {phoneNumbers.map((p) => (
               <a
                 key={p}
                 href={`tel:${p.replace(/\s/g, '')}`}
-                className="flex items-center gap-2 px-6 py-3.5 rounded-xl glass text-white font-bold hover:bg-white/20 shadow-lg transition-transform hover:scale-105"
+                className="flex items-center gap-2 px-4 py-2.5 rounded-xl glass text-white text-xs sm:text-sm font-bold hover:bg-white/20 shadow-md transition-transform hover:scale-105"
               >
-                <Phone className="w-5 h-5 text-yellow-300" /> {p}
+                <Phone className="w-4 h-4 text-yellow-300" /> {p}
               </a>
             ))}
           </div>
         </div>
 
         {/* Contact Form Card */}
-        <div className="max-w-xl mx-auto p-7 md:p-10 rounded-3xl glass shadow-2xl border border-white/25" data-reveal>
+        <div className="max-w-lg mx-auto p-5 sm:p-7 rounded-xl glass shadow-2xl border border-white/25" data-reveal>
           {sent ? (
             <div className="text-center py-12 animate-menu-drop">
               <div className="w-16 h-16 rounded-full bg-white/20 mx-auto flex items-center justify-center mb-4 text-white">

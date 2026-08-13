@@ -91,6 +91,61 @@ body::before {
   100% { background-position: 300% 50%; }
 }
 
+
+/* ============================================================
+   Animated Rainbow Border — flowing color around card edge
+   Uses @property to smoothly interpolate the conic angle so
+   the rainbow band genuinely travels around the border ring.
+   ============================================================ */
+
+/* Register the custom angle property so CSS can tween it */
+@property --border-angle {
+  syntax: '<angle>';
+  initial-value: 0deg;
+  inherits: false;
+}
+
+/* Move the start angle of the conic gradient 0→360 */
+@keyframes flow-border {
+  0%   { --border-angle: 0deg;   filter: hue-rotate(0deg); }
+  100% { --border-angle: 360deg; filter: hue-rotate(360deg); }
+}
+
+/* Outer wrapper: clips to border-radius, exposes 2px continuous rainbow border ring with zero gaps */
+.animated-border-card {
+  position: relative;
+  border-radius: 16px;
+  padding: 2px;
+  background: linear-gradient(135deg, #00e5ff 0%, #ff0080 35%, #8b5cf6 70%, #00e5ff 100%);
+  background-size: 300% 300%;
+  animation: border-gradient-flow 5s ease infinite;
+  box-shadow: 0 10px 30px -10px rgba(0, 229, 255, 0.2), 0 0 20px -5px rgba(255, 0, 128, 0.15);
+  isolation: isolate;
+}
+
+@keyframes border-gradient-flow {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+/* Inner card floats with solid dark background and matching border-radius */
+.animated-border-card > * {
+  position: relative;
+  z-index: 1;
+  border-radius: 14px !important;
+  background-color: #0B0F19;
+  width: 100%;
+  height: 100%;
+}
+
+
 /* Navigation Link Underlines */
 .nav-link {
   position: relative;

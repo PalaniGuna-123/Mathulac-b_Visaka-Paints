@@ -35,6 +35,7 @@ import {
   segmentWalls,
   type LightingMode,
   type FinishMode,
+  type CoverageMode,
 } from './canvasEngine';
 
 const lightingOptions: LightingMode[] = ['Daylight', 'Warm Light', 'Evening', 'Natural'];
@@ -73,6 +74,7 @@ export function PaintStudio({ scrollTo, initialShadeId }: PaintStudioProps) {
   const [query, setQuery] = useState('');
   const [lighting, setLighting] = useState<LightingMode>('Natural');
   const [finish, setFinish] = useState<FinishMode>('Matte');
+  const [coverageMode, setCoverageMode] = useState<CoverageMode>('smart');
   const [favourites, setFavourites] = useState<string[]>([]);
   const [showFavourites, setShowFavourites] = useState(false);
   const [toast, setToast] = useState('');
@@ -140,6 +142,7 @@ export function PaintStudio({ scrollTo, initialShadeId }: PaintStudioProps) {
         hex: shade.hex,
         finish,
         lighting,
+        coverageMode,
       });
     } else {
       // Render selected preset scene
@@ -153,10 +156,11 @@ export function PaintStudio({ scrollTo, initialShadeId }: PaintStudioProps) {
           hex: shade.hex,
           finish,
           lighting,
+          coverageMode: 'smart',
         });
       };
     }
-  }, [userImage, userMaskCanvas, shade.hex, finish, lighting, activeScene]);
+  }, [userImage, userMaskCanvas, shade.hex, finish, lighting, coverageMode, activeScene]);
 
   useEffect(() => {
     renderCanvas();
@@ -178,8 +182,9 @@ export function PaintStudio({ scrollTo, initialShadeId }: PaintStudioProps) {
         const seg = segmentWalls(img);
         setUserMaskCanvas(seg.maskCanvas);
         setSegmentInfo(seg.message);
+        setCoverageMode('smart');
         setIsUploading(false);
-        setToast('Your room photo was loaded! Apply Visaka shades live below.');
+        setToast('Room photo loaded! Click any shade on the right to paint live.');
       };
       img.src = e.target?.result as string;
     };
@@ -241,6 +246,7 @@ export function PaintStudio({ scrollTo, initialShadeId }: PaintStudioProps) {
   };
 
   const selectShade = (next: PaintShade) => {
+    if (!next) return;
     setShade(next);
     requestAnimationFrame(() => {
       const el = paletteRef.current?.querySelector(`[data-shade-id="${next.id}"]`);
@@ -295,16 +301,20 @@ export function PaintStudio({ scrollTo, initialShadeId }: PaintStudioProps) {
             onClick={() => {
               document.getElementById('main-visualizer')?.scrollIntoView({ behavior: 'smooth' });
             }}
-            className="studio-primary cursor-pointer"
+            className="studio-primary cursor-pointer group"
+            data-cursor="visualize"
           >
-            <Palette className="w-4 h-4" /> Start Visualizing
+            <Palette className="w-4 h-4 transition-transform group-hover:rotate-12" />
+            <span>Start Visualizing</span>
           </button>
 
           <button
             onClick={() => navigate('/colours')}
-            className="studio-secondary cursor-pointer"
+            className="studio-secondary cursor-pointer group"
+            data-cursor="explore"
           >
-            Explore Shade Library <ArrowRight className="w-4 h-4" />
+            <span>Explore Shade Library</span>
+            <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
           </button>
         </div>
       </div>
@@ -315,7 +325,7 @@ export function PaintStudio({ scrollTo, initialShadeId }: PaintStudioProps) {
         <div className="space-y-5">
           <div className="studio-visual-card">
             {/* Photorealistic Canvas Frame */}
-            <div className="studio-room relative aspect-[16/10] rounded-2xl overflow-hidden shadow-2xl">
+            <div className="studio-room relative aspect-[16/10] rounded-xl overflow-hidden shadow-2xl">
               <canvas ref={canvasRef} className="w-full h-full object-cover" />
 
               {isUploading && (
@@ -329,13 +339,39 @@ export function PaintStudio({ scrollTo, initialShadeId }: PaintStudioProps) {
               <div className="studio-room-toolbar">
                 <span className="flex items-center">
                   <span className="studio-live-dot" />
-                  {userImage ? 'Uploaded Custom Photo' : activeScene.name}
+                  {userImage ? 'Custom Photo (Live Painted)' : activeScene.name}
                 </span>
-                <div className="flex items-center gap-2">
-                  <span className="bg-black/50 px-3 py-1 rounded-full backdrop-blur-md border border-white/10">
-                    {finish} Finish
+                <div className="flex items-center gap-1.5 sm:gap-2">
+                  {userImage && (
+                    <div className="flex items-center bg-black/60 p-0.5 rounded-full backdrop-blur-md border border-white/20">
+                      <button
+                        onClick={() => setCoverageMode('smart')}
+                        className={`px-2 py-0.5 rounded-full text-[9px] sm:text-[10px] font-bold uppercase tracking-wider transition-all cursor-pointer ${
+                          coverageMode === 'smart'
+                            ? 'bg-[#d43b7a] text-white shadow'
+                            : 'text-white/70 hover:text-white'
+                        }`}
+                        title="Smart wall segmentation"
+                      >
+                        Smart Walls
+                      </button>
+                      <button
+                        onClick={() => setCoverageMode('full')}
+                        className={`px-2 py-0.5 rounded-full text-[9px] sm:text-[10px] font-bold uppercase tracking-wider transition-all cursor-pointer ${
+                          coverageMode === 'full'
+                            ? 'bg-[#d43b7a] text-white shadow'
+                            : 'text-white/70 hover:text-white'
+                        }`}
+                        title="Paint entire surface / facade"
+                      >
+                        Full Coat
+                      </button>
+                    </div>
+                  )}
+                  <span className="bg-black/50 px-2.5 sm:px-3 py-1 rounded-full backdrop-blur-md border border-white/10 text-[10px] sm:text-xs">
+                    {finish}
                   </span>
-                  <span className="bg-black/50 px-3 py-1 rounded-full backdrop-blur-md border border-white/10">
+                  <span className="bg-black/50 px-2.5 sm:px-3 py-1 rounded-full backdrop-blur-md border border-white/10 text-[10px] sm:text-xs">
                     {lighting}
                   </span>
                 </div>
@@ -374,11 +410,10 @@ export function PaintStudio({ scrollTo, initialShadeId }: PaintStudioProps) {
                   <button
                     key={tab.id}
                     onClick={() => setSelectedSceneTab(tab.id)}
-                    className={`px-3.5 py-1.5 rounded-full text-[11px] font-bold uppercase tracking-wider transition-all whitespace-nowrap cursor-pointer ${
-                      selectedSceneTab === tab.id
+                    className={`px-3.5 py-1.5 rounded-full text-[11px] font-bold uppercase tracking-wider transition-all whitespace-nowrap cursor-pointer ${selectedSceneTab === tab.id
                         ? 'bg-[#272037] text-white shadow-md'
                         : 'bg-white/70 text-[#5c5364] hover:bg-white hover:text-[#272037] border border-black/5'
-                    }`}
+                      }`}
                   >
                     {tab.label}
                   </button>
@@ -396,9 +431,8 @@ export function PaintStudio({ scrollTo, initialShadeId }: PaintStudioProps) {
                         setUserImage(null);
                         setActiveScene(scene);
                       }}
-                      className={`scene-card group relative aspect-[4/3] rounded-xl overflow-hidden border-2 text-left transition-all cursor-pointer ${
-                        isSelected ? 'border-[#d43b7a] shadow-lg scale-[1.02]' : 'border-transparent hover:scale-105'
-                      }`}
+                      className={`scene-card group relative aspect-[4/3] rounded-xl overflow-hidden border-2 text-left transition-all cursor-pointer ${isSelected ? 'border-[#d43b7a] shadow-lg scale-[1.02]' : 'border-transparent hover:scale-105'
+                        }`}
                     >
                       <img src={scene.image} alt={scene.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300" />
                       <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
@@ -464,8 +498,81 @@ export function PaintStudio({ scrollTo, initialShadeId }: PaintStudioProps) {
           </div>
         </div>
 
-        {/* Right Column: Controls & Shade Details */}
+        {/* Right Column: Shade Explorer & Active Shade Controls */}
         <div className="space-y-6">
+          {/* Quick Palette Explorer */}
+          <div className="studio-explorer">
+            <div className="studio-explorer-header">
+              <div>
+                <span className="studio-overline">Browse Visaka Catalog</span>
+                <h3>Shade Explorer</h3>
+              </div>
+              <button
+                onClick={() => setShowFavourites(true)}
+                className="studio-favourites-link cursor-pointer"
+              >
+                <Heart className="w-4 h-4" /> Favourites ({favourites.length})
+              </button>
+            </div>
+
+            {/* Search Input */}
+            <div className="studio-search">
+              <Search className="w-4 h-4 text-black/40" />
+              <input
+                type="text"
+                placeholder="Search shades by name, code or tone..."
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+              />
+              {query && (
+                <button onClick={() => setQuery('')} aria-label="Clear search" className="cursor-pointer">
+                  <X className="w-4 h-4 text-black/40" />
+                </button>
+              )}
+            </div>
+
+            {/* Family Category Pills */}
+            <div className="studio-family-tabs no-scrollbar">
+              {colorFamilies.map((fam) => (
+                <button
+                  key={fam}
+                  onClick={() => setFamily(fam)}
+                  className={family === fam ? 'is-active cursor-pointer' : 'cursor-pointer'}
+                >
+                  {familySwatches[fam]?.name || fam}
+                </button>
+              ))}
+            </div>
+
+            {/* Mini Swatches Grid */}
+            <div ref={paletteRef} className="studio-palette">
+              {filteredShades.slice(0, 18).map((item) => (
+                <button
+                  key={item.id}
+                  data-shade-id={item.id}
+                  onClick={() => selectShade(item)}
+                  className={`studio-palette-card cursor-pointer ${item.id === shade.id ? 'is-selected' : ''}`}
+                >
+                  <div className="studio-card-swatch" style={{ backgroundColor: item.hex }} />
+                  <div className="studio-card-copy">
+                    <strong>{item.name}</strong>
+                    <small>{item.id}</small>
+                  </div>
+                </button>
+              ))}
+            </div>
+
+            <div className="mt-4 text-center">
+              <button
+                onClick={() => navigate('/colours')}
+                className="text-xs font-extrabold uppercase tracking-widest text-[#d43b7a] hover:underline inline-flex items-center gap-1 cursor-pointer"
+              >
+                OPEN FULL 1,000+ SHADE LIBRARY <ArrowRight className="w-3.5 h-3.5" />
+              </button>
+            </div>
+          </div>
+
+          {/* Active Selected Swatch Controls & Details */}
           <div className="studio-controls">
             {/* Active Selected Swatch Card */}
             <div className="studio-selection-card">
@@ -601,78 +708,6 @@ export function PaintStudio({ scrollTo, initialShadeId }: PaintStudioProps) {
                 title="Share shade"
               >
                 <Share2 className="w-4 h-4" />
-              </button>
-            </div>
-          </div>
-
-          {/* Quick Palette Explorer */}
-          <div className="studio-explorer">
-            <div className="studio-explorer-header">
-              <div>
-                <span className="studio-overline">Browse Visaka Catalog</span>
-                <h3>Shade Explorer</h3>
-              </div>
-              <button
-                onClick={() => setShowFavourites(true)}
-                className="studio-favourites-link cursor-pointer"
-              >
-                <Heart className="w-4 h-4" /> Favourites ({favourites.length})
-              </button>
-            </div>
-
-            {/* Search Input */}
-            <div className="studio-search">
-              <Search className="w-4 h-4 text-black/40" />
-              <input
-                type="text"
-                placeholder="Search shades by name, code or tone..."
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-              />
-              {query && (
-                <button onClick={() => setQuery('')} aria-label="Clear search" className="cursor-pointer">
-                  <X className="w-4 h-4 text-black/40" />
-                </button>
-              )}
-            </div>
-
-            {/* Family Category Pills */}
-            <div className="studio-family-tabs no-scrollbar">
-              {colorFamilies.map((fam) => (
-                <button
-                  key={fam}
-                  onClick={() => setFamily(fam)}
-                  className={family === fam ? 'is-active cursor-pointer' : 'cursor-pointer'}
-                >
-                  {familySwatches[fam]?.name || fam}
-                </button>
-              ))}
-            </div>
-
-            {/* Mini Swatches Grid */}
-            <div ref={paletteRef} className="studio-palette">
-              {filteredShades.slice(0, 18).map((item) => (
-                <button
-                  key={item.id}
-                  data-shade-id={item.id}
-                  onClick={() => selectShade(item)}
-                  className={`studio-palette-card cursor-pointer ${item.id === shade.id ? 'is-selected' : ''}`}
-                >
-                  <div className="studio-card-swatch" style={{ backgroundColor: item.hex }} />
-                  <div className="studio-card-copy">
-                    <strong>{item.name}</strong>
-                    <small>{item.id}</small>
-                  </div>
-                </button>
-              ))}
-            </div>
-
-            <div className="mt-4 text-center">
-              <button
-                onClick={() => navigate('/colours')}
-                className="text-xs font-extrabold uppercase tracking-widest text-[#d43b7a] hover:underline inline-flex items-center gap-1 cursor-pointer"
-              >
-                OPEN FULL 1,000+ SHADE LIBRARY <ArrowRight className="w-3.5 h-3.5" />
               </button>
             </div>
           </div>

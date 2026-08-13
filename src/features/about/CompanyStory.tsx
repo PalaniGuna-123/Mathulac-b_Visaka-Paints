@@ -4,18 +4,18 @@ import { Award, Sparkles } from 'lucide-react';
 
 export function CompanyStory() {
   return (
-    <section id="about" className="relative py-24 md:py-32 px-5 md:px-8 bg-gradient-to-b from-ink to-[#0a1525]">
+    <section id="about" className="relative py-14 sm:py-20 px-5 md:px-8 bg-gradient-to-b from-ink to-[#0a1525]">
       <div className="max-w-[1400px] mx-auto">
-        <div className="grid lg:grid-cols-2 gap-14 items-start">
+        <div className="grid lg:grid-cols-2 gap-10 items-start">
           {/* Left Story */}
           <div data-reveal-left>
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-cyan/20 text-cyan text-xs font-bold uppercase tracking-widest mb-3 border border-cyan/30">
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-cyan/20 text-cyan text-[11px] font-bold uppercase tracking-widest mb-2.5 border border-cyan/30">
               <Award className="w-3.5 h-3.5" /> Established 2004
             </div>
-            <h2 className="font-display text-4xl md:text-6xl text-white mt-2 leading-tight">
+            <h2 className="font-display text-2xl sm:text-3xl md:text-4xl text-white mt-1 leading-tight">
               Visaka Paints &amp; Chemicals India
             </h2>
-            <p className="text-white/75 mt-5 leading-relaxed text-base">
+            <p className="text-white/75 mt-3 leading-relaxed text-xs sm:text-sm">
               Established in 2004 in Coimbatore, India, Visaka Paints & Chemicals India manufactures high-performance architectural, decorative, wood, and automotive coating systems under the flagship Mathulac brand.
             </p>
             <p className="text-white/65 mt-3 leading-relaxed text-sm">
@@ -31,7 +31,7 @@ export function CompanyStory() {
               ))}
             </div>
 
-            <div className="relative mt-8 rounded-2xl overflow-hidden shadow-2xl border border-white/10 group">
+            <div className="relative mt-8 rounded-xl overflow-hidden shadow-2xl border border-white/10 group">
               <img
                 src={brandImg}
                 alt="Visaka Paints & Chemicals India Coimbatore"

@@ -10,23 +10,32 @@ export function CustomCursor() {
     const ring = ringRef.current;
     if (!dot || !ring) return;
 
-    let mx = 0, my = 0, rx = 0, ry = 0;
+    let mx = -100, my = -100, rx = -100, ry = -100;
+    let isMoving = false;
+
     const onMove = (e: MouseEvent) => {
       mx = e.clientX;
       my = e.clientY;
-      dot.style.transform = `translate(${mx}px, ${my}px) translate(-50%, -50%)`;
+      if (!isMoving) {
+        rx = mx;
+        ry = my;
+        isMoving = true;
+      }
     };
 
     let raf = 0;
     const loop = () => {
-      rx += (mx - rx) * 0.18;
-      ry += (my - ry) * 0.18;
-      ring.style.transform = `translate(${rx}px, ${ry}px) translate(-50%, -50%)`;
+      if (isMoving) {
+        dot.style.transform = `translate3d(${mx}px, ${my}px, 0) translate3d(-50%, -50%, 0)`;
+        rx += (mx - rx) * 0.22;
+        ry += (my - ry) * 0.22;
+        ring.style.transform = `translate3d(${rx}px, ${ry}px, 0) translate3d(-50%, -50%, 0)`;
+      }
       raf = requestAnimationFrame(loop);
     };
 
     loop();
-    window.addEventListener('mousemove', onMove);
+    window.addEventListener('mousemove', onMove, { passive: true });
 
     const onOver = (e: MouseEvent) => {
       const t = (e.target as HTMLElement).closest('[data-cursor]');
@@ -39,7 +48,7 @@ export function CustomCursor() {
       }
     };
 
-    document.addEventListener('mouseover', onOver);
+    document.addEventListener('mouseover', onOver, { passive: true });
 
     return () => {
       window.removeEventListener('mousemove', onMove);
