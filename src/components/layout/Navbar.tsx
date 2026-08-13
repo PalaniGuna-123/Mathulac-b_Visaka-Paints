@@ -1,8 +1,9 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Menu, Phone, X, Sparkles } from 'lucide-react';
+import gsap from 'gsap';
 import { navItems, phoneNumbers } from '../../data';
 import { NavLink, Link, useLocation, useNavigate } from '../../routes/Router';
-import mathulacLogo from '../../assets/logo/logo.jpeg';
+import mathulacLogo from '../../../assets/Visaka_Paints_logo.png';
 
 interface NavbarProps {
   scrolled?: boolean;
@@ -11,6 +12,7 @@ interface NavbarProps {
 export function Navbar({ scrolled: externalScrolled }: NavbarProps) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [internalScrolled, setInternalScrolled] = useState(false);
+  const logoRef = useRef<HTMLImageElement>(null);
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -18,12 +20,26 @@ export function Navbar({ scrolled: externalScrolled }: NavbarProps) {
 
   useEffect(() => {
     const onScroll = () => setInternalScrolled(window.scrollY > 40);
+    onScroll();
     window.addEventListener('scroll', onScroll, { passive: true });
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
-  const text = isScrolled ? 'text-[#322b3b]' : 'text-white/95';
-  const muted = isScrolled ? 'text-[#322b3b]/70' : 'text-white/60';
+  useEffect(() => {
+    if (!logoRef.current || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+    const ctx = gsap.context(() => {
+      gsap.fromTo(
+        logoRef.current,
+        { autoAlpha: 0, y: -12, scale: 0.92 },
+        { autoAlpha: 1, y: 0, scale: 1, duration: 1, ease: 'power3.out', clearProps: 'transform,opacity,visibility' },
+      );
+    }, logoRef);
+
+    return () => ctx.revert();
+  }, []);
+
+  const text = 'text-white/95';
 
   const handleNavClick = (path: string, anchor?: string) => {
     setMenuOpen(false);
@@ -40,32 +56,37 @@ export function Navbar({ scrolled: externalScrolled }: NavbarProps) {
   return (
     <>
       <header
-        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
-          isScrolled ? 'bg-white/95 shadow-lg shadow-ink/10 backdrop-blur-xl' : 'bg-gradient-to-b from-ink/90 via-ink/40 to-transparent'
+        className={`fixed top-0 left-0 right-0 z-50 border-b transition-all duration-500 ${
+          isScrolled
+            ? 'bg-[#080c19]/95 border-white/10 shadow-xl shadow-black/25 backdrop-blur-2xl'
+            : 'bg-[#080c19]/75 border-white/[0.07] shadow-lg shadow-black/10 backdrop-blur-lg'
         }`}
       >
         <div
-          className={`max-w-[1400px] mx-auto px-4 md:px-7 flex items-center justify-between transition-all duration-500 ${
-            isScrolled ? 'h-16' : 'h-[76px] md:h-[84px]'
+          className={`max-w-[1500px] mx-auto px-4 md:px-6 xl:px-8 flex items-center justify-between gap-3 xl:gap-6 transition-all duration-500 ${
+            isScrolled ? 'h-[68px] md:h-[72px]' : 'h-[76px] md:h-[82px]'
           }`}
         >
           {/* Logo / Brand */}
           <Link
             to="/"
-            className="flex items-center min-w-0 group py-1"
+            className="flex shrink-0 items-center min-w-0 group py-1 rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan focus-visible:ring-offset-2 focus-visible:ring-offset-ink"
             data-cursor="home"
-            aria-label="Mathulac home"
+            aria-label="Mathulac by Visaka Paints — Home"
             onClick={() => setMenuOpen(false)}
           >
             <img
+              ref={logoRef}
               src={mathulacLogo}
-              alt="Visaka Mathulac Paints & Chemicals India"
-              className="h-10 sm:h-11 md:h-12 w-auto object-contain rounded-md transition-transform group-hover:scale-105"
+              alt="Mathulac by Visaka Paints"
+              width="2172"
+              height="724"
+              className="w-[135px] sm:w-[150px] md:w-[175px] lg:w-[190px] xl:w-[220px] h-auto object-contain drop-shadow-[0_3px_7px_rgba(0,0,0,0.48)] transition-[transform,filter] duration-300 ease-out motion-safe:group-hover:scale-[1.03] group-hover:drop-shadow-[0_5px_10px_rgba(0,0,0,0.65)]"
             />
           </Link>
 
           {/* Desktop Navigation Links */}
-          <nav className="hidden lg:flex items-center gap-6 xl:gap-8">
+          <nav className="hidden lg:flex items-center justify-center gap-3 xl:gap-5 2xl:gap-7 min-w-0">
             {navItems.map((n) => (
               <NavLink
                 key={n.id}
@@ -77,8 +98,8 @@ export function Navbar({ scrolled: externalScrolled }: NavbarProps) {
                   }
                 }}
                 className={({ isActive }) =>
-                  `nav-link text-sm font-bold transition-all px-1 py-1 ${text} ${
-                    isActive ? (isScrolled ? 'text-[#d43b7a]' : 'text-white') : 'opacity-85 hover:opacity-100'
+                  `nav-link text-[13px] xl:text-sm font-bold transition-all px-0.5 py-1 whitespace-nowrap ${text} ${
+                    isActive ? 'text-white' : 'opacity-80 hover:opacity-100'
                   }`
                 }
               >
@@ -88,12 +109,12 @@ export function Navbar({ scrolled: externalScrolled }: NavbarProps) {
           </nav>
 
           {/* Action & Contact Buttons */}
-          <div className="flex items-center gap-3">
-            <div className={`hidden md:flex items-center gap-2 transition-colors ${text}`}>
-              <Phone className={`w-4 h-4 transition-colors ${isScrolled ? 'text-[#d43b7a]' : 'text-[#ffd5e8]'}`} />
+          <div className="flex shrink-0 items-center gap-2 xl:gap-3">
+            <div className={`hidden 2xl:flex items-center gap-2 transition-colors ${text}`}>
+              <Phone className="w-4 h-4 text-[#ffd5e8]" />
               <a
                 href={`tel:${phoneNumbers[0].replace(/\s/g, '')}`}
-                className={`text-sm font-bold transition-colors hover:text-magenta ${text}`}
+                className={`text-sm font-bold whitespace-nowrap transition-colors hover:text-magenta ${text}`}
               >
                 {phoneNumbers[0]}
               </a>
@@ -111,6 +132,8 @@ export function Navbar({ scrolled: externalScrolled }: NavbarProps) {
               onClick={() => setMenuOpen(!menuOpen)}
               className={`lg:hidden w-10 h-10 flex items-center justify-center transition-colors rounded-lg hover:bg-white/10 ${text}`}
               aria-label="Toggle Navigation Menu"
+              aria-expanded={menuOpen}
+              aria-controls="mobile-navigation"
             >
               {menuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
             </button>
@@ -126,8 +149,9 @@ export function Navbar({ scrolled: externalScrolled }: NavbarProps) {
             onClick={() => setMenuOpen(false)}
           />
           <div
+            id="mobile-navigation"
             className={`fixed left-0 right-0 z-50 lg:hidden bg-white/95 backdrop-blur-xl border-t border-black/5 p-5 shadow-2xl animate-menu-drop ${
-              isScrolled ? 'top-16' : 'top-[76px] md:top-[84px]'
+              isScrolled ? 'top-[68px] md:top-[72px]' : 'top-[76px] md:top-[82px]'
             }`}
           >
             <div className="flex flex-col gap-1.5">
