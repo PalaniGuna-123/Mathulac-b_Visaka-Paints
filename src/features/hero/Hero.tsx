@@ -40,21 +40,48 @@ export function Hero({ scrollTo }: HeroProps) {
         },
       });
       const sweep = sweepRef.current;
+
+      // Initialize all hidden
       tl.set('#brand-reveal', { autoAlpha: 1 })
+        .set('#brand-visaka-block', { autoAlpha: 0, y: 28, scale: 0.97 })
+        .set('#brand-mathulac-block', { autoAlpha: 0, y: 28, scale: 0.97 })
+        .set('#brand-tagline', { autoAlpha: 0, y: 14 })
+        .set('#brand-divider', { scaleX: 0 })
+        .set('#brand-mathulac-tagline', { autoAlpha: 0, y: 14 })
+        .set('#brand-mathulac-sub', { autoAlpha: 0 })
         .set(content, { autoAlpha: 0, y: 34 })
         .set(sweep, { xPercent: -115 })
-        .set(['#brand-flow-path', '#brand-flow-path-2'], { strokeDasharray: 1700, strokeDashoffset: 1700 })
-        .fromTo('#brand-flow-path', { strokeDashoffset: 1700 }, { strokeDashoffset: 0, duration: 1.6, ease: 'power2.inOut' }, 0.2)
-        .fromTo('#brand-flow-path-2', { strokeDashoffset: 1700 }, { strokeDashoffset: 0, duration: 2.1, ease: 'power2.inOut' }, 0.55)
-        .fromTo('#brand-logo', { autoAlpha: 0, scale: 0.95, filter: 'blur(18px)' }, { autoAlpha: 1, scale: 1, filter: 'blur(0px)', duration: 1.0 }, 0.9)
-        .fromTo('#brand-name span', { autoAlpha: 0, y: 24 }, { autoAlpha: 1, y: 0, duration: 0.7, stagger: 0.05 }, 1.25)
-        .to('#brand-visaka-block', { autoAlpha: 0, y: -24, scale: 0.97, duration: 0.5, ease: 'power2.in' }, 3.0)
-        .fromTo('#reveal-sweep', { xPercent: -115 }, { xPercent: 0, duration: 0.4, ease: 'power2.inOut' }, 3.0)
-        .fromTo('#brand-mathulac-block', { autoAlpha: 0, y: 26 }, { autoAlpha: 1, y: 0, duration: 0.55 }, 3.35)
-        .to('#reveal-sweep', { xPercent: 115, duration: 0.55, ease: 'power2.inOut' }, 3.9)
-        .set('#reveal-sweep', { xPercent: -115 })
-        .to('#brand-reveal', { autoAlpha: 0, duration: 0.65 }, 4.6)
-        .to(content, { autoAlpha: 1, y: 0, duration: 0.9 }, 4.7);
+        .set(['#brand-flow-path', '#brand-flow-path-2', '#brand-flow-path-3'],
+             { strokeDasharray: 2200, strokeDashoffset: 2200 })
+
+        // Phase 1 — Thin artful paint streams draw across
+        .fromTo('#brand-flow-path',   { strokeDashoffset: 2200 }, { strokeDashoffset: 0, duration: 1.4, ease: 'power2.inOut' }, 0.05)
+        .fromTo('#brand-flow-path-2', { strokeDashoffset: 2200 }, { strokeDashoffset: 0, duration: 1.7, ease: 'power2.inOut' }, 0.2)
+        .fromTo('#brand-flow-path-3', { strokeDashoffset: 2200 }, { strokeDashoffset: 0, duration: 1.2, ease: 'power2.inOut' }, 0.45)
+
+        // Phase 2 — Visaka Paints emerges
+        .to('#brand-visaka-block', { autoAlpha: 1, y: 0, scale: 1, duration: 0.9 }, 0.6)
+        .fromTo('#brand-logo', { filter: 'blur(12px)', scale: 0.92 }, { filter: 'blur(0px)', scale: 1, duration: 0.9 }, 0.6)
+        .to('#brand-tagline',   { autoAlpha: 1, y: 0, duration: 0.6 }, 1.1)
+        .to('#brand-divider',   { scaleX: 1, duration: 0.6, ease: 'power2.inOut' }, 1.45)
+
+        // Phase 3 — Visaka exits
+        .to('#brand-visaka-block', { autoAlpha: 0, y: -22, scale: 0.96, duration: 0.5, ease: 'power2.in' }, 2.6)
+
+        // Phase 4 — Paint wipe transition
+        .fromTo('#reveal-sweep', { xPercent: -115 }, { xPercent: 115, duration: 0.8, ease: 'power2.inOut' }, 2.85)
+
+        // Phase 5 — Mathulac appears
+        .to('#brand-mathulac-block',    { autoAlpha: 1, y: 0, scale: 1, duration: 0.9 }, 3.45)
+        .to('#brand-mathulac-tagline',  { autoAlpha: 1, y: 0, duration: 0.65 }, 3.9)
+        .to('#brand-mathulac-sub',      { autoAlpha: 1, duration: 0.55 }, 4.15)
+
+        // Phase 6 — Dissolve reveal
+        .to('#brand-mathulac-block',  { autoAlpha: 0, y: -22, scale: 0.97, duration: 0.5, ease: 'power2.in' }, 5.0)
+        .to('#brand-reveal',          { autoAlpha: 0, duration: 0.7, ease: 'power2.inOut' }, 5.4)
+
+        // Phase 7 — Main hero content enters
+        .to(content, { autoAlpha: 1, y: 0, duration: 0.9, ease: 'power3.out' }, 5.5);
     }, root);
     return () => ctx.revert();
   }, []);
@@ -131,8 +158,6 @@ export function Hero({ scrollTo }: HeroProps) {
             className={`absolute inset-0 transition-opacity duration-1000 ${i === activeSlide ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
           >
             <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: `url(${s.image})` }} />
-            <div className="absolute inset-0 bg-gradient-to-r from-ink via-ink/65 to-transparent" />
-            <div className="absolute inset-0 bg-gradient-to-t from-ink via-transparent to-ink/60" />
           </div>
         ))}
       </div>
@@ -144,85 +169,203 @@ export function Hero({ scrollTo }: HeroProps) {
       {/* Wet-paint sweep animation transition */}
       <div ref={sweepRef} className="paint-sweep" />
 
-      {/* Cinematic Brand Reveal Overlay (0-4.6s) */}
+      {/* ── Cinematic Brand Reveal Overlay ── */}
       <div
         id="brand-reveal"
-        className="absolute inset-0 z-30 pointer-events-none flex items-center justify-center bg-ink"
+        className="absolute inset-0 z-30 pointer-events-none flex items-center justify-center"
+        style={{ background: 'linear-gradient(135deg,#080c18 0%,#0e0820 50%,#080c18 100%)' }}
       >
         <div id="reveal-sweep" className="paint-sweep" />
 
-        {/* Ambient background SVG path */}
-        <svg className="absolute inset-0 w-full h-full pointer-events-none opacity-40" viewBox="0 0 1440 900" preserveAspectRatio="none">
-          <path
-            id="brand-flow-path"
-            d="M -100 200 C 300 100, 600 700, 1540 400"
-            fill="none"
-            stroke="url(#flow-grad-1)"
-            strokeWidth="120"
-            strokeLinecap="round"
-          />
-          <path
-            id="brand-flow-path-2"
-            d="M -100 600 C 400 800, 900 200, 1540 700"
-            fill="none"
-            stroke="url(#flow-grad-2)"
-            strokeWidth="70"
-            strokeLinecap="round"
-          />
+        {/* ── Elegant thin paint ribbon strokes ── */}
+        <svg
+          className="absolute inset-0 w-full h-full pointer-events-none"
+          viewBox="0 0 1440 900"
+          preserveAspectRatio="none"
+          style={{ opacity: 0.55 }}
+        >
           <defs>
             <linearGradient id="flow-grad-1" x1="0" y1="0" x2="1" y2="0">
-              <stop offset="0%" stopColor="#E6007E" />
-              <stop offset="50%" stopColor="#FF7A00" />
-              <stop offset="100%" stopColor="#FFD400" />
+              <stop offset="0%"   stopColor="#E6007E" stopOpacity="0.9" />
+              <stop offset="45%"  stopColor="#FF7A00" stopOpacity="0.7" />
+              <stop offset="100%" stopColor="#FFD400" stopOpacity="0.3" />
             </linearGradient>
             <linearGradient id="flow-grad-2" x1="0" y1="0" x2="1" y2="0">
-              <stop offset="0%" stopColor="#00C8FF" />
-              <stop offset="100%" stopColor="#7B2CFF" />
+              <stop offset="0%"   stopColor="#00C8FF" stopOpacity="0.8" />
+              <stop offset="100%" stopColor="#7B2CFF" stopOpacity="0.4" />
             </linearGradient>
+            <linearGradient id="flow-grad-3" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0%"   stopColor="#7B2CFF" stopOpacity="0.5" />
+              <stop offset="100%" stopColor="#E6007E" stopOpacity="0.2" />
+            </linearGradient>
+            <filter id="glow-stroke">
+              <feGaussianBlur in="SourceGraphic" stdDeviation="3" result="blur" />
+              <feMerge><feMergeNode in="blur" /><feMergeNode in="SourceGraphic" /></feMerge>
+            </filter>
           </defs>
+
+          {/* Ribbon 1 — Magenta → Amber, sweeps upper half */}
+          <path
+            id="brand-flow-path"
+            d="M -60 180 C 280 90, 700 540, 1500 260"
+            fill="none"
+            stroke="url(#flow-grad-1)"
+            strokeWidth="3"
+            strokeLinecap="round"
+            filter="url(#glow-stroke)"
+          />
+          {/* Ribbon 1 thick glow echo */}
+          <path
+            d="M -60 180 C 280 90, 700 540, 1500 260"
+            fill="none"
+            stroke="url(#flow-grad-1)"
+            strokeWidth="18"
+            strokeLinecap="round"
+            opacity="0.18"
+          />
+
+          {/* Ribbon 2 — Cyan → Violet, sweeps lower half */}
+          <path
+            id="brand-flow-path-2"
+            d="M -60 680 C 350 820, 950 200, 1500 640"
+            fill="none"
+            stroke="url(#flow-grad-2)"
+            strokeWidth="2.5"
+            strokeLinecap="round"
+            filter="url(#glow-stroke)"
+          />
+          <path
+            d="M -60 680 C 350 820, 950 200, 1500 640"
+            fill="none"
+            stroke="url(#flow-grad-2)"
+            strokeWidth="16"
+            strokeLinecap="round"
+            opacity="0.15"
+          />
+
+          {/* Ribbon 3 — Subtle accent, mid-screen */}
+          <path
+            id="brand-flow-path-3"
+            d="M -60 440 C 500 350, 900 580, 1500 420"
+            fill="none"
+            stroke="url(#flow-grad-3)"
+            strokeWidth="1.5"
+            strokeLinecap="round"
+            filter="url(#glow-stroke)"
+          />
         </svg>
 
-        {/* Visaka block */}
-        <div id="brand-visaka-block" className="absolute text-center max-w-2xl px-6">
-          <img id="brand-logo" src={visakaLogo} alt="Visaka" className="h-20 md:h-28 mx-auto mb-6 object-contain" />
-          <h1 id="brand-name" className="font-display text-4xl md:text-6xl text-white tracking-tight">
-            {'Visaka Paints'.split(' ').map((w, i) => (
-              <span key={i} className="inline-block mr-3">
-                {w}
-              </span>
-            ))}
-          </h1>
-          <p className="text-cyan font-bold uppercase tracking-[0.25em] text-xs md:text-sm mt-3">Established 2004 • Coimbatore</p>
+        {/* Ambient colour glows (static, behind text) */}
+        <div className="absolute inset-0 pointer-events-none" style={{ zIndex: 1 }}>
+          <div className="absolute top-1/4 left-1/4 w-80 h-80 rounded-full" style={{ background: 'radial-gradient(circle,rgba(230,0,126,0.12) 0%,transparent 70%)' }} />
+          <div className="absolute bottom-1/4 right-1/4 w-80 h-80 rounded-full" style={{ background: 'radial-gradient(circle,rgba(0,200,255,0.10) 0%,transparent 70%)' }} />
         </div>
 
-        {/* Mathulac block */}
-        <div id="brand-mathulac-block" className="absolute text-center max-w-3xl px-6">
-          <span className="text-xs uppercase tracking-[0.3em] font-extrabold text-magenta mb-2 block">Presents</span>
-          <h1 className="font-display text-5xl md:text-8xl text-white tracking-tight">MATHULAC</h1>
-          <p className="text-white/80 font-display italic text-xl md:text-2xl mt-3">Colour Changes Everything</p>
+        {/* ── VISAKA PAINTS BLOCK ── */}
+        <div
+          id="brand-visaka-block"
+          className="absolute inset-0 flex flex-col items-center justify-center px-6 text-center opacity-0 pointer-events-none"
+          style={{ zIndex: 2 }}
+        >
+          {/* Logo with subtle backdrop circle */}
+          <div className="relative mb-5">
+            <div className="absolute inset-0 rounded-full" style={{ background: 'radial-gradient(circle,rgba(230,0,126,0.15) 0%,transparent 65%)', transform: 'scale(2.4)' }} />
+            <img
+              id="brand-logo"
+              src={visakaLogo}
+              alt="Visaka"
+              className="relative h-20 md:h-24 mx-auto object-contain drop-shadow-2xl"
+              style={{ filter: 'drop-shadow(0 0 18px rgba(230,0,126,0.45))' }}
+            />
+          </div>
+
+          {/* Eyebrow */}
+          <p
+            id="brand-tagline"
+            className="opacity-0 text-[10px] font-extrabold uppercase tracking-[0.35em] mb-3"
+            style={{ color: '#00c8ff', letterSpacing: '0.35em' }}
+          >
+            Established 2004 &nbsp;&bull;&nbsp; Coimbatore
+          </p>
+
+          {/* Brand name */}
+          <h1
+            className="font-display font-bold text-white tracking-tight leading-none"
+            style={{ fontSize: 'clamp(2rem, 5vw, 3.5rem)', textShadow: '0 2px 40px rgba(230,0,126,0.3)' }}
+          >
+            Visaka Paints
+          </h1>
+
+          {/* Thin divider bar */}
+          <div
+            id="brand-divider"
+            className="mt-4 h-px w-32 origin-left"
+            style={{ background: 'linear-gradient(90deg,#e6007e,#00c8ff)', transform: 'scaleX(0)' }}
+          />
+        </div>
+
+        {/* ── MATHULAC BLOCK ── */}
+        <div
+          id="brand-mathulac-block"
+          className="absolute inset-0 flex flex-col items-center justify-center px-6 text-center opacity-0 pointer-events-none"
+          style={{ zIndex: 2 }}
+        >
+          {/* Presents eyebrow */}
+          <p
+            id="brand-mathulac-tagline"
+            className="opacity-0 text-[10px] font-extrabold uppercase tracking-[0.4em] mb-3 text-magenta"
+          >
+            Visaka Paints&nbsp;&bull;&nbsp;Presents
+          </p>
+
+          {/* MATHULAC wordmark */}
+          <h1
+            className="font-display font-black text-white tracking-widest leading-none"
+            style={{
+              fontSize: 'clamp(2.8rem, 7vw, 5.5rem)',
+              textShadow: '0 0 60px rgba(230,0,126,0.35), 0 2px 30px rgba(0,0,0,0.8)',
+              letterSpacing: '0.12em',
+            }}
+          >
+            MATHULAC
+          </h1>
+
+          {/* Gradient underline */}
+          <div
+            className="mt-3 h-[2px] w-40"
+            style={{ background: 'linear-gradient(90deg,transparent,#e6007e,#7b2cff,transparent)' }}
+          />
+
+          {/* Tagline */}
+          <p
+            id="brand-mathulac-sub"
+            className="opacity-0 mt-4 font-display italic text-white/70 text-sm sm:text-base"
+          >
+            Colour Changes Everything
+          </p>
         </div>
       </div>
 
       {/* Main Hero Content */}
       <div className="relative z-20 h-full max-w-[1400px] mx-auto px-5 md:px-8 flex items-center">
         <div ref={contentRef} className="max-w-2xl pt-20">
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full glass mb-6">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full glass mb-4">
             <span className="w-2 h-2 rounded-full animate-ping" style={{ background: slide.accent }} />
-            <span className="text-xs font-bold uppercase tracking-widest text-white/90">{slide.tagline}</span>
+            <span className="text-[11px] font-bold uppercase tracking-widest text-white/90">{slide.tagline}</span>
           </div>
 
-          <h2 className="font-display text-4xl sm:text-6xl md:text-7xl text-white leading-[0.98] tracking-tight">
+          <h2 className="font-display text-2xl sm:text-4xl md:text-5xl text-white leading-tight tracking-tight drop-shadow-md">
             {slide.headline}
           </h2>
 
-          <p className="text-white/75 text-base sm:text-lg mt-6 leading-relaxed max-w-xl">
+          <p className="text-white/90 text-sm sm:text-base mt-4 leading-relaxed max-w-xl drop-shadow">
             {slide.statement}
           </p>
 
-          <div className="mt-8 flex flex-wrap items-center gap-4">
+          <div className="mt-6 flex flex-wrap items-center gap-3">
             <Link
               to="/studio"
-              className="group inline-flex items-center gap-2 px-7 py-4 rounded-xl font-bold text-white shadow-xl transition-transform hover:scale-105"
+              className="group inline-flex items-center gap-2 px-5 py-3 rounded-xl text-xs sm:text-sm font-bold text-white shadow-xl transition-transform hover:scale-105"
               style={{ background: slide.accent }}
             >
               Explore In Studio
@@ -232,7 +375,7 @@ export function Hero({ scrollTo }: HeroProps) {
             <Link
               to="/products"
               onClick={(e) => handleCtaClick(e, 'products')}
-              className="inline-flex items-center gap-2 px-7 py-4 rounded-xl font-bold text-white glass hover:bg-white/15 transition-all"
+              className="inline-flex items-center gap-2 px-5 py-3 rounded-xl text-xs sm:text-sm font-bold text-white glass hover:bg-white/15 transition-all"
             >
               View Catalogue
             </Link>

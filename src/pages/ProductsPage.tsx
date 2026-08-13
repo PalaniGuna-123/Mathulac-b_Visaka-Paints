@@ -27,13 +27,15 @@ export function ProductsPage() {
   return (
     <div className="w-full pt-20">
       {/* Page Hero Header */}
-      <div className="relative py-16 md:py-24 px-5 md:px-8 bg-gradient-to-b from-ink via-[#1a0b2e] to-ink border-b border-white/10">
-        <div className="max-w-[1400px] mx-auto text-center">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-cyan/20 text-cyan text-xs font-bold uppercase tracking-widest mb-4 border border-cyan/30">
+      <div className="relative py-16 md:py-20 px-4 md:px-8 bg-gradient-to-b from-ink via-[#1a0b2e] to-ink border-b border-white/10">
+        <div className="max-w-3xl mx-auto text-center">
+          <div className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-cyan/20 text-cyan text-[11px] font-extrabold uppercase tracking-widest mb-3 border border-cyan/30">
             <Layers className="w-3.5 h-3.5" /> Full Product Catalogue
           </div>
-          <h1 className="heading-hero text-white">Engineering The Perfect Coat</h1>
-          <p className="text-white/70 max-w-2xl mx-auto mt-6 text-base md:text-lg">
+          <h1 className="font-display text-2xl sm:text-3xl md:text-4xl text-white leading-tight tracking-tight">
+            Engineering The Perfect Coat
+          </h1>
+          <p className="text-white/70 text-xs sm:text-sm mt-2.5 max-w-xl mx-auto leading-relaxed">
             Every Mathulac coating formulation is tested for climate durability, coverage opacity, color brilliance, and seamless application.
           </p>
 

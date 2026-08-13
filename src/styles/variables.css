@@ -30,8 +30,15 @@
   --color-midnight-rgb: 19, 26, 49;
   --color-surface-dark: #1A0B2E;
   --color-surface-deep: #0A1525;
+  --color-surface-card: #151B2E;
+  --color-surface-panel: #0B0F19;
   --color-cream: #FFF8F1;
   --color-cream-rgb: 255, 248, 241;
+
+  /* Global Border & Line Tokens */
+  --color-border-subtle: rgba(255, 255, 255, 0.08);
+  --color-border-card: rgba(255, 255, 255, 0.12);
+  --color-border-focus: rgba(230, 0, 126, 0.5);
 
   /* Light Studio Tokens */
   --color-studio-bg: #FFF8F0;
@@ -47,7 +54,14 @@
   /* Typography Tokens */
   --font-display: "DM Serif Display", Georgia, serif;
   --font-sans: "Manrope", Inter, system-ui, -apple-system, sans-serif;
-  --font-body: "Inter", system-ui, -apple-system, sans-serif;
+  /* Standard Common Box Border Radius (XL - 16px Base) */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-xl: 16px;
+  --radius-box: 16px;
+  --radius-card: 16px;
+  --radius-panel: 16px;
+  --radius-pill: 9999px;
 
   /* Elevation & Shadows */
   --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.15);

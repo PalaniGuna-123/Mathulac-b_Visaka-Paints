@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Menu, Phone, X, Sparkles } from 'lucide-react';
 import { navItems, phoneNumbers } from '../../data';
 import { NavLink, Link, useLocation, useNavigate } from '../../routes/Router';
-import visakaLogo from '../../../assets/logo.png';
+import mathulacLogo from '../../assets/logo/logo.jpeg';
 
 interface NavbarProps {
   scrolled?: boolean;
@@ -52,24 +52,16 @@ export function Navbar({ scrolled: externalScrolled }: NavbarProps) {
           {/* Logo / Brand */}
           <Link
             to="/"
-            className="flex items-center gap-2.5 min-w-0 group"
+            className="flex items-center min-w-0 group py-1"
             data-cursor="home"
             aria-label="Mathulac home"
             onClick={() => setMenuOpen(false)}
           >
             <img
-              src={visakaLogo}
-              alt="Visaka Paints & Chemicals India"
-              className="h-9 w-auto md:h-10 object-contain transition-transform group-hover:scale-105"
+              src={mathulacLogo}
+              alt="Visaka Mathulac Paints & Chemicals India"
+              className="h-10 sm:h-11 md:h-12 w-auto object-contain rounded-md transition-transform group-hover:scale-105"
             />
-            <div className="text-left leading-tight min-w-0">
-              <div className={`font-display text-xl md:text-2xl tracking-tight transition-colors ${isScrolled ? 'text-[#d7194a]' : 'text-white'}`}>
-                MATHULAC
-              </div>
-              <div className={`text-[8px] md:text-[9px] tracking-[0.16em] uppercase font-extrabold transition-colors ${muted}`}>
-                by Visaka Paints &amp; Chemicals
-              </div>
-            </div>
           </Link>
 
           {/* Desktop Navigation Links */}

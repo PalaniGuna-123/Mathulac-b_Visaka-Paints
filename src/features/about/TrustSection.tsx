@@ -2,21 +2,28 @@ import { trustPillars } from '../../data';
 
 export function TrustSection() {
   return (
-    <section className="relative py-20 md:py-28 px-5 md:px-8 bg-[#0a1525] border-t border-white/5">
+    <section className="relative py-16 md:py-20 px-4 md:px-8 bg-surface-deep border-t border-white/5">
       <div className="max-w-[1400px] mx-auto">
-        <div className="text-center mb-14" data-reveal>
-          <span className="text-leaf font-bold uppercase tracking-widest text-xs">Quality Commitment</span>
-          <h2 className="font-display text-3xl md:text-5xl text-white mt-2">Why India Chooses Mathulac</h2>
+        <div className="text-center max-w-3xl mx-auto mb-10" data-reveal>
+          <div className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-leaf/20 text-leaf text-[11px] font-extrabold uppercase tracking-widest mb-3 border border-leaf/30">
+            Quality Commitment
+          </div>
+          <h2 className="font-display text-2xl sm:text-3xl md:text-4xl text-white leading-tight tracking-tight">
+            Why India Chooses Mathulac
+          </h2>
+          <p className="text-white/70 text-xs sm:text-sm mt-2.5 max-w-xl mx-auto leading-relaxed">
+            Engineered with high solid content and UV-resistant binders to outlast harsh weather.
+          </p>
         </div>
 
-        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {trustPillars.map((p, i) => {
             const Icon = p.icon;
             return (
               <div
                 key={p.label}
                 data-reveal
-                className="group p-7 rounded-2xl glass text-center border border-white/10 shadow-xl hover:bg-white/10 transition-all"
+                className="group p-5 sm:p-6 rounded-xl glass text-center border border-white/10 shadow-xl hover:bg-white/10 transition-all"
                 style={{ transitionDelay: `${i * 60}ms` }}
               >
                 <div

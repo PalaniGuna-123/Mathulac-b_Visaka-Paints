@@ -22,30 +22,30 @@ export function HomePage() {
       gsap.utils.toArray<HTMLElement>('[data-reveal]').forEach((el) => {
         gsap.from(el, {
           opacity: 0,
-          y: 40,
-          duration: 0.9,
+          y: 32,
+          duration: 0.75,
           ease: 'power3.out',
-          scrollTrigger: { trigger: el, start: 'top 85%' },
+          scrollTrigger: { trigger: el, start: 'top 88%', once: true },
         });
       });
 
       gsap.utils.toArray<HTMLElement>('[data-reveal-left]').forEach((el) => {
         gsap.from(el, {
           opacity: 0,
-          x: -60,
-          duration: 0.9,
+          x: -45,
+          duration: 0.75,
           ease: 'power3.out',
-          scrollTrigger: { trigger: el, start: 'top 85%' },
+          scrollTrigger: { trigger: el, start: 'top 88%', once: true },
         });
       });
 
       gsap.utils.toArray<HTMLElement>('[data-reveal-right]').forEach((el) => {
         gsap.from(el, {
           opacity: 0,
-          x: 60,
-          duration: 0.9,
+          x: 45,
+          duration: 0.75,
           ease: 'power3.out',
-          scrollTrigger: { trigger: el, start: 'top 85%' },
+          scrollTrigger: { trigger: el, start: 'top 88%', once: true },
         });
       });
 

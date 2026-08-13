@@ -1,4 +1,4 @@
-import { CompanyStory, TrustSection } from '../features/about';
+import { CompanyStory, TrustSection, AboutLocationMap } from '../features/about';
 import { ServicesSection } from '../features/services';
 import { ContactSection } from '../features/contact';
 
@@ -13,6 +13,9 @@ export function AboutPage() {
 
       {/* Turnkey Services Overview */}
       <ServicesSection />
+
+      {/* Google Map Location, Get In Touch & Free Consultation */}
+      <AboutLocationMap />
 
       {/* Contact Hotline & Inquiry */}
       <ContactSection />

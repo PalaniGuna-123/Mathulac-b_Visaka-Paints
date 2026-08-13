@@ -4,14 +4,16 @@ import { Link } from '../../routes/Router';
 
 export function ServicesSection() {
   return (
-    <section id="services" className="relative py-24 md:py-32 px-5 md:px-8 bg-gradient-to-b from-[#1a0a3a] to-ink">
+    <section id="services" className="relative py-16 md:py-20 px-4 md:px-8 bg-gradient-to-b from-surface-dark to-ink">
       <div className="max-w-[1400px] mx-auto">
-        <div className="text-center mb-12" data-reveal>
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-cyan/20 text-cyan text-xs font-bold uppercase tracking-widest mb-3 border border-cyan/30">
+        <div className="text-center max-w-3xl mx-auto mb-10" data-reveal>
+          <div className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-cyan/20 text-cyan text-[11px] font-extrabold uppercase tracking-widest mb-3 border border-cyan/30">
             <Sparkles className="w-3.5 h-3.5" /> End-to-End Solutions
           </div>
-          <h2 className="font-display text-4xl md:text-6xl text-white mt-2">More Than Paint</h2>
-          <p className="text-white/70 mt-4 max-w-xl mx-auto">
+          <h2 className="font-display text-2xl sm:text-3xl md:text-4xl text-white leading-tight tracking-tight">
+            More Than Paint
+          </h2>
+          <p className="text-white/70 text-xs sm:text-sm mt-2.5 max-w-xl mx-auto leading-relaxed">
             From initial surface moisture testing and shade curation to verified master application — one dedicated partner across the entire journey.
           </p>
         </div>
@@ -23,7 +25,7 @@ export function ServicesSection() {
               <div
                 key={s.id}
                 data-reveal
-                className="group relative p-7 rounded-2xl glass hover:bg-white/10 transition-all shadow-xl border border-white/10"
+                className="group relative p-7 rounded-xl glass hover:bg-white/10 transition-all shadow-xl border border-white/10"
                 style={{ transitionDelay: `${i * 50}ms` }}
               >
                 <div
