@@ -3,7 +3,6 @@ import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { Hero } from '../features/hero';
 import { PaintStudio } from '../features/paint-studio';
-import { ProductShowcase } from '../features/products';
 import { OneBrandManySurfaces, WoodSection, AutoSection, DecorSection } from '../features/surfaces';
 import { ServicesSection } from '../features/services';
 import { ColorPaletteSection, ColorScrollSection } from '../features/palette';
@@ -73,7 +72,6 @@ export function HomePage() {
     <div className="w-full">
       <Hero scrollTo={scrollTo} />
       <PaintStudio scrollTo={scrollTo} />
-      <ProductShowcase scrollTo={scrollTo} />
       <OneBrandManySurfaces />
       <WoodSection />
       <AutoSection />
