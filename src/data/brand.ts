@@ -9,6 +9,41 @@ export const brand: BrandInfo = {
   established: 2004,
 };
 
+export const cinematicHero = {
+  eyebrow: 'Muthulac Paints',
+  headline: 'Colour That Shapes',
+  headlineAccent: 'Every Possibility.',
+  supportingText: 'Premium coatings crafted to bring character, protection, and lasting beauty to every surface.',
+  cta: 'Explore Our Colours',
+  scrollCue: 'Scroll to set colour in motion',
+  chapter: '01',
+  chapterLabel: 'Stroke ready',
+  edition: 'Premium finish',
+  storyLabel: 'Product story / Scroll controlled',
+  finalEyebrow: 'Muthulac Premium Finish',
+  finalHeadline: 'Transform Every Surface Into Something Exceptional.',
+  finalSupporting: 'Premium colours, reliable protection, and refined finishes designed to elevate homes, buildings, and architectural spaces.',
+  finalPrimaryCta: 'Explore Colours',
+  finalSecondaryCta: 'Discover Products',
+  colourLabels: ['Ocean Depth', 'Golden Dawn', 'Coral Warmth'],
+} as const;
+
+export const homepageVisualizer = {
+  eyebrow: 'Visaka Architectural Visualizer',
+  headline: 'See Your Space in a',
+  headlineAccent: 'New Colour.',
+  description:
+    'Explore thousands of VISAKA shades and experience how they transform your walls, facades, wood, and automotive surfaces in real time.',
+  primaryCta: 'Start Visualizing',
+  secondaryCta: 'Explore Shade Library',
+  chapter: '02',
+  shades: [
+    { name: 'Neutral White', code: 'MW 002', hex: '#eee9e1' },
+    { name: 'Warm Beige', code: 'MB 101', hex: '#cdb99f' },
+    { name: 'Mathulac Blue', code: 'VB 122', hex: '#315a9b' },
+  ],
+} as const;
+
 export const phoneNumbers: string[] = ['+91 93631 14343', '+91 96009 09066'];
 
 export const companyFacts: CompanyFact[] = [

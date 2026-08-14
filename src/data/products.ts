@@ -12,6 +12,7 @@ import {
   ShieldCheck,
   Paintbrush,
 } from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
 import type { ProductCategory, Surface, Product, MathulacProductItem } from '../types';
 import { productAssetMap } from './productAssets';
 
@@ -20,7 +21,7 @@ export interface CatalogCategory {
   orderNumber: number;
   name: string;
   count: number;
-  icon: any;
+  icon: LucideIcon;
   accent: string;
   folderName: string;
   description: string;
@@ -544,12 +545,41 @@ export const categories: ProductCategory[] = [
 ];
 
 export const surfaces: Surface[] = [
-  { id: 'interior', name: 'Interior Walls', accent: '#EC4899', image: 'https://images.pexels.com/photos/1571460/pexels-photo-1571460.jpeg?auto=compress&cs=tinysrgb&w=1200' },
-  { id: 'exterior', name: 'Exterior Facades', accent: '#06B6D4', image: 'https://images.pexels.com/photos/1396122/pexels-photo-1396122.jpeg?auto=compress&cs=tinysrgb&w=1200' },
-  { id: 'wood', name: 'Wood & Furniture', accent: '#B45309', image: 'https://images.pexels.com/photos/4705928/pexels-photo-4705928.jpeg?auto=compress&cs=tinysrgb&w=1200' },
-  { id: 'metal', name: 'Metal & Steel', accent: '#146BFF', image: 'https://images.pexels.com/photos/17977773/pexels-photo-17977773.jpeg?auto=compress&cs=tinysrgb&w=1200' },
-  { id: 'putty', name: 'Wall Preparation', accent: '#78716C', image: 'https://images.pexels.com/photos/8146318/pexels-photo-8146318.jpeg?auto=compress&cs=tinysrgb&w=1200' },
-  { id: 'decorative', name: 'Hammertone & Decorative', accent: '#8B5CF6', image: 'https://images.pexels.com/photos/271805/pexels-photo-271805.jpeg?auto=compress&cs=tinysrgb&w=1200' },
+  {
+    id: 'interior',
+    name: 'Interior Walls',
+    description: 'Beautiful finishes for spaces that feel like home.',
+    accent: '#EC4899',
+    image: 'https://images.pexels.com/photos/1571460/pexels-photo-1571460.jpeg?auto=compress&cs=tinysrgb&w=1920',
+  },
+  {
+    id: 'exterior',
+    name: 'Exterior Facades',
+    description: 'Durable protection built for changing weather.',
+    accent: '#06B6D4',
+    image: 'https://images.pexels.com/photos/1396122/pexels-photo-1396122.jpeg?auto=compress&cs=tinysrgb&w=1920',
+  },
+  {
+    id: 'wood',
+    name: 'Wood Coatings',
+    description: 'Protection and finish that preserve natural beauty.',
+    accent: '#D97706',
+    image: 'https://images.pexels.com/photos/4705928/pexels-photo-4705928.jpeg?auto=compress&cs=tinysrgb&w=1920',
+  },
+  {
+    id: 'steel',
+    name: 'Structural Steel',
+    description: 'Protective coatings engineered for demanding environments.',
+    accent: '#60A5FA',
+    image: 'https://images.pexels.com/photos/17977773/pexels-photo-17977773.jpeg?auto=compress&cs=tinysrgb&w=1920',
+  },
+  {
+    id: 'automotive',
+    name: 'Automotive Refinishing',
+    description: 'Precision colour and finish for every curve.',
+    accent: '#F51B24',
+    image: 'https://images.pexels.com/photos/34042808/pexels-photo-34042808.jpeg?auto=compress&cs=tinysrgb&w=1920',
+  },
 ];
 
 export const featuredProducts: Product[] = [

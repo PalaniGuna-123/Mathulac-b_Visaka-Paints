@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useLayoutEffect, useRef } from 'react';
 import {
   ChevronLeft,
   ChevronRight,
@@ -30,7 +30,8 @@ import { BRAND_COLORS } from '../../styles/colors';
 import type { MathulacProductItem } from '../../types';
 import { ProductVisual } from './ProductVisual';
 import { CategoryProductsModal } from './CategoryProductsModal';
-import { trustPillars, companyFacts, timeline } from '../../data/brand';
+import { trustPillars, timeline } from '../../data/brand';
+import { gsap, ScrollTrigger } from '../../lib/animation';
 
 interface ProductShowcaseProps {
   initialFilter?: string;
@@ -38,6 +39,9 @@ interface ProductShowcaseProps {
 }
 
 export function ProductShowcase({ initialFilter = 'thinners', scrollTo }: ProductShowcaseProps) {
+  const sectionRef = useRef<HTMLElement>(null);
+  const scrollContentRef = useRef<HTMLDivElement>(null);
+
   // Active selected category
   const [selectedCategory, setSelectedCategory] = useState<CatalogCategory>(
     mathulacCategories.find((c) => c.id === initialFilter) || mathulacCategories[0]
@@ -61,6 +65,69 @@ export function ProductShowcase({ initialFilter = 'thinners', scrollTo }: Produc
   // Animated stat counters
   const statsRef = useRef<HTMLDivElement>(null);
   const [statsVisible, setStatsVisible] = useState(false);
+
+  useLayoutEffect(() => {
+    const section = sectionRef.current;
+    const content = scrollContentRef.current;
+    if (!section || !content || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+    let refreshFrame = 0;
+    let settleFrame = 0;
+    let disposed = false;
+
+    const getScrollDistance = () => Math.max(1, content.scrollHeight - section.clientHeight);
+    const queueRefresh = () => {
+      window.cancelAnimationFrame(refreshFrame);
+      refreshFrame = window.requestAnimationFrame(() => {
+        if (!disposed) ScrollTrigger.refresh();
+      });
+    };
+
+    const ctx = gsap.context(() => {
+      gsap.set(section, { height: '100svh', overflow: 'hidden' });
+      gsap.set(content, { willChange: 'transform' });
+
+      gsap.to(content, {
+        y: () => -getScrollDistance(),
+        ease: 'none',
+        scrollTrigger: {
+          id: 'products-scroll-chapter',
+          trigger: section,
+          start: 'top top',
+          end: () => `+=${getScrollDistance()}`,
+          pin: true,
+          pinSpacing: true,
+          scrub: 0.55,
+          invalidateOnRefresh: true,
+          refreshPriority: 10,
+        },
+      });
+    }, section);
+
+    const resizeObserver = new ResizeObserver(queueRefresh);
+    resizeObserver.observe(content);
+
+    const images = Array.from(content.querySelectorAll('img'));
+    void Promise.allSettled(
+      images.map((image) => image.decode().catch(() => undefined)),
+    ).then(() => {
+      if (!disposed) queueRefresh();
+    });
+
+    void document.fonts?.ready.then(() => {
+      if (!disposed) queueRefresh();
+    });
+
+    settleFrame = window.requestAnimationFrame(queueRefresh);
+
+    return () => {
+      disposed = true;
+      window.cancelAnimationFrame(refreshFrame);
+      window.cancelAnimationFrame(settleFrame);
+      resizeObserver.disconnect();
+      ctx.revert();
+    };
+  }, []);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -124,18 +191,19 @@ export function ProductShowcase({ initialFilter = 'thinners', scrollTo }: Produc
   };
 
   return (
-    <section id="products" className="relative py-16 md:py-20 px-4 md:px-8 bg-[#0B0D17] text-white overflow-hidden">
-      {/* Background ambient lighting */}
-      <div className="absolute top-1/4 left-1/4 w-[500px] h-[500px] bg-magenta/15 rounded-full filter blur-[140px] pointer-events-none" />
-      <div className="absolute bottom-1/4 right-1/4 w-[500px] h-[500px] bg-cyan/15 rounded-full filter blur-[140px] pointer-events-none" />
+    <section ref={sectionRef} id="products" className="relative bg-[#0B0D17] text-white overflow-hidden">
+      <div ref={scrollContentRef} className="relative py-16 md:py-20 px-4 md:px-8">
+        {/* Background ambient lighting */}
+        <div className="absolute top-1/4 left-1/4 w-[500px] h-[500px] bg-magenta/15 rounded-full filter blur-[140px] pointer-events-none" />
+        <div className="absolute bottom-1/4 right-1/4 w-[500px] h-[500px] bg-cyan/15 rounded-full filter blur-[140px] pointer-events-none" />
 
-      <div className="max-w-[1400px] mx-auto relative z-10">
+        <div className="max-w-[1400px] mx-auto relative z-10">
         {/* Section Header */}
         <div className="text-center max-w-3xl mx-auto mb-10" data-reveal>
           <div className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-cyan/15 text-cyan text-[11px] font-extrabold uppercase tracking-widest border border-cyan/30 mb-3">
             <Sparkles className="w-3.5 h-3.5 text-cyan" /> Full Product Range &amp; Formulations
           </div>
-          <h2 className="font-display text-2xl sm:text-3xl md:text-4xl text-white leading-tight tracking-tight">
+          <h2 data-paint-heading className="paint-heading font-display text-2xl sm:text-3xl md:text-4xl text-white leading-tight tracking-tight">
             Every Coat in the <em>Mathulac</em> Range
           </h2>
           <p className="text-white/70 text-xs sm:text-sm mt-2.5 max-w-xl mx-auto leading-relaxed">
@@ -165,7 +233,10 @@ export function ProductShowcase({ initialFilter = 'thinners', scrollTo }: Produc
                 <button
                   key={cat.id}
                   onClick={() => setSelectedCategory(cat)}
-                  className={`group relative p-3 rounded-xl text-left transition-all duration-300 cursor-pointer border flex flex-col justify-between ${isSelected
+                  aria-pressed={isSelected}
+                  className={`paint-category group relative p-3 rounded-xl text-left transition-all duration-300 cursor-pointer border flex flex-col justify-between ${isSelected
+                    ? 'is-paint-active '
+                    : ''}${isSelected
                     ? 'bg-gradient-to-b from-magenta/25 via-white/[0.08] to-violet/20 border-magenta shadow-lg shadow-magenta/20 scale-[1.02] ring-1 ring-magenta/40'
                     : 'bg-white/[0.03] hover:bg-white/[0.07] border-white/10 hover:border-white/25'
                     }`}
@@ -214,7 +285,10 @@ export function ProductShowcase({ initialFilter = 'thinners', scrollTo }: Produc
             {/* Left Column: Real Product Visual (5 cols) */}
             <div className="lg:col-span-5 flex flex-col items-center justify-center gap-2 relative">
               {/* Real Product Image Stage with Snug Height */}
-              <div className="w-full flex items-center justify-center relative">
+              <div
+                className="product-paint-stage w-full flex items-center justify-center relative"
+                style={{ '--paint-accent': currentProduct.color || '#00C8FF' } as React.CSSProperties}
+              >
                 <ProductVisual
                   product={currentProduct}
                   className="w-full h-[360px] sm:h-[400px]"
@@ -378,7 +452,7 @@ export function ProductShowcase({ initialFilter = 'thinners', scrollTo }: Produc
         <div className="max-w-2xl mx-auto flex flex-col sm:flex-row items-center justify-center gap-4 mb-16" data-reveal>
           <button
             onClick={handleConsult}
-            className="w-full sm:w-auto min-w-[240px] py-3.5 px-6 rounded-xl bg-gradient-to-r from-cyan via-teal-500 to-blue-600 text-white font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2.5 shadow-xl shadow-cyan/30 hover:opacity-95 transition-all hover:scale-[1.02] cursor-pointer"
+            className="paint-button paint-button--blue w-full sm:w-auto min-w-[240px] py-3.5 px-6 rounded-xl bg-gradient-to-r from-cyan via-teal-500 to-blue-600 text-white font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2.5 shadow-xl shadow-cyan/30 cursor-pointer"
           >
             <Phone className="w-4 h-4" />
             <span>Request Free Consultation</span>
@@ -386,7 +460,7 @@ export function ProductShowcase({ initialFilter = 'thinners', scrollTo }: Produc
 
           <button
             onClick={() => setCategoryModal(selectedCategory)}
-            className="w-full sm:w-auto min-w-[240px] py-3.5 px-6 rounded-xl bg-white/[0.08] hover:bg-white/[0.16] text-white font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2.5 transition-all hover:scale-[1.02] cursor-pointer border border-white/20 backdrop-blur-md shadow-lg"
+            className="paint-button w-full sm:w-auto min-w-[240px] py-3.5 px-6 rounded-xl bg-white/[0.08] text-white font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2.5 cursor-pointer border border-white/20 backdrop-blur-md shadow-lg"
           >
             <Maximize2 className="w-4 h-4 text-cyan" />
             <span>View Full {selectedCategory.name}</span>
@@ -604,10 +678,11 @@ export function ProductShowcase({ initialFilter = 'thinners', scrollTo }: Produc
                       setActiveProductIndex(idx);
                       document.getElementById('products')?.scrollIntoView({ behavior: 'smooth' });
                     }}
-                    className={`group relative rounded-xl p-5 border transition-all duration-300 cursor-pointer flex flex-col justify-between overflow-hidden ${isSelected
+                    className={`paint-product-card group relative rounded-xl p-5 border transition-all duration-300 cursor-pointer flex flex-col justify-between overflow-hidden ${isSelected
                       ? 'bg-gradient-to-b from-magenta/25 via-white/[0.08] to-violet/20 border-magenta shadow-xl shadow-magenta/20 ring-1 ring-magenta/50 scale-[1.02]'
                       : 'bg-white/[0.03] hover:bg-white/[0.07] border-white/10 hover:border-white/25 hover:-translate-y-1'
                       }`}
+                    style={{ '--paint-accent': p.color || '#00C8FF' } as React.CSSProperties}
                   >
                     {/* Top Header */}
                     <div>
@@ -682,6 +757,7 @@ export function ProductShowcase({ initialFilter = 'thinners', scrollTo }: Produc
               </span>
             </div>
           )}
+        </div>
         </div>
       </div>
 

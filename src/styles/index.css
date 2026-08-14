@@ -2,6 +2,8 @@
 @import './variables.css';
 @import './animations.css';
 @import './studio.css';
+@import './cinematic-hero.css';
+@import './homepage-visualizer.css';
 
 @tailwind base;
 @tailwind components;
@@ -39,6 +41,24 @@
 
 html {
   scroll-behavior: smooth;
+  overflow-x: clip;
+}
+
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+
+.lenis.lenis-smooth [data-lenis-prevent] {
+  overscroll-behavior: contain;
+}
+
+.lenis.lenis-stopped {
+  overflow: hidden;
 }
 
 body {

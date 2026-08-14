@@ -9,7 +9,6 @@ import v106ThinnerImg from '../assets/products/Thinners/v106_melamine_thinner.pn
 import ncPuttyImg from '../assets/products/Auto Primers/nc_putty.png';
 import ogPuttyImg from '../assets/products/Auto Primers/nc_putty (1).png';
 import qdPrimerImg from '../assets/products/Primers/redoxide_metal_primer_matt_glossy.png';
-import zincChromePrimerImg from '../assets/products/Auto Primers/zinc_chrome_primer_yellow.png';
 import skpsWhiteGreyImg from '../assets/products/Primers/skps_white_grey.png';
 
 // Aluminium Paints
