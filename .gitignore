@@ -11,3 +11,18 @@ pnpm-debug.log*
 .DS_Store
 .vscode/
 .idea/
+
+# Ignore accidental download dumps and heavy binaries
+src/assets/logo/Downloads/
+**/Downloads/
+*.exe
+*.psd
+*.ai
+*.eps
+*.zip
+*.sql
+*.docx
+*.xlsx
+*.pptx
+*.pdf
+

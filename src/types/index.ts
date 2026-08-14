@@ -31,6 +31,7 @@ export type Service = {
 export type Surface = {
   id: string;
   name: string;
+  description: string;
   accent: string;
   image: string;
 };
@@ -100,11 +101,24 @@ export type NavItem = {
 export type Product = {
   id: string;
   name: string;
-  category: 'Interior' | 'Exterior' | 'Wood' | 'Metal' | 'Decorative' | 'Automotive';
+  category: 'Interior' | 'Exterior' | 'Wood' | 'Metal' | 'Decorative' | 'Automotive' | string;
   description: string;
   benefits: string[];
   finish: string;
   surfaces: string;
   color: string;
   image: string;
+};
+
+export type MathulacProductItem = {
+  id: string;
+  name: string;
+  categoryKey: string;
+  categoryName: string;
+  description: string;
+  features?: string[];
+  availableSizes: string[];
+  image: string;
+  color?: string;
+  tagline?: string;
 };

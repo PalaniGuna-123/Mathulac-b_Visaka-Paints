@@ -5,3 +5,4 @@ export * from './scenes';
 export * from './services';
 export * from './navigation';
 export * from '../types';
+export * from '../styles/colors';

@@ -1,6 +1,7 @@
 import { Instagram, Facebook, Linkedin, Phone, MapPin, ArrowUpRight } from 'lucide-react';
 import { navItems, categories, phoneNumbers } from '../../data';
 import { Link } from '../../routes/Router';
+import mathulacLogo from '../../assets/logo/logo.jpeg';
 
 export function Footer() {
   return (
@@ -11,14 +12,15 @@ export function Footer() {
         <div className="grid md:grid-cols-4 gap-10 mb-14">
           {/* Brand Col */}
           <div>
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-11 h-11 rounded-full bg-gradient-to-br from-magenta via-flame to-sun flex items-center justify-center font-display text-white text-xl shadow-lg">
-                M
-              </div>
-              <div>
-                <div className="font-display text-xl text-white">Mathulac</div>
-                <div className="text-[10px] tracking-[0.2em] uppercase text-white/60">by Visaka Paints & Chemicals</div>
-              </div>
+            <div className="footer-paint-signoff mb-4" data-paint-heading>
+              <img
+                src={mathulacLogo}
+                alt="Visaka Mathulac Paints & Chemicals India"
+                className="h-12 w-auto object-contain rounded-md"
+              />
+              <span className="footer-paint-signoff__stroke" aria-hidden="true" />
+              <i aria-hidden="true" />
+              <i aria-hidden="true" />
             </div>
             <p className="text-white/60 text-sm leading-relaxed">
               Color that inspires. Protection that lasts. Premium architectural, wood, automotive and decorative coatings since 2004.
@@ -93,7 +95,7 @@ export function Footer() {
               <div className="mt-2">
                 <Link
                   to="/contact"
-                  className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider bg-white/10 hover:bg-white/20 text-white transition-colors"
+                  className="paint-button inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider bg-white/10 text-white"
                 >
                   Request a Free Consultation
                 </Link>

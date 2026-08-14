@@ -41,7 +41,7 @@ export function ProductModal({ product, onClose, scrollTo }: ProductModalProps) 
         onClick={onClose}
         aria-label="Close product details"
       />
-      <div className="product-modal relative w-full max-w-4xl overflow-hidden rounded-[2rem] border border-white/15 bg-[#131a31] shadow-2xl z-10 animate-menu-drop">
+      <div className="product-modal relative w-full max-w-4xl overflow-hidden rounded-xl border border-white/15 bg-midnight shadow-2xl z-10 animate-menu-drop">
         <button
           onClick={onClose}
           className="absolute right-5 top-5 z-20 w-10 h-10 rounded-full bg-black/40 text-white grid place-items-center hover:bg-black/60 transition-colors"
@@ -75,7 +75,7 @@ export function ProductModal({ product, onClose, scrollTo }: ProductModalProps) 
             <span className="text-sm font-bold uppercase tracking-[0.2em]" style={{ color: product.color }}>
               {product.category} system
             </span>
-            <h2 className="font-display text-4xl md:text-5xl leading-none text-white mt-4">{product.name}</h2>
+            <h2 className="font-display text-2xl sm:text-3xl md:text-4xl leading-tight text-white mt-3">{product.name}</h2>
             <p className="text-white/70 leading-relaxed mt-5">{product.description}</p>
 
             <div className="mt-7 space-y-3">
