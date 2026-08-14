@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { X, Phone, ArrowRight } from 'lucide-react';
 import type { MathulacProductItem } from '../../types';
 import type { CatalogCategory } from '../../data/products';
@@ -32,7 +33,7 @@ export function CategoryProductsModal({
 
   const Icon = category.icon;
 
-  return (
+  return createPortal(
     <div
       className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6 md:p-8"
       role="dialog"
@@ -154,7 +155,8 @@ export function CategoryProductsModal({
           </button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }
 

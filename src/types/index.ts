@@ -31,6 +31,7 @@ export type Service = {
 export type Surface = {
   id: string;
   name: string;
+  description: string;
   accent: string;
   image: string;
 };
@@ -121,4 +122,3 @@ export type MathulacProductItem = {
   color?: string;
   tagline?: string;
 };
-

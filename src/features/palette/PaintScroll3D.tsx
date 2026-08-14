@@ -3,7 +3,7 @@ import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { Sparkles, ArrowRight } from 'lucide-react';
 import { useNavigate } from '../../routes/Router';
-import { colorFamilies, familySwatches, type ColorFamily } from '../../data';
+import { type ColorFamily } from '../../data';
 
 gsap.registerPlugin(ScrollTrigger);
 

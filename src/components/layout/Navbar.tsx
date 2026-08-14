@@ -70,7 +70,7 @@ export function Navbar({ scrolled: externalScrolled }: NavbarProps) {
           {/* Logo / Brand */}
           <Link
             to="/"
-            className="flex shrink-0 items-center min-w-0 group py-1 rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan focus-visible:ring-offset-2 focus-visible:ring-offset-ink"
+            className="site-logo-lockup flex shrink-0 items-center min-w-0 group py-1 rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan focus-visible:ring-offset-2 focus-visible:ring-offset-ink"
             data-cursor="home"
             aria-label="Mathulac by Visaka Paints — Home"
             onClick={() => setMenuOpen(false)}
@@ -83,6 +83,7 @@ export function Navbar({ scrolled: externalScrolled }: NavbarProps) {
               height="724"
               className="w-[135px] sm:w-[150px] md:w-[175px] lg:w-[190px] xl:w-[220px] h-auto object-contain drop-shadow-[0_3px_7px_rgba(0,0,0,0.48)] transition-[transform,filter] duration-300 ease-out motion-safe:group-hover:scale-[1.03] group-hover:drop-shadow-[0_5px_10px_rgba(0,0,0,0.65)]"
             />
+            <span className="site-logo-paint-dot" aria-hidden="true" />
           </Link>
 
           {/* Desktop Navigation Links */}
@@ -98,7 +99,7 @@ export function Navbar({ scrolled: externalScrolled }: NavbarProps) {
                   }
                 }}
                 className={({ isActive }) =>
-                  `nav-link text-[13px] xl:text-sm font-bold transition-all px-0.5 py-1 whitespace-nowrap ${text} ${
+                  `nav-link paint-nav-link text-[13px] xl:text-sm font-bold transition-all px-0.5 py-1 whitespace-nowrap ${text} ${
                     isActive ? 'text-white' : 'opacity-80 hover:opacity-100'
                   }`
                 }
@@ -122,7 +123,7 @@ export function Navbar({ scrolled: externalScrolled }: NavbarProps) {
 
             <Link
               to="/studio"
-              className="hidden sm:inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-extrabold uppercase tracking-wider bg-gradient-to-r from-magenta to-violet text-white shadow-md hover:scale-105 transition-transform"
+              className="paint-button paint-button--nav hidden sm:inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-extrabold uppercase tracking-wider bg-gradient-to-r from-magenta to-violet text-white shadow-md"
             >
               <Sparkles className="w-3.5 h-3.5" /> Studio
             </Link>
