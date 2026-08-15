@@ -8,7 +8,6 @@ import {
   useState,
 } from 'react';
 import { ArrowDown, ArrowRight } from 'lucide-react';
-import companyLogo from '../../../assets/logo.png';
 import { cinematicHero } from '../../data/brand';
 import { createHeroMotionState, getHeroViewportProfile } from './heroMotion';
 import { useHeroTimeline } from './useHeroTimeline';
@@ -280,7 +279,6 @@ export function Hero({ scrollTo }: HeroProps) {
 
         <div ref={contentRef} className="cinematic-hero__content">
           <div data-hero-reveal data-hero-eyebrow className="cinematic-hero__eyebrow">
-            <img src={companyLogo} alt="Visaka Paints & Chemicals India" width="285" height="130" />
             <span>{cinematicHero.eyebrow}</span>
           </div>
           <span data-hero-rule className="cinematic-hero__rule" aria-hidden="true" />
