@@ -9,12 +9,31 @@
     <title>Mathulac — Color Changes Everything | Visaka Paints & Chemicals India</title>
     <meta name="description" content="Mathulac by Visaka Paints & Chemicals India. Premium interior, exterior, wood, automotive, and decorative coatings. Color comes to life." />
     <meta name="theme-color" content="#0B1020" />
+    <!-- Prevent white flash: inline critical CSS renders before any external stylesheet or JS -->
+    <style>
+      html, body { background: #0B1020; margin: 0; padding: 0; }
+      #root:empty { min-height: 100vh; }
+      #initial-loader { position: fixed; inset: 0; z-index: 9998; display: flex; align-items: center; justify-content: center; background: #0B1020; flex-direction: column; gap: 28px; }
+      #initial-loader img { height: clamp(44px, 8vw, 64px); width: auto; object-fit: contain; filter: brightness(1.1); }
+      #initial-loader .il-text { font-family: 'Manrope', system-ui, sans-serif; font-size: clamp(0.7rem, 1.4vw, 0.82rem); font-weight: 500; letter-spacing: 0.22em; text-transform: uppercase; color: rgba(255, 248, 241, 0.45); margin: 0; }
+      #initial-loader .il-track { width: min(420px, 85vw); height: 8px; border-radius: 4px; background: rgba(255, 255, 255, 0.05); overflow: hidden; position: relative; }
+      #initial-loader .il-fill { height: 100%; border-radius: 4px; background: linear-gradient(90deg, #1a7aff, #146BFF); width: 40%; animation: il-slide 2s ease-in-out infinite; position: relative; }
+      #initial-loader .il-gloss { position: absolute; top: 0; left: 0; right: 0; height: 45%; border-radius: 4px; background: linear-gradient(180deg, rgba(255,255,255,0.25) 0%, rgba(255,255,255,0) 100%); }
+      @keyframes il-slide { 0% { transform: translateX(-120%); } 100% { transform: translateX(350%); } }
+      #initial-loader.is-done { opacity: 0; transition: opacity 0.5s cubic-bezier(0.4,0,0.2,1); pointer-events: none; }
+    </style>
     <!-- Google Fonts Preconnect -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Inter:wght@300;400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
   </head>
   <body class="bg-ink text-cream selection:bg-magenta selection:text-white font-sans antialiased overflow-x-hidden">
+    <!-- Branded loader: renders in the very first paint frame, before any JS loads -->
+    <div id="initial-loader" aria-label="Loading Mathulac">
+      <img src="/assets/brand/mathulac-logo-nav.webp" alt="Mathulac" draggable="false" />
+      <p class="il-text">Preparing Your Colours</p>
+      <div class="il-track"><div class="il-fill"><div class="il-gloss"></div></div></div>
+    </div>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>

@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Manrope:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap');
+/* Fonts loaded via <link> in index.html — no CSS @import (blocks rendering) */
 @import './variables.css';
 @import './animations.css';
 @import './paint-effects.css';
@@ -603,6 +603,188 @@ body::before {
 @media (max-width: 640px) {
   .paint-drop-1 { right: -8vw; top: 10vh; }
   .paint-drop-2 { right: 8vw; top: 22vh; }
+}
+
+/* ==========================================================================
+   Initial Loader — Premium Paint Theme
+   ========================================================================== */
+.loader-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #0B1020;
+  transition: opacity 0.6s cubic-bezier(0.4, 0, 0.2, 1),
+              visibility 0.6s;
+}
+
+.loader-overlay--done {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.loader-content {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 28px;
+  width: min(420px, 85vw);
+}
+
+/* Brand */
+.loader-brand {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.loader-logo {
+  height: clamp(44px, 8vw, 64px);
+  width: auto;
+  object-fit: contain;
+  filter: brightness(1.1);
+}
+
+/* Tagline */
+.loader-tagline {
+  font-family: 'Manrope', 'Inter', system-ui, sans-serif;
+  font-size: clamp(0.7rem, 1.4vw, 0.82rem);
+  font-weight: 500;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: rgba(255, 248, 241, 0.45);
+  margin: 0;
+}
+
+/* Percentage */
+.loader-percent {
+  font-family: 'DM Serif Display', Georgia, serif;
+  font-size: clamp(1.6rem, 4vw, 2.2rem);
+  font-weight: 400;
+  color: #FFF8F1;
+  letter-spacing: -0.02em;
+  line-height: 1;
+  margin: -4px 0 0;
+}
+
+/* Progress track */
+.loader-track {
+  position: relative;
+  width: 100%;
+  height: 8px;
+  border-radius: 4px;
+  overflow: visible;
+}
+
+/* Background groove */
+.loader-groove {
+  position: absolute;
+  inset: 0;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+/* Paint fill */
+.loader-fill {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  border-radius: 4px 0 0 4px;
+  overflow: hidden;
+  transition: width 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  will-change: width;
+}
+
+.loader-fill-svg {
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  width: 100%;
+  height: 10px;
+  filter: drop-shadow(0 0 3px rgba(20, 107, 255, 0.45));
+}
+
+/* Glossy highlight on the paint stroke */
+.loader-fill-gloss {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 45%;
+  border-radius: 4px 0 0 4px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.25) 0%, rgba(255, 255, 255, 0) 100%);
+  pointer-events: none;
+}
+
+/* Droplet at leading edge */
+.loader-droplet {
+  position: absolute;
+  top: 50%;
+  width: 8px;
+  height: 8px;
+  border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+  background: #146BFF;
+  transform: translate(-50%, -50%);
+  box-shadow: 0 0 8px rgba(20, 107, 255, 0.6), 0 0 2px rgba(20, 107, 255, 0.4);
+  animation: droplet-wobble 1.8s ease-in-out infinite;
+}
+
+@keyframes droplet-wobble {
+  0%, 100% { transform: translate(-50%, -50%) scale(1); border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%; }
+  50% { transform: translate(-50%, -50%) scale(1.15, 0.88); border-radius: 48% 52% 55% 45% / 55% 45% 55% 45%; }
+}
+
+/* Splash at 100% */
+.loader-splash {
+  position: absolute;
+  right: -4px;
+  top: 50%;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(20, 107, 255, 0.9) 0%, rgba(20, 107, 255, 0) 70%);
+  transform: translate(0, -50%) scale(0);
+  animation: splash-pop 0.5s 0.15s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+@keyframes splash-pop {
+  0% { transform: translate(0, -50%) scale(0); opacity: 1; }
+  60% { transform: translate(0, -50%) scale(1.6); opacity: 0.8; }
+  100% { transform: translate(0, -50%) scale(2); opacity: 0; }
+}
+
+/* Floating paint bubbles */
+.loader-bubble {
+  position: absolute;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, rgba(255, 255, 255, 0.55), rgba(255, 255, 255, 0.12));
+  box-shadow: inset 0 -1px 2px rgba(255, 255, 255, 0.08), 0 0 4px rgba(255, 255, 255, 0.06);
+  pointer-events: none;
+  z-index: 1;
+  will-change: transform;
+  transition: opacity 0.3s;
+}
+
+.loader-bubble::after {
+  content: '';
+  position: absolute;
+  top: 20%;
+  left: 25%;
+  width: 30%;
+  height: 25%;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.5);
+  filter: blur(0.5px);
+}
+
+/* Hide bubbles on mobile / no-hover */
+@media (hover: none), (max-width: 768px) {
+  .loader-bubble { display: none; }
 }
 
 @media (prefers-reduced-motion: reduce) {

@@ -240,7 +240,7 @@ export function Hero({ scrollTo }: HeroProps) {
 
         <div className="cinematic-hero__webgl" aria-hidden="true">
           {webglAvailable && (
-            <Suspense fallback={null}>
+            <Suspense fallback={<div className="absolute inset-0" style={{ background: '#0B1020' }} />}>
               <HeroScene
                 motion={motion}
                 profile={profile}
