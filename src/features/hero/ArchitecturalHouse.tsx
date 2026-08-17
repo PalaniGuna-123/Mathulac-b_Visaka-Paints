@@ -25,11 +25,11 @@ const HOUSE_TEXTURES = [
 ] as const;
 
 const HOUSE_MASKS = [
-  '/assets/hero/masks/wall-main-mask.png',
-  '/assets/hero/masks/wall-secondary-mask.png',
-  '/assets/hero/masks/accent-mask.png',
-  '/assets/hero/masks/trims-mask.png',
-  '/assets/hero/masks/facade-mask.png',
+  '/assets/hero/masks/wall-main-mask.webp',
+  '/assets/hero/masks/wall-secondary-mask.webp',
+  '/assets/hero/masks/accent-mask.webp',
+  '/assets/hero/masks/trims-mask.webp',
+  '/assets/hero/masks/facade-mask.webp',
 ] as const;
 
 const ALL_HOUSE_TEXTURES = [...HOUSE_TEXTURES, ...HOUSE_MASKS];

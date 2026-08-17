@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { palette } from '../../data';
-import colourFan from '../../../assets/colours.jpeg';
+import colourFan from '../../../assets/colours.webp';
 import { X, Copy, Check, Sparkles, ArrowRight } from 'lucide-react';
 import { Link } from '../../routes/Router';
 

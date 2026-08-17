@@ -7,20 +7,6 @@ import { Loader } from './components/common/Loader';
 
 const CRITICAL_ASSETS = [
   '/assets/brand/mathulac-logo-nav.webp',
-  '/assets/hero/house/house-00-unpainted.webp',
-  '/assets/hero/house/house-01-base-painted.webp',
-  '/assets/hero/house/house-02-blue-painted.webp',
-  '/assets/hero/house/house-03-accent-painted.webp',
-  '/assets/hero/house/house-04-details-painted.webp',
-  '/assets/hero/house/house-05-luxury-final.webp',
-  '/assets/hero/masks/wall-main-mask.png',
-  '/assets/hero/masks/wall-secondary-mask.png',
-  '/assets/hero/masks/accent-mask.png',
-  '/assets/hero/masks/trims-mask.png',
-  '/assets/hero/masks/facade-mask.png',
-  '/assets/hero/environment/background-plants.webp',
-  '/assets/hero/environment/foreground-plants.webp',
-  '/assets/hero/environment/ground-shadow.webp',
 ];
 
 export default function App() {

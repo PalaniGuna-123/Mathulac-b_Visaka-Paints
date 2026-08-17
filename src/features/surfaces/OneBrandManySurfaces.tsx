@@ -1,5 +1,5 @@
 import { useLayoutEffect, useRef, type CSSProperties } from 'react';
-import { surfaces } from '../../data';
+import { surfaces } from '../../data/products';
 import { FloatingPaintBubbles, PaintSplash, type PaintSplashSize, type PaintSplashVariant } from '../../components/paint';
 import { gsap } from '../../lib/animation';
 

@@ -1,7 +1,8 @@
 import { Instagram, Facebook, Linkedin, Phone, MapPin, ArrowUpRight } from 'lucide-react';
-import { navItems, categories, phoneNumbers } from '../../data';
+import { navItems, phoneNumbers } from '../../data';
+import { categories } from '../../data/products';
 import { Link } from '../../routes/Router';
-import mathulacLogo from '../../assets/logo/logo.jpeg';
+import mathulacLogo from '../../assets/logo/logo.webp';
 
 export function Footer() {
   return (

@@ -22,23 +22,13 @@ const housePaintStageTwoUrl = '/assets/hero/house/house-02-blue-painted.webp';
 const housePaintStageThreeUrl = '/assets/hero/house/house-03-accent-painted.webp';
 const housePaintStageFourUrl = '/assets/hero/house/house-04-details-painted.webp';
 const housePaintStageFiveUrl = '/assets/hero/house/house-05-luxury-final.webp';
-const paintFlowUrl = '/assets/hero/paint/blue-paint-splash.png';
+const paintFlowUrl = '/assets/hero/paint/blue-paint-splash.webp';
 
 const heroPreloadAssets = [
+  closedBucketUrl,
   houseUnpaintedUrl,
   housePaintStageOneUrl,
   housePaintStageTwoUrl,
-  housePaintStageThreeUrl,
-  housePaintStageFourUrl,
-  housePaintStageFiveUrl,
-  '/assets/hero/masks/wall-main-mask.png',
-  '/assets/hero/masks/wall-secondary-mask.png',
-  '/assets/hero/masks/accent-mask.png',
-  '/assets/hero/masks/trims-mask.png',
-  '/assets/hero/masks/facade-mask.png',
-  '/assets/hero/environment/background-plants.webp',
-  '/assets/hero/environment/foreground-plants.webp',
-  '/assets/hero/environment/ground-shadow.webp',
 ];
 
 const heroChapters = [

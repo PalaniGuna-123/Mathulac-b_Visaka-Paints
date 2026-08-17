@@ -3,7 +3,7 @@ import { Menu, Phone, X, Sparkles } from 'lucide-react';
 import gsap from 'gsap';
 import { navItems, phoneNumbers } from '../../data';
 import { NavLink, Link, useLocation, useNavigate } from '../../routes/Router';
-import { MATHULAC_NAV_LOGO_URL } from '../../lib/criticalAssets';
+const MATHULAC_NAV_LOGO_URL = '/assets/brand/mathulac-logo-nav.webp';
 import { heroNav } from '../../lib/heroPhase';
 
 interface NavbarProps {
