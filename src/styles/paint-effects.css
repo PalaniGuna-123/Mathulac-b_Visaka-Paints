@@ -1,0 +1,458 @@
+/* ==========================================================================
+   Premium paint atmosphere — reusable wet splashes and pearl paint bubbles
+   ========================================================================== */
+
+.paint-splash {
+  --splash-colour: #0b67c9;
+  position: relative;
+  display: block;
+  flex: none;
+  pointer-events: none;
+  transform-origin: center;
+  will-change: transform, opacity;
+}
+
+.paint-splash > svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+
+.paint-splash--small { width: clamp(4.4rem, 7vw, 7.2rem); }
+.paint-splash--medium { width: clamp(9rem, 15vw, 16rem); }
+.paint-splash--large { width: clamp(15rem, 27vw, 29rem); }
+.paint-splash--wide { aspect-ratio: 1.7; }
+.paint-splash--brush { aspect-ratio: 1.95; }
+.paint-splash--flow { aspect-ratio: 1.3; transform: rotate(7deg); }
+
+.paint-splash__main,
+.paint-splash__droplets {
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+.paint-splash__main {
+  filter:
+    drop-shadow(0 2px 1px color-mix(in srgb, var(--splash-colour), #06152f 44%))
+    drop-shadow(0 12px 16px color-mix(in srgb, var(--splash-colour), transparent 70%));
+}
+
+.paint-splash__main > path:first-child {
+  stroke: color-mix(in srgb, var(--splash-colour), white 24%);
+  stroke-width: 0.65;
+}
+
+.paint-splash__wet-highlight {
+  fill: rgba(255, 255, 255, 0.3);
+  filter: blur(0.35px);
+}
+
+.paint-splash__depth {
+  fill: rgba(2, 10, 28, 0.16);
+  filter: blur(0.6px);
+}
+
+.paint-splash__droplets {
+  filter: drop-shadow(0 5px 5px color-mix(in srgb, var(--splash-colour), transparent 72%));
+}
+
+.paint-splash__specks {
+  opacity: 0.52;
+}
+
+.paint-bubble-field {
+  position: absolute;
+  z-index: 2;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  contain: layout paint style;
+}
+
+.paint-bubble-slot {
+  position: absolute;
+  top: var(--bubble-top);
+  left: var(--bubble-left);
+  width: var(--bubble-size);
+  height: var(--bubble-size);
+  opacity: calc(0.46 + (var(--bubble-depth, 1) * 0.08));
+  transform: translate3d(-50%, -50%, 0);
+  will-change: transform;
+}
+
+.paint-bubble-slot[data-depth='1'] { --bubble-depth: 1; filter: blur(0.35px); }
+.paint-bubble-slot[data-depth='2'] { --bubble-depth: 2; }
+.paint-bubble-slot[data-depth='3'] { --bubble-depth: 3; }
+
+.paint-bubble-orbit,
+.paint-bubble {
+  display: block;
+  width: 100%;
+  height: 100%;
+  transform-origin: center;
+  will-change: transform;
+}
+
+.paint-bubble {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid color-mix(in srgb, var(--bubble-colour), white 58%);
+  border-radius: 57% 43% 54% 46% / 48% 56% 44% 52%;
+  background:
+    radial-gradient(circle at 28% 22%, rgba(255, 255, 255, 0.98) 0 4%, rgba(255, 255, 255, 0.62) 5% 9%, transparent 18%),
+    radial-gradient(ellipse at 39% 30%, rgba(255, 255, 255, 0.46), transparent 44%),
+    linear-gradient(145deg,
+      color-mix(in srgb, var(--bubble-colour), white 25%),
+      var(--bubble-colour) 54%,
+      color-mix(in srgb, var(--bubble-colour), #5d6470 28%));
+  box-shadow:
+    inset -0.28em -0.4em 0.72em color-mix(in srgb, var(--bubble-colour), #29313e 35%),
+    inset 0.16em 0.12em 0.34em rgba(255, 255, 255, 0.72),
+    0 0.55em 0.9em rgba(20, 28, 44, 0.19),
+    0 0.12em 0.2em rgba(20, 28, 44, 0.24);
+}
+
+.paint-bubble::before {
+  content: '';
+  position: absolute;
+  top: 12%;
+  left: 18%;
+  width: 38%;
+  height: 22%;
+  border-radius: 50%;
+  background: linear-gradient(120deg, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0));
+  filter: blur(0.5px);
+  transform: rotate(-22deg);
+}
+
+.paint-bubble::after {
+  content: '';
+  position: absolute;
+  right: 14%;
+  bottom: 12%;
+  width: 34%;
+  height: 20%;
+  border-radius: 50%;
+  background: rgba(7, 16, 30, 0.1);
+  filter: blur(1px);
+  transform: rotate(-18deg);
+}
+
+.paint-bubble-slot--form-1 {
+  transform: translate3d(-50%, -50%, 0) scaleX(0.88) scaleY(1.08);
+}
+
+.paint-bubble-slot--form-1 .paint-bubble {
+  border-radius: 66% 34% 61% 39% / 45% 58% 42% 55%;
+}
+
+.paint-bubble-slot--form-2 {
+  transform: translate3d(-50%, -50%, 0) scale(0.72);
+}
+
+.paint-bubble-slot--form-2 .paint-bubble {
+  border-radius: 50%;
+}
+
+.paint-bubble-slot--form-3 {
+  transform: translate3d(-50%, -50%, 0) scaleX(0.72) scaleY(1.28) rotate(-9deg);
+}
+
+.paint-bubble-slot--form-3 .paint-bubble {
+  border-radius: 62% 38% 48% 52% / 34% 45% 55% 66%;
+}
+
+.paint-bubble-slot--form-4 {
+  transform: translate3d(-50%, -50%, 0) scale(0.58);
+}
+
+.paint-bubble-slot--form-4 .paint-bubble {
+  border-radius: 46% 54% 64% 36% / 54% 38% 62% 46%;
+}
+
+.paint-bubble-slot[data-tone='blue'],
+.paint-bubble-slot[data-tone='accent'] {
+  opacity: 0.66;
+}
+
+/* Splash accents sit behind key title words without reducing contrast. */
+.section-title-splash {
+  position: absolute;
+  z-index: -1;
+  right: 1.5rem;
+  bottom: -1.3rem;
+  opacity: 0.28;
+  transform: rotate(-4deg);
+}
+
+.section-title-splash--left {
+  right: auto;
+  left: -2.1rem;
+  bottom: -1.1rem;
+  opacity: 0.24;
+}
+
+.surface-section-title-splash {
+  position: absolute;
+  z-index: -1;
+  top: 1.8rem;
+  left: -2.5rem;
+  width: clamp(5rem, 8vw, 8rem);
+  opacity: 0.3;
+  transform: rotate(-10deg);
+}
+
+.surface-section-title-splash--center {
+  top: 1.4rem;
+  right: 12%;
+  left: auto;
+  opacity: 0.25;
+}
+
+/* Hero moments are above the opaque WebGL canvas, but behind all story copy. */
+.cinematic-hero__paint-atmosphere {
+  z-index: 6;
+  opacity: 0.72;
+}
+
+.cinematic-hero__splash-moments {
+  position: absolute;
+  z-index: 7;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.cinematic-hero__splash {
+  position: absolute;
+  opacity: 0;
+}
+
+.cinematic-hero__splash--impact {
+  top: 57%;
+  left: 61%;
+  width: clamp(7.5rem, 11vw, 11rem);
+  transform: rotate(-12deg);
+}
+
+.cinematic-hero__splash--accelerate {
+  top: 27%;
+  left: 72%;
+  width: clamp(5rem, 8vw, 8rem);
+  transform: rotate(16deg);
+}
+
+/* Visualizer: ambient pearls and tiny shade-matched impact moments. */
+.visualizer-chapter__paint-atmosphere {
+  z-index: 1;
+  opacity: 0.68;
+}
+
+.visualizer-preview__shade-splash {
+  position: absolute;
+  z-index: 7;
+  right: 6%;
+  bottom: 11%;
+  width: clamp(3.8rem, 6vw, 6.5rem);
+  opacity: 0;
+  mix-blend-mode: multiply;
+}
+
+.visualizer-preview__shade-splash--blue {
+  top: 18%;
+  right: 8%;
+  bottom: auto;
+}
+
+.studio-route-bubbles {
+  z-index: 0;
+  opacity: 0.58;
+}
+
+.studio-room__paint-wash {
+  position: absolute;
+  z-index: 2;
+  top: 52%;
+  left: 58%;
+  width: 34%;
+  aspect-ratio: 1;
+  border-radius: 58% 42% 65% 35% / 44% 61% 39% 56%;
+  opacity: 0;
+  mix-blend-mode: soft-light;
+  transform: translate3d(-50%, -50%, 0);
+  transform-origin: center;
+  pointer-events: none;
+  will-change: transform, opacity;
+}
+
+.studio-room__shade-splash {
+  position: absolute;
+  z-index: 4;
+  right: 3%;
+  bottom: 12%;
+  width: clamp(3.8rem, 6vw, 6.25rem);
+  opacity: 0.56;
+  mix-blend-mode: soft-light;
+}
+
+/* Product canvas combines a single energetic impact with calm white beads. */
+.product-section-bubbles {
+  z-index: 1;
+  opacity: 0.65;
+}
+
+.product-paint-stage__splash {
+  position: absolute;
+  z-index: 0 !important;
+  left: 50%;
+  bottom: -1%;
+  width: min(118%, 36rem);
+  opacity: 0.7;
+  transform: translateX(-50%) rotate(-2deg);
+}
+
+.product-paint-stage__bubbles {
+  z-index: 1 !important;
+  inset: 3% 3% 7%;
+  overflow: visible;
+}
+
+.product-paint-stage .product-visual__object-wrap {
+  transition: transform 520ms cubic-bezier(0.16, 1, 0.3, 1), filter 520ms ease;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .product-paint-stage:hover .product-visual__object-wrap {
+    transform: translate3d(0, -9px, 0);
+    filter: drop-shadow(0 18px 22px color-mix(in srgb, var(--paint-accent), transparent 66%));
+  }
+
+  .product-paint-stage:hover .product-paint-stage__splash {
+    filter: saturate(1.08) brightness(1.08);
+  }
+
+  .product-paint-stage:hover .paint-bubble-slot:nth-child(2),
+  .product-paint-stage:hover .paint-bubble-slot:nth-child(4) {
+    filter: brightness(1.08);
+  }
+}
+
+/* One Brand uses a distinct splash silhouette for each active substrate. */
+.one-brand-bubbles {
+  z-index: 18;
+  opacity: 0.62;
+}
+
+.surface-splash {
+  position: absolute;
+  z-index: 6;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.surface-splash[data-surface-kind='interior'] {
+  right: 15%;
+  bottom: 12%;
+  width: clamp(8rem, 14vw, 14rem);
+}
+
+.surface-splash[data-surface-kind='exterior'] {
+  top: 16%;
+  right: 8%;
+  width: clamp(15rem, 28vw, 30rem);
+  transform: rotate(-6deg);
+}
+
+.surface-splash[data-surface-kind='wood'] {
+  right: 14%;
+  bottom: 18%;
+  width: clamp(13rem, 23vw, 24rem);
+  transform: rotate(-8deg);
+}
+
+.surface-splash[data-surface-kind='steel'] {
+  top: 20%;
+  right: 16%;
+  width: clamp(7rem, 12vw, 12rem);
+}
+
+.surface-splash[data-surface-kind='automotive'] {
+  right: 7%;
+  bottom: 15%;
+  width: clamp(11rem, 20vw, 21rem);
+  transform: rotate(12deg);
+}
+
+.contact-paint-bubbles {
+  z-index: 3;
+  opacity: 0.82;
+}
+
+.transformation-shade-splash {
+  position: absolute;
+  z-index: 16;
+  top: 4%;
+  right: 3%;
+  width: clamp(3.8rem, 7vw, 7rem);
+  opacity: 0.72;
+  mix-blend-mode: screen;
+}
+
+/* Tiny impact bead on CTA edges, coordinated with the existing liquid fill. */
+.paint-button > svg,
+.paint-button > span {
+  position: relative;
+  z-index: 2;
+}
+
+.paint-button:active {
+  transform: translateY(0) scale(0.985);
+}
+
+@media (max-width: 1023px) {
+  .paint-bubble-slot[data-tablet-visible='false'] { display: none; }
+  .cinematic-hero__splash--impact { left: 64%; }
+  .surface-splash { opacity: 0; }
+}
+
+@media (max-width: 767px) {
+  .paint-bubble-slot[data-mobile-visible='false'] { display: none; }
+  .paint-bubble-slot { opacity: 0.52; }
+  .paint-splash--large { width: clamp(11rem, 57vw, 18rem); }
+  .section-title-splash { right: 0.5rem; opacity: 0.2; }
+  .surface-section-title-splash { left: -0.75rem; opacity: 0.2; }
+  .surface-section-title-splash--center { right: 2%; left: auto; }
+  .cinematic-hero__paint-atmosphere { opacity: 0.52; }
+  .cinematic-hero__splash--impact { top: 62%; left: 58%; width: 6rem; }
+  .cinematic-hero__splash--accelerate { top: 23%; left: 77%; width: 4.5rem; }
+  .visualizer-chapter__paint-atmosphere { opacity: 0.5; }
+  .studio-route-bubbles { opacity: 0.44; }
+  .studio-room__shade-splash { right: 2%; bottom: 9%; width: 3.8rem; }
+  .product-section-bubbles { opacity: 0.48; }
+  .one-brand-bubbles { opacity: 0.48; }
+  .contact-paint-bubbles { opacity: 0.58; }
+  .transformation-shade-splash { width: 4rem; opacity: 0.56; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .paint-bubble-field {
+    opacity: 0.36 !important;
+  }
+
+  .paint-bubble-slot[data-depth='1'],
+  .paint-bubble-slot[data-depth='3'],
+  .cinematic-hero__splash--accelerate,
+  .visualizer-preview__shade-splash,
+  .surface-splash {
+    display: none !important;
+  }
+
+  .paint-splash,
+  .paint-bubble-slot,
+  .paint-bubble-orbit,
+  .paint-bubble {
+    animation: none !important;
+    transition: none !important;
+  }
+}

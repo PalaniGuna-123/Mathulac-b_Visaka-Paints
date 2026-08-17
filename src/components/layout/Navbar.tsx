@@ -3,7 +3,8 @@ import { Menu, Phone, X, Sparkles } from 'lucide-react';
 import gsap from 'gsap';
 import { navItems, phoneNumbers } from '../../data';
 import { NavLink, Link, useLocation, useNavigate } from '../../routes/Router';
-import mathulacLogo from '../../../assets/Visaka_Paints_logo.png';
+import { MATHULAC_NAV_LOGO_URL } from '../../lib/criticalAssets';
+import { heroNav } from '../../lib/heroPhase';
 
 interface NavbarProps {
   scrolled?: boolean;
@@ -12,6 +13,7 @@ interface NavbarProps {
 export function Navbar({ scrolled: externalScrolled }: NavbarProps) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [internalScrolled, setInternalScrolled] = useState(false);
+  const [heroHidden, setHeroHidden] = useState(false);
   const logoRef = useRef<HTMLImageElement>(null);
   const location = useLocation();
   const navigate = useNavigate();
@@ -23,6 +25,11 @@ export function Navbar({ scrolled: externalScrolled }: NavbarProps) {
     onScroll();
     window.addEventListener('scroll', onScroll, { passive: true });
     return () => window.removeEventListener('scroll', onScroll);
+  }, []);
+
+  useEffect(() => {
+    heroNav.on(setHeroHidden);
+    return () => heroNav.off(setHeroHidden);
   }, []);
 
   useEffect(() => {
@@ -61,6 +68,12 @@ export function Navbar({ scrolled: externalScrolled }: NavbarProps) {
             ? 'bg-[#080c19]/95 border-white/10 shadow-xl shadow-black/25 backdrop-blur-2xl'
             : 'bg-[#080c19]/75 border-white/[0.07] shadow-lg shadow-black/10 backdrop-blur-lg'
         }`}
+        style={{
+          opacity: heroHidden ? 0 : 1,
+          transform: heroHidden ? 'translateY(-20px)' : 'translateY(0)',
+          pointerEvents: heroHidden ? 'none' : 'auto',
+          transition: 'opacity 0.4s cubic-bezier(0.4,0,0.2,1), transform 0.4s cubic-bezier(0.4,0,0.2,1), pointer-events 0s',
+        }}
       >
         <div
           className={`max-w-[1500px] mx-auto px-4 md:px-6 xl:px-8 flex items-center justify-between gap-3 xl:gap-6 transition-all duration-500 ${
@@ -77,10 +90,12 @@ export function Navbar({ scrolled: externalScrolled }: NavbarProps) {
           >
             <img
               ref={logoRef}
-              src={mathulacLogo}
+              src={MATHULAC_NAV_LOGO_URL}
               alt="Mathulac by Visaka Paints"
-              width="2172"
-              height="724"
+              width="660"
+              height="220"
+              decoding="async"
+              fetchPriority="high"
               className="w-[135px] sm:w-[150px] md:w-[175px] lg:w-[190px] xl:w-[220px] h-auto object-contain drop-shadow-[0_3px_7px_rgba(0,0,0,0.48)] transition-[transform,filter] duration-300 ease-out motion-safe:group-hover:scale-[1.03] group-hover:drop-shadow-[0_5px_10px_rgba(0,0,0,0.65)]"
             />
             <span className="site-logo-paint-dot" aria-hidden="true" />

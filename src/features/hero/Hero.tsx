@@ -9,6 +9,7 @@ import {
 } from 'react';
 import { ArrowDown, ArrowRight } from 'lucide-react';
 import { cinematicHero } from '../../data/brand';
+import { FloatingPaintBubbles, PaintSplash } from '../../components/paint';
 import { createHeroMotionState, getHeroViewportProfile } from './heroMotion';
 import { useHeroTimeline } from './useHeroTimeline';
 
@@ -207,6 +208,31 @@ export function Hero({ scrollTo }: HeroProps) {
         <div ref={backdropRef} className="cinematic-hero__backdrop" aria-hidden="true" />
         <div className="cinematic-hero__halo cinematic-hero__halo--blue" aria-hidden="true" />
         <div className="cinematic-hero__halo cinematic-hero__halo--magenta" aria-hidden="true" />
+
+        <FloatingPaintBubbles
+          count={6}
+          mobileCount={2}
+          tabletCount={4}
+          placement="hero"
+          className="cinematic-hero__paint-atmosphere"
+        />
+
+        <div className="cinematic-hero__splash-moments" aria-hidden="true">
+          <PaintSplash
+            color="#0968c9"
+            size="medium"
+            variant="impact"
+            trigger="static"
+            className="cinematic-hero__splash cinematic-hero__splash--impact"
+          />
+          <PaintSplash
+            color="#4da7ef"
+            size="small"
+            variant="wide"
+            trigger="static"
+            className="cinematic-hero__splash cinematic-hero__splash--accelerate"
+          />
+        </div>
 
         <div ref={posterRef} className="cinematic-hero__poster" aria-hidden="true">
           <img src={closedBucketUrl} alt="" width="1280" height="853" />

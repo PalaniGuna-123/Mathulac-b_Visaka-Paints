@@ -9,6 +9,7 @@ import {
   Palette,
 } from 'lucide-react';
 import { roomScenes } from '../../data';
+import { PaintSplash } from '../../components/paint';
 
 interface TransformationColor {
   name: string;
@@ -68,7 +69,14 @@ export function BeforeAfter() {
 
       <div className="max-w-[1280px] mx-auto relative z-10">
         {/* Header */}
-        <div className="text-center max-w-3xl mx-auto mb-10" data-reveal>
+        <div className="relative isolate text-center max-w-3xl mx-auto mb-10" data-reveal data-splash-trigger>
+          <PaintSplash
+            color={selectedColor.hex}
+            size="medium"
+            variant="wide"
+            trigger="scroll"
+            className="section-title-splash"
+          />
           <div className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-magenta/15 text-magenta text-[11px] font-extrabold uppercase tracking-widest mb-3 border border-magenta/30">
             <Sparkles className="w-3.5 h-3.5" /> Real-World Finish
           </div>
@@ -136,6 +144,14 @@ export function BeforeAfter() {
           onPointerUp={handlePointerUp}
           onPointerCancel={handlePointerUp}
         >
+          <PaintSplash
+            key={selectedColor.code}
+            color={selectedColor.hex}
+            size="small"
+            variant="compact"
+            trigger="mount"
+            className="transformation-shade-splash"
+          />
           {/* ============================================================ */}
           {/* AFTER LAYER (Full background: The exact same room with Mathulac paint) */}
           {/* ============================================================ */}

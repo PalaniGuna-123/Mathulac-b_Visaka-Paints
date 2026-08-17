@@ -29,6 +29,7 @@ import {
   type VisualizationScene,
 } from '../../data';
 import { Link, useNavigate } from '../../routes/Router';
+import { FloatingPaintBubbles, PaintSplash } from '../../components/paint';
 import {
   renderPaintedRoomCanvas,
   getComplementaryPalette,
@@ -90,6 +91,7 @@ export function PaintStudio({ scrollTo, initialShadeId }: PaintStudioProps) {
   const paletteRef = useRef<HTMLDivElement | null>(null);
   const scenesGridRef = useRef<HTMLDivElement | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const shadeWashRef = useRef<HTMLSpanElement | null>(null);
 
   // Sync initial URL shade change
   useEffect(() => {
@@ -165,6 +167,24 @@ export function PaintStudio({ scrollTo, initialShadeId }: PaintStudioProps) {
   useEffect(() => {
     renderCanvas();
   }, [renderCanvas]);
+
+  useEffect(() => {
+    const wash = shadeWashRef.current;
+    if (!wash || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const ctx = gsap.context(() => {
+      gsap.fromTo(wash, {
+        autoAlpha: 0.42,
+        scale: 0.08,
+      }, {
+        autoAlpha: 0,
+        scale: 2.8,
+        duration: 0.72,
+        ease: 'power2.out',
+        overwrite: true,
+      });
+    }, wash.parentElement ?? wash);
+    return () => ctx.revert();
+  }, [shade.id]);
 
   // Handle User File Upload
   const processUploadedFile = (file: File) => {
@@ -283,6 +303,14 @@ export function PaintStudio({ scrollTo, initialShadeId }: PaintStudioProps) {
         <div className="liquid-paint-blob liquid-paint-blob-2" />
         <div className="liquid-paint-blob liquid-paint-blob-3" />
       </div>
+      <FloatingPaintBubbles
+        count={10}
+        mobileCount={4}
+        tabletCount={7}
+        placement="visualizer"
+        accent={shade.hex}
+        className="studio-route-bubbles"
+      />
 
       {/* Hero / Intro Section */}
       <div className="studio-intro text-center">
@@ -327,6 +355,20 @@ export function PaintStudio({ scrollTo, initialShadeId }: PaintStudioProps) {
             {/* Photorealistic Canvas Frame */}
             <div className="studio-room relative aspect-[16/10] rounded-xl overflow-hidden shadow-2xl">
               <canvas ref={canvasRef} className="w-full h-full object-cover" />
+              <span
+                ref={shadeWashRef}
+                className="studio-room__paint-wash"
+                style={{ backgroundColor: shade.hex }}
+                aria-hidden="true"
+              />
+              <PaintSplash
+                key={shade.id}
+                color={shade.hex}
+                size="small"
+                variant="compact"
+                trigger="mount"
+                className="studio-room__shade-splash"
+              />
 
               {isUploading && (
                 <div className="absolute inset-0 bg-black/60 backdrop-blur-sm z-20 flex items-center justify-center text-white gap-3">
@@ -543,10 +585,11 @@ export function PaintStudio({ scrollTo, initialShadeId }: PaintStudioProps) {
                 </button>
               ))}
             </div>
+            <span className="text-[10px] text-black/40 font-medium">{filteredShades.length} shades</span>
 
             {/* Mini Swatches Grid */}
             <div ref={paletteRef} className="studio-palette">
-              {filteredShades.slice(0, 18).map((item) => (
+              {filteredShades.map((item) => (
                 <button
                   key={item.id}
                   data-shade-id={item.id}
