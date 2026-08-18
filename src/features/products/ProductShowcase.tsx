@@ -480,7 +480,7 @@ export function ProductShowcase({ initialFilter = 'thinners', scrollTo }: Produc
           </div>
         )}
 
-          {/* Clean Consultation & Full Category Action Strip below the Card */}
+        {/* Clean Consultation & Full Category Action Strip below the Card */}
         <div className="max-w-2xl mx-auto flex flex-col sm:flex-row items-center justify-center gap-4 mb-16" data-reveal>
           <button
             onClick={handleConsult}
@@ -604,30 +604,26 @@ export function ProductShowcase({ initialFilter = 'thinners', scrollTo }: Produc
                       {/* Year pill + connector */}
                       <div className="flex flex-col items-center gap-1 flex-shrink-0 w-14">
                         <span
-                          className={`text-[11px] font-black rounded-lg px-2 py-0.5 transition-all duration-300 ${
-                            isActive
+                          className={`text-[11px] font-black rounded-lg px-2 py-0.5 transition-all duration-300 ${isActive
                               ? 'bg-magenta text-white shadow-lg shadow-magenta/40'
                               : 'bg-white/10 text-white/60 group-hover:bg-white/15 group-hover:text-white'
-                          }`}
+                            }`}
                         >
                           {item.year}
                         </span>
                         {i < timeline.length - 1 && (
-                          <div className={`w-px flex-1 min-h-[16px] transition-colors duration-300 ${
-                            isActive ? 'bg-magenta/60' : 'bg-white/10'
-                          }`} />
+                          <div className={`w-px flex-1 min-h-[16px] transition-colors duration-300 ${isActive ? 'bg-magenta/60' : 'bg-white/10'
+                            }`} />
                         )}
                       </div>
                       {/* Content */}
                       <div className="flex-1 pb-1">
-                        <h5 className={`text-sm font-bold leading-snug transition-colors duration-200 ${
-                          isActive ? 'text-white' : 'text-white/70 group-hover:text-white/90'
-                        }`}>
+                        <h5 className={`text-sm font-bold leading-snug transition-colors duration-200 ${isActive ? 'text-white' : 'text-white/70 group-hover:text-white/90'
+                          }`}>
                           {item.title}
                         </h5>
-                        <p className={`text-xs leading-relaxed mt-1 transition-all duration-300 ${
-                          isActive ? 'text-white/70 max-h-20' : 'text-white/40 max-h-0 overflow-hidden group-hover:max-h-20 group-hover:text-white/55'
-                        }`}>
+                        <p className={`text-xs leading-relaxed mt-1 transition-all duration-300 ${isActive ? 'text-white/70 max-h-20' : 'text-white/40 max-h-0 overflow-hidden group-hover:max-h-20 group-hover:text-white/55'
+                          }`}>
                           {item.description}
                         </p>
                       </div>
