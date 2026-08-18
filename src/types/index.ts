@@ -110,6 +110,30 @@ export type Product = {
   image: string;
 };
 
+export type ProductTechnicalSpecs = {
+  mixingRatio?: string;
+  applicationMethod?: string;
+  noOfCoats?: string;
+  potLife?: string;
+  dryingTime?: string;
+  flashOff?: string;
+  sandPaper?: string;
+  methodOfSanding?: string;
+  surfacePrep?: string;
+  background?: string;
+  hardenerInduction?: string;
+  buffing?: string;
+  supplyViscosity?: string;
+  sprayViscosity?: string;
+  coverage?: string;
+  coveringViscosity?: string;
+  coveringCapacity?: string;
+  stabilityOfThinned?: string;
+  flashPoint?: string;
+  finishType?: string;
+  dilution?: string;
+};
+
 export type MathulacProductItem = {
   id: string;
   name: string;
@@ -121,4 +145,31 @@ export type MathulacProductItem = {
   image: string;
   color?: string;
   tagline?: string;
+  technicalSpecs?: ProductTechnicalSpecs;
+};
+
+export type SyntheticEnamelShade = {
+  id: string;
+  name: string;
+  code: string;
+  hex: string;
+};
+
+export type ProblemSolverItem = {
+  id: string;
+  problem: string;
+  description: string;
+  possibleCause: string;
+  solution: string;
+};
+
+export type OfficialProductSpec = {
+  id: string;
+  mainCategory: 'Auto Finishes' | 'Wood Finishes' | 'Decorative Paints';
+  subcategory: string;
+  productName: string;
+  color?: string;
+  colorSwatchHex?: string;
+  usageFeatures: string;
+  specs: ProductTechnicalSpecs;
 };

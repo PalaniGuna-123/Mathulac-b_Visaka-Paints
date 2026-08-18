@@ -83,11 +83,11 @@ export function AboutLocationMap() {
               href="tel:+919363114343"
               className="text-white font-bold text-lg mt-1 block hover:text-magenta transition-colors"
             >
-              +91 93631 14343
+              +91 93631 14313
             </a>
             <div className="mt-3 flex items-center gap-2">
               <a
-                href="https://wa.me/919363114343?text=Hi%20Visaka%20Mathulac%20Paints,%20I%20would%20like%20to%20inquire%20about%20coating%20shades%20and%20consultation"
+                href="https://wa.me/919363114313?text=Hi%20Visaka%20Mathulac%20Paints,%20I%20would%20like%20to%20inquire%20about%20coating%20shades%20and%20consultation"
                 target="_blank"
                 rel="noreferrer"
                 className="text-xs font-bold text-green-400 hover:underline inline-flex items-center gap-1"
@@ -305,7 +305,7 @@ export function AboutLocationMap() {
                       <input
                         required
                         type="tel"
-                        placeholder="+91 93631 14343"
+                        placeholder="+91 93631 14313"
                         value={formData.phone}
                         onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                         className="w-full px-4 py-3 rounded-xl bg-white/10 border border-white/15 text-white placeholder-white/40 text-sm focus:outline-none focus:border-magenta transition-all"
@@ -372,7 +372,7 @@ export function AboutLocationMap() {
             <div className="pt-4 mt-6 border-t border-white/10 flex items-center justify-between text-xs text-white/60">
               <span>Quick response guaranteed</span>
               <a href="tel:+919363114343" className="text-magenta font-bold hover:underline inline-flex items-center gap-1">
-                Call +91 93631 14343 <ArrowRight className="w-3 h-3" />
+                Call +91 93631 14313 <ArrowRight className="w-3 h-3" />
               </a>
             </div>
           </div>

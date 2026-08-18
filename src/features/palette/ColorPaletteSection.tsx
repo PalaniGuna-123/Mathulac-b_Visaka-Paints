@@ -152,7 +152,7 @@ export function ColorPaletteSection() {
 
               <div className="mt-7 flex gap-3">
                 <Link
-                  to="/studio"
+                  to="/colours"
                   className="flex-1 py-3.5 rounded-xl bg-gradient-to-r from-magenta to-violet text-white font-bold text-center hover:opacity-90 transition-opacity"
                 >
                   Visualize in Room

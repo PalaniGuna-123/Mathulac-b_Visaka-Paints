@@ -41,7 +41,7 @@ export function WoodSection() {
 
             <div className="mt-8">
               <Link
-                to="/wood"
+                to="/specifications?division=wood"
                 className="inline-flex items-center gap-2 px-6 py-3.5 rounded-xl font-bold bg-amber-500 hover:bg-amber-400 text-ink shadow-xl transition-all"
               >
                 View Wood Systems <ArrowRight className="w-4 h-4" />

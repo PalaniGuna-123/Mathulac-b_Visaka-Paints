@@ -156,7 +156,7 @@ export function HomepageVisualizer() {
             <p data-viz-heading>{homepageVisualizer.description}</p>
 
             <div data-viz-actions className="visualizer-chapter__actions">
-              <Link to="/studio" className="paint-button visualizer-cta visualizer-cta--primary" data-cursor="visualize">
+              <Link to="/colours" className="paint-button visualizer-cta visualizer-cta--primary" data-cursor="visualize">
                 {homepageVisualizer.primaryCta}
                 <ArrowRight aria-hidden="true" />
               </Link>

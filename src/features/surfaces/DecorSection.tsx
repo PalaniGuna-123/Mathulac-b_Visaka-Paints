@@ -75,10 +75,10 @@ export function DecorSection() {
 
         <div className="text-center mt-12">
           <Link
-            to="/decor"
+            to="/contact"
             className="inline-flex items-center gap-2 px-7 py-3.5 rounded-xl font-bold bg-violet hover:bg-purple-600 text-white shadow-xl transition-all"
           >
-            Explore Decorative Collection <ArrowRight className="w-4 h-4" />
+            Request Decorative Swatch Kit <ArrowRight className="w-4 h-4" />
           </Link>
         </div>
       </div>

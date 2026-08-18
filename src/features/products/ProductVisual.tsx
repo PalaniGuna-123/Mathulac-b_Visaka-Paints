@@ -31,25 +31,25 @@ export function ProductVisual({
     >
       {/* Dynamic Ambient Radial Glow behind the product container */}
       <div
-        className="absolute inset-0 m-auto w-[320px] h-[320px] sm:w-[420px] sm:h-[420px] rounded-full pointer-events-none filter blur-[85px] transition-all duration-700 opacity-70"
+        className="absolute inset-0 m-auto w-[280px] h-[280px] sm:w-[360px] sm:h-[360px] rounded-full pointer-events-none filter blur-[75px] transition-all duration-700 opacity-60"
         style={{
-          background: `radial-gradient(circle, ${activeColor}99 0%, ${activeColor}35 45%, rgba(139, 92, 246, 0.2) 70%, transparent 80%)`,
+          background: `radial-gradient(circle, ${activeColor}99 0%, ${activeColor}30 45%, rgba(139, 92, 246, 0.2) 70%, transparent 80%)`,
         }}
       />
 
-      {/* Genuine Mathulac Product Container Photo - Increased Scale and Clean Centering */}
+      {/* Genuine Mathulac Product Container Photo - Crisp Full Container Display */}
       {!imgError && activeImageUrl ? (
-        <div className="relative z-10 w-full h-full flex items-center justify-center p-1 group overflow-visible">
+        <div className="relative z-10 w-full h-full flex items-center justify-center p-2 group overflow-visible">
           <img
             src={activeImageUrl}
             alt={product.name}
             onError={() => setImgError(true)}
-            className="relative z-10 max-h-[380px] sm:max-h-[440px] md:max-h-[480px] w-auto h-auto max-w-full scale-[1.5] sm:scale-[1.68] md:scale-[1.78] object-contain transition-transform duration-500 group-hover:scale-[1.85] drop-shadow-[0_30px_60px_rgba(0,0,0,0.9)] filter brightness-105"
+            className="relative z-10 max-h-[300px] sm:max-h-[360px] md:max-h-[400px] w-auto h-auto max-w-full object-contain transition-transform duration-500 group-hover:scale-105 drop-shadow-[0_25px_45px_rgba(0,0,0,0.85)] filter brightness-105"
           />
 
           {/* Dynamic Color Hue Reflection Glow at Base */}
           <div
-            className="absolute bottom-0 left-1/2 -translate-x-1/2 w-56 h-8 rounded-full blur-xl pointer-events-none transition-all duration-500 opacity-50"
+            className="absolute bottom-1 left-1/2 -translate-x-1/2 w-44 h-6 rounded-full blur-xl pointer-events-none transition-all duration-500 opacity-40"
             style={{ backgroundColor: activeColor }}
           />
         </div>
@@ -76,3 +76,4 @@ export function ProductVisual({
 }
 
 export default ProductVisual;
+

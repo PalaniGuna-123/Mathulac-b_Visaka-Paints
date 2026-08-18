@@ -37,7 +37,7 @@ export function AutoSection() {
 
           <div className="mt-8">
             <Link
-              to="/auto"
+              to="/specifications?division=auto"
               className="inline-flex items-center gap-2 px-6 py-3.5 rounded-xl font-bold bg-ember hover:bg-red-600 text-white shadow-xl transition-all"
             >
               Explore Auto Systems <ArrowRight className="w-4 h-4" />
