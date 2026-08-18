@@ -27,7 +27,7 @@ export function ProductVisual({
 
   return (
     <div
-      className={`relative w-full flex items-center justify-center select-none ${className}`}
+      className={`product-visual relative w-full flex items-center justify-center select-none ${className}`}
     >
       {/* Dynamic Ambient Radial Glow behind the product container */}
       <div
@@ -39,7 +39,7 @@ export function ProductVisual({
 
       {/* Genuine Mathulac Product Container Photo - Increased Scale and Clean Centering */}
       {!imgError && activeImageUrl ? (
-        <div className="relative z-10 w-full h-full flex items-center justify-center p-1 group overflow-visible">
+        <div className="product-visual__object-wrap relative z-10 w-full h-full flex items-center justify-center p-1 group overflow-visible">
           <img
             src={activeImageUrl}
             alt={product.name}

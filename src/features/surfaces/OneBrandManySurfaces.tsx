@@ -1,6 +1,15 @@
 import { useLayoutEffect, useRef, type CSSProperties } from 'react';
-import { surfaces } from '../../data';
+import { surfaces } from '../../data/products';
+import { FloatingPaintBubbles, PaintSplash, type PaintSplashSize, type PaintSplashVariant } from '../../components/paint';
 import { gsap } from '../../lib/animation';
+
+const surfaceSplashStyles: Array<{ size: PaintSplashSize; variant: PaintSplashVariant }> = [
+  { size: 'medium', variant: 'impact' },
+  { size: 'large', variant: 'wide' },
+  { size: 'large', variant: 'brush' },
+  { size: 'small', variant: 'compact' },
+  { size: 'medium', variant: 'flow' },
+];
 
 export function OneBrandManySurfaces() {
   const sectionRef = useRef<HTMLElement>(null);
@@ -14,6 +23,7 @@ export function OneBrandManySurfaces() {
       const copies = Array.from(section.querySelectorAll<HTMLElement>('[data-surface-copy]'));
       const progressBars = Array.from(section.querySelectorAll<HTMLElement>('[data-surface-progress]'));
       const coatingSweeps = Array.from(section.querySelectorAll<HTMLElement>('[data-surface-coating]'));
+      const splashes = Array.from(section.querySelectorAll<HTMLElement>('[data-surface-splash]'));
       if (!images.length || !copies.length) return;
 
       gsap.set(images, {
@@ -32,6 +42,8 @@ export function OneBrandManySurfaces() {
       gsap.set(copies[0], { autoAlpha: 1, y: 0 });
       gsap.set(progressBars, { scaleX: 0, transformOrigin: 'left center' });
       gsap.set(coatingSweeps, { autoAlpha: 0, scaleX: 0, transformOrigin: 'left center' });
+      gsap.set(splashes, { autoAlpha: 0, scale: 0.08, transformOrigin: '50% 55%' });
+      gsap.set(section.querySelectorAll('[data-surface-splash] [data-splash-drop]'), { autoAlpha: 0, scale: 0.1 });
 
       const timeline = gsap.timeline({
         defaults: { ease: 'none' },
@@ -49,12 +61,38 @@ export function OneBrandManySurfaces() {
 
       surfaces.forEach((_, index) => {
         const sceneStart = index;
+        const splash = splashes[index];
+        const splashDrops = splash?.querySelectorAll('[data-splash-drop]') ?? [];
         const sceneProgressBars = Array.from(
           section.querySelectorAll<HTMLElement>(`[data-surface-progress="${index}"]`),
         );
         timeline.to(sceneProgressBars, { scaleX: 1, duration: 1 }, sceneStart);
 
+        if (splash) {
+          timeline
+            .to(splash, {
+              autoAlpha: index === 1 ? 0.5 : 0.62,
+              scale: 1.025,
+              duration: index === 1 ? 0.52 : 0.4,
+              ease: 'expo.out',
+            }, sceneStart + 0.08)
+            .to(splash, { scale: 1, duration: 0.38, ease: 'power2.out' }, sceneStart + 0.46)
+            .to(splashDrops, {
+              autoAlpha: 0.86,
+              scale: 1,
+              duration: 0.52,
+              stagger: 0.025,
+              ease: 'power3.out',
+            }, sceneStart + 0.14);
+        }
+
         if (index === 0) return;
+
+        timeline.to(splashes[index - 1], {
+          autoAlpha: 0,
+          duration: 0.18,
+          ease: 'power2.out',
+        }, sceneStart - 0.02);
 
         timeline
           .fromTo(coatingSweeps[index], {
@@ -133,12 +171,36 @@ export function OneBrandManySurfaces() {
               className="surface-coating-reveal"
               style={{ '--surface-accent': surface.accent } as CSSProperties}
             />
+            <span data-surface-splash data-surface-kind={surface.id} className="surface-splash">
+              <PaintSplash
+                color={surface.accent}
+                size={surfaceSplashStyles[index]?.size ?? 'medium'}
+                variant={surfaceSplashStyles[index]?.variant ?? 'impact'}
+                trigger="static"
+              />
+            </span>
           </div>
         ))}
       </div>
 
+      <FloatingPaintBubbles
+        count={12}
+        mobileCount={4}
+        tabletCount={8}
+        placement="surfaces"
+        accent="#ffd400"
+        className="one-brand-bubbles"
+      />
+
       <div className="pointer-events-none absolute inset-0 z-20 flex flex-col px-5 pb-8 pt-24 sm:px-8 sm:pb-10 md:px-14 md:pt-28 lg:px-20">
-        <header className="max-w-2xl">
+        <header className="relative isolate max-w-2xl" data-splash-trigger>
+          <PaintSplash
+            color="#e6007e"
+            size="medium"
+            variant="wide"
+            trigger="scroll"
+            className="section-title-splash"
+          />
           <div className="mb-3 inline-flex items-center rounded-full border border-magenta/40 bg-magenta/20 px-3.5 py-1 text-[10px] font-extrabold uppercase tracking-[0.2em] text-pink-200 backdrop-blur-md">
             One Brand
           </div>

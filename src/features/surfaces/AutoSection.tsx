@@ -1,5 +1,6 @@
 import { ArrowRight, Zap } from 'lucide-react';
 import { Link } from '../../routes/Router';
+import { PaintSplash } from '../../components/paint';
 
 export function AutoSection() {
   return (
@@ -12,7 +13,14 @@ export function AutoSection() {
       />
       <div className="absolute inset-0 bg-gradient-to-r from-ink/95 via-ink/65 to-transparent" />
       <div className="relative z-10 h-full max-w-[1400px] mx-auto px-5 md:px-8 flex items-center">
-        <div className="max-w-xl" data-reveal-left>
+        <div className="relative isolate max-w-xl" data-reveal-left data-splash-trigger>
+          <PaintSplash
+            color="#f51b24"
+            size="small"
+            variant="flow"
+            trigger="scroll"
+            className="surface-section-title-splash"
+          />
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-red-500/20 text-red-300 text-[11px] font-bold uppercase tracking-widest mb-2.5 border border-red-500/30">
             <Zap className="w-3.5 h-3.5 text-red-400" /> Automotive Refinishing
           </div>
@@ -38,7 +46,7 @@ export function AutoSection() {
           <div className="mt-8">
             <Link
               to="/auto"
-              className="inline-flex items-center gap-2 px-6 py-3.5 rounded-xl font-bold bg-ember hover:bg-red-600 text-white shadow-xl transition-all"
+              className="paint-button inline-flex items-center gap-2 px-6 py-3.5 rounded-xl font-bold bg-ember hover:bg-red-600 text-white shadow-xl transition-all"
             >
               Explore Auto Systems <ArrowRight className="w-4 h-4" />
             </Link>

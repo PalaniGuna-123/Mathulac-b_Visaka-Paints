@@ -137,96 +137,131 @@ export const palette: ColorSwatch[] = [
 ];
 
 const basePaintShades = [
-  // WHITES
+  // ── WHITES ──────────────────────────────────────────
   { id: 'MW-001', name: 'Ivory Light', family: 'WHITES', hex: '#F6F1E8', collection: 'Essential Whites', recommendedRooms: ['Kitchen', 'Living Room'] },
   { id: 'MW-002', name: 'Cloud White', family: 'WHITES', hex: '#FAF8F2', collection: 'Essential Whites', recommendedRooms: ['Bedroom', 'Kitchen', 'Office'] },
   { id: 'MW-003', name: 'Porcelain Pure', family: 'WHITES', hex: '#ECE9E0', collection: 'Essential Whites', recommendedRooms: ['Dining', 'Exterior'] },
   { id: 'MW-004', name: 'Chiffon White', family: 'WHITES', hex: '#FFFDF9', collection: 'Essential Whites', recommendedRooms: ['Living Room', 'Ceiling'] },
   { id: 'MW-005', name: 'Pearl Frost', family: 'WHITES', hex: '#F8F9FA', collection: 'Essential Whites', recommendedRooms: ['Bathroom', 'Bedroom'] },
+  { id: 'MW-006', name: 'Alpine Snow', family: 'WHITES', hex: '#FEFEFE', collection: 'Essential Whites', recommendedRooms: ['Ceiling', 'All Rooms'] },
+  { id: 'MW-007', name: 'Linen White', family: 'WHITES', hex: '#F0EDE5', collection: 'Essential Whites', recommendedRooms: ['Living Room', 'Bedroom'] },
 
-  // OFF WHITES
+  // ── OFF WHITES ──────────────────────────────────────
   { id: 'VOW-01', name: 'Royal Ivory', family: 'OFF WHITES', hex: '#EEE4CF', collection: 'Classic Heritage', recommendedRooms: ['Kitchen', 'Living Room'] },
   { id: 'VOW-02', name: 'Off White Silk', family: 'OFF WHITES', hex: '#EDE9DE', collection: 'Classic Heritage', recommendedRooms: ['Bedroom', 'Dining'] },
   { id: 'VOW-03', name: 'Blue Bell White', family: 'OFF WHITES', hex: '#E8EEF0', collection: 'Classic Heritage', recommendedRooms: ['Kitchen', 'Bedroom'] },
   { id: 'VOW-04', name: 'Alabaster Whisper', family: 'OFF WHITES', hex: '#F3EFE0', collection: 'Classic Heritage', recommendedRooms: ['Living Room', 'Hallway'] },
+  { id: 'VOW-05', name: 'Parchment Mist', family: 'OFF WHITES', hex: '#F0E8DA', collection: 'Classic Heritage', recommendedRooms: ['Study', 'Living Room'] },
+  { id: 'VOW-06', name: 'Eggshell Warm', family: 'OFF WHITES', hex: '#E8E2D5', collection: 'Classic Heritage', recommendedRooms: ['Bedroom', 'Dining'] },
+  { id: 'VOW-07', name: 'Feather Cream', family: 'OFF WHITES', hex: '#F2EBD9', collection: 'Classic Heritage', recommendedRooms: ['Living Room', 'Hallway'] },
 
-  // BEIGES
+  // ── BEIGES ──────────────────────────────────────────
   { id: 'MB-101', name: 'Warm Beige', family: 'BEIGES', hex: '#DCCBB5', collection: 'Warm Neutrals', recommendedRooms: ['Living Room', 'Bedroom', 'Dining'] },
   { id: 'MB-102', name: 'Linen Hush', family: 'BEIGES', hex: '#E9DDCA', collection: 'Warm Neutrals', recommendedRooms: ['Living Room', 'Bedroom'] },
   { id: 'MB-103', name: 'Sand Veil', family: 'BEIGES', hex: '#CBB495', collection: 'Warm Neutrals', recommendedRooms: ['Living Room', 'Exterior'] },
   { id: 'MB-104', name: 'Suede Touch', family: 'BEIGES', hex: '#B9A287', collection: 'Natural Material', recommendedRooms: ['Living Room', 'Office'] },
   { id: 'MB-105', name: 'Mid Buff', family: 'BEIGES', hex: '#C7A77C', collection: 'Natural Material', recommendedRooms: ['Living Room', 'Dining'] },
+  { id: 'MB-106', name: 'Biscuit Tan', family: 'BEIGES', hex: '#D4BFA4', collection: 'Warm Neutrals', recommendedRooms: ['Hallway', 'Bedroom'] },
+  { id: 'MB-107', name: 'Desert Sand', family: 'BEIGES', hex: '#C9A882', collection: 'Natural Material', recommendedRooms: ['Living Room', 'Exterior'] },
+  { id: 'MB-108', name: 'Cashmere Melt', family: 'BEIGES', hex: '#DED0BE', collection: 'Warm Neutrals', recommendedRooms: ['Bedroom', 'Living Room'] },
 
-  // CREAMS
+  // ── CREAMS ──────────────────────────────────────────
   { id: 'VC-301', name: 'Pale Cream', family: 'CREAMS', hex: '#F3E6BB', collection: 'Sunlit Days', recommendedRooms: ['Kitchen', 'Bedroom'] },
   { id: 'VC-302', name: 'Raw Silk', family: 'CREAMS', hex: '#E7D9BA', collection: 'Sunlit Days', recommendedRooms: ['Bedroom', 'Living Room'] },
   { id: 'VC-306', name: 'Light Cream Glow', family: 'CREAMS', hex: '#F1E1B7', collection: 'Sunlit Days', recommendedRooms: ['Kitchen', 'Living Room'] },
   { id: 'VC-310', name: 'Sandstone Warmth', family: 'CREAMS', hex: '#D8C29B', collection: 'Sunlit Days', recommendedRooms: ['Living Room', 'Dining'] },
   { id: 'VC-315', name: 'Dawn Cream', family: 'CREAMS', hex: '#E5D6AD', collection: 'Sunlit Days', recommendedRooms: ['Bedroom', 'Living Room'] },
+  { id: 'VC-316', name: 'Buttercream', family: 'CREAMS', hex: '#EEDCA8', collection: 'Sunlit Days', recommendedRooms: ['Kitchen', 'Dining'] },
+  { id: 'VC-317', name: 'Vanilla Swirl', family: 'CREAMS', hex: '#F5E4C3', collection: 'Sunlit Days', recommendedRooms: ['Bedroom', 'Kids Room'] },
+  { id: 'VC-318', name: 'Honey Beige', family: 'CREAMS', hex: '#DFC89D', collection: 'Sunlit Days', recommendedRooms: ['Living Room', 'Dining'] },
 
-  // GREYS
+  // ── GREYS ───────────────────────────────────────────
   { id: 'MGY-01', name: 'Silver Lining', family: 'GREYS', hex: '#B6B8B6', collection: 'Modern Balance', recommendedRooms: ['Kitchen', 'Office'] },
   { id: 'MGY-02', name: 'Slate Poem', family: 'GREYS', hex: '#687078', collection: 'Modern Balance', recommendedRooms: ['Office', 'Exterior'] },
   { id: 'MGY-03', name: 'Dove Shadow', family: 'GREYS', hex: '#D0CECA', collection: 'Modern Balance', recommendedRooms: ['Living Room', 'Bedroom'] },
   { id: 'MGY-04', name: 'Smoke Grey', family: 'GREYS', hex: '#8B8B8A', collection: 'Urban Neutrals', recommendedRooms: ['Office', 'Exterior'] },
   { id: 'MGY-05', name: 'Ad Grey', family: 'GREYS', hex: '#777D82', collection: 'Urban Neutrals', recommendedRooms: ['Office', 'Exterior'] },
   { id: 'MGY-06', name: 'Pebble Path', family: 'GREYS', hex: '#A79F95', collection: 'Quiet Earth', recommendedRooms: ['Office', 'Exterior'] },
+  { id: 'MGY-07', name: 'Ash Cloud', family: 'GREYS', hex: '#C4C0BC', collection: 'Modern Balance', recommendedRooms: ['Living Room', 'Bathroom'] },
+  { id: 'MGY-08', name: 'Charcoal Dusk', family: 'GREYS', hex: '#525254', collection: 'Urban Neutrals', recommendedRooms: ['Office', 'Feature Wall'] },
 
-  // BROWNS
+  // ── BROWNS ──────────────────────────────────────────
   { id: 'MBR-01', name: 'Cocoa Nook', family: 'BROWNS', hex: '#806052', collection: 'Deep Earth', recommendedRooms: ['Office', 'Dining'] },
   { id: 'MBR-02', name: 'Clay Pot', family: 'BROWNS', hex: '#A8785C', collection: 'Deep Earth', recommendedRooms: ['Exterior', 'Living Room'] },
   { id: 'MBR-03', name: 'Teak Brown', family: 'BROWNS', hex: '#755348', collection: 'Natural Material', recommendedRooms: ['Office', 'Dining'] },
   { id: 'MBR-04', name: 'Sandal Wood', family: 'BROWNS', hex: '#A77B55', collection: 'Natural Material', recommendedRooms: ['Living Room', 'Exterior'] },
   { id: 'MBR-05', name: 'Golden Brown', family: 'BROWNS', hex: '#99693A', collection: 'Natural Material', recommendedRooms: ['Dining', 'Exterior'] },
   { id: 'MBR-06', name: 'Mahogany Rich', family: 'BROWNS', hex: '#693F35', collection: 'Deep Earth', recommendedRooms: ['Dining', 'Office'] },
+  { id: 'MBR-07', name: 'Walnut Bark', family: 'BROWNS', hex: '#5C3D2E', collection: 'Deep Earth', recommendedRooms: ['Office', 'Dining'] },
+  { id: 'MBR-08', name: 'Cinnamon Dust', family: 'BROWNS', hex: '#9B6E50', collection: 'Natural Material', recommendedRooms: ['Living Room', 'Exterior'] },
 
-  // REDS
+  // ── REDS ────────────────────────────────────────────
   { id: 'MR-501', name: 'Ember Silk', family: 'REDS', hex: '#A94F4A', collection: 'Bold Expression', recommendedRooms: ['Dining', 'Exterior'] },
   { id: 'MR-502', name: 'Rosewood Red', family: 'REDS', hex: '#7F3C3F', collection: 'Bold Expression', recommendedRooms: ['Dining', 'Office'] },
   { id: 'VR-602', name: 'Mercedes Red', family: 'REDS', hex: '#9F3038', collection: 'Statement Collection', recommendedRooms: ['Dining', 'Exterior'] },
   { id: 'VR-604', name: 'Signal Red', family: 'REDS', hex: '#C53D42', collection: 'Statement Collection', recommendedRooms: ['Dining', 'Exterior'] },
   { id: 'VR-608', name: 'Pro Red', family: 'REDS', hex: '#A63138', collection: 'Statement Collection', recommendedRooms: ['Dining', 'Exterior'] },
   { id: 'VR-614', name: 'Imperial Crimson', family: 'REDS', hex: '#822F41', collection: 'Statement Collection', recommendedRooms: ['Dining', 'Exterior'] },
+  { id: 'MR-503', name: 'Scarlet Blush', family: 'REDS', hex: '#D4474A', collection: 'Bold Expression', recommendedRooms: ['Dining', 'Kids Room'] },
+  { id: 'MR-504', name: 'Brick Hearth', family: 'REDS', hex: '#8C3B3B', collection: 'Bold Expression', recommendedRooms: ['Exterior', 'Dining'] },
 
-  // PINKS
+  // ── PINKS ───────────────────────────────────────────
   { id: 'MP-601', name: 'Blush Story', family: 'PINKS', hex: '#E7B7B0', collection: 'Soft Expression', recommendedRooms: ['Bedroom', 'Kids Room'] },
   { id: 'MP-602', name: 'Petal Dust', family: 'PINKS', hex: '#D8989B', collection: 'Soft Expression', recommendedRooms: ['Bedroom', 'Dining'] },
   { id: 'VP-607', name: 'Candy Pink', family: 'PINKS', hex: '#D7658E', collection: 'Soft Expression', recommendedRooms: ['Kids Room', 'Bedroom'] },
   { id: 'VP-612', name: 'Pale Rose', family: 'PINKS', hex: '#EBCACB', collection: 'Soft Expression', recommendedRooms: ['Bedroom', 'Dining'] },
   { id: 'VP-614', name: 'Petal Bloom', family: 'PINKS', hex: '#E8B7C2', collection: 'Soft Expression', recommendedRooms: ['Bedroom', 'Kids Room'] },
+  { id: 'MP-603', name: 'Rose Quartz', family: 'PINKS', hex: '#F0C5C8', collection: 'Soft Expression', recommendedRooms: ['Bedroom', 'Nursery'] },
+  { id: 'MP-604', name: 'Peony Pink', family: 'PINKS', hex: '#D9A0AB', collection: 'Soft Expression', recommendedRooms: ['Bedroom', 'Dining'] },
+  { id: 'MP-605', name: 'Raspberry Sorbet', family: 'PINKS', hex: '#C7506F', collection: 'Soft Expression', recommendedRooms: ['Kids Room', 'Feature Wall'] },
 
-  // ORANGES
+  // ── ORANGES ─────────────────────────────────────────
   { id: 'MO-401', name: 'Apricot Clay', family: 'ORANGES', hex: '#D6875B', collection: 'Earth Notes', recommendedRooms: ['Dining', 'Kids Room'] },
   { id: 'MO-402', name: 'Terracotta Muse', family: 'ORANGES', hex: '#B85F42', collection: 'Earth Notes', recommendedRooms: ['Living Room', 'Exterior'] },
   { id: 'VO-501', name: 'Dawn Glow Orange', family: 'ORANGES', hex: '#E49A65', collection: 'Earth Notes', recommendedRooms: ['Dining', 'Kids Room'] },
   { id: 'VO-503', name: 'Deep Orange', family: 'ORANGES', hex: '#C55A36', collection: 'Earth Notes', recommendedRooms: ['Dining', 'Exterior'] },
+  { id: 'MO-403', name: 'Mango Lassi', family: 'ORANGES', hex: '#E8A658', collection: 'Earth Notes', recommendedRooms: ['Kitchen', 'Kids Room'] },
+  { id: 'MO-404', name: 'Burnt Sienna', family: 'ORANGES', hex: '#A65232', collection: 'Earth Notes', recommendedRooms: ['Exterior', 'Living Room'] },
+  { id: 'MO-405', name: 'Tangerine Peel', family: 'ORANGES', hex: '#F08C4A', collection: 'Earth Notes', recommendedRooms: ['Kitchen', 'Kids Room'] },
 
-  // YELLOWS
+  // ── YELLOWS ─────────────────────────────────────────
   { id: 'MY-301', name: 'Morning Saffron', family: 'YELLOWS', hex: '#E7C35C', collection: 'Sunlit Days', recommendedRooms: ['Kitchen', 'Kids Room'] },
   { id: 'MY-302', name: 'Butter Glow', family: 'YELLOWS', hex: '#F4DC91', collection: 'Sunlit Days', recommendedRooms: ['Kitchen', 'Dining'] },
   { id: 'VY-201', name: 'Lemon Yellow', family: 'YELLOWS', hex: '#EACA42', collection: 'Sunlit Days', recommendedRooms: ['Kitchen', 'Kids Room'] },
   { id: 'VY-210', name: 'Golden Yellow', family: 'YELLOWS', hex: '#D9A62A', collection: 'Sunlit Days', recommendedRooms: ['Kitchen', 'Dining'] },
+  { id: 'MY-303', name: 'Canary Bright', family: 'YELLOWS', hex: '#F5D74E', collection: 'Sunlit Days', recommendedRooms: ['Kids Room', 'Study'] },
+  { id: 'MY-304', name: 'Mustard Seed', family: 'YELLOWS', hex: '#C9A020', collection: 'Sunlit Days', recommendedRooms: ['Dining', 'Living Room'] },
+  { id: 'MY-305', name: 'Creamy Daffodil', family: 'YELLOWS', hex: '#EEE0A0', collection: 'Sunlit Days', recommendedRooms: ['Bedroom', 'Kitchen'] },
 
-  // YELLOW GREENS
+  // ── YELLOW GREENS ───────────────────────────────────
   { id: 'VYG-01', name: 'Pista Fresh', family: 'YELLOW GREENS', hex: '#B7C67B', collection: 'Fresh Living', recommendedRooms: ['Kitchen', 'Kids Room'] },
   { id: 'VYG-02', name: 'Lime Zest', family: 'YELLOW GREENS', hex: '#A3D900', collection: 'Fresh Living', recommendedRooms: ['Balcony', 'Kids Room'] },
   { id: 'VYG-03', name: 'Chartreuse Delight', family: 'YELLOW GREENS', hex: '#D4E157', collection: 'Fresh Living', recommendedRooms: ['Kitchen', 'Study'] },
+  { id: 'VYG-04', name: 'Spring Bud', family: 'YELLOW GREENS', hex: '#C5D95B', collection: 'Fresh Living', recommendedRooms: ['Kids Room', 'Study'] },
+  { id: 'VYG-05', name: 'Papaya Whip', family: 'YELLOW GREENS', hex: '#DBC87A', collection: 'Fresh Living', recommendedRooms: ['Kitchen', 'Dining'] },
+  { id: 'VYG-06', name: 'Citron Mist', family: 'YELLOW GREENS', hex: '#B8CC5F', collection: 'Fresh Living', recommendedRooms: ['Balcony', 'Kitchen'] },
 
-  // GREENS
+  // ── GREENS ──────────────────────────────────────────
   { id: 'MG-901', name: 'Sage Retreat', family: 'GREENS', hex: '#9EAE91', collection: 'Botanical Calm', recommendedRooms: ['Living Room', 'Bedroom'] },
   { id: 'MG-902', name: 'Olive Grove', family: 'GREENS', hex: '#6F7D57', collection: 'Botanical Calm', recommendedRooms: ['Office', 'Dining'] },
   { id: 'MG-903', name: 'Eucalyptus Leaf', family: 'GREENS', hex: '#91B5A5', collection: 'Botanical Calm', recommendedRooms: ['Kitchen', 'Living Room'] },
   { id: 'VG-809', name: 'Bus Green', family: 'GREENS', hex: '#517A4B', collection: 'Fresh Living', recommendedRooms: ['Exterior', 'Office'] },
   { id: 'VG-812', name: 'Mint Green', family: 'GREENS', hex: '#9BC7B3', collection: 'Fresh Living', recommendedRooms: ['Kitchen', 'Bedroom'] },
   { id: 'VG-818', name: 'Cascade Green', family: 'GREENS', hex: '#5E9C7B', collection: 'Fresh Living', recommendedRooms: ['Living Room', 'Kitchen'] },
+  { id: 'MG-904', name: 'Forest Canopy', family: 'GREENS', hex: '#3D6B4F', collection: 'Botanical Calm', recommendedRooms: ['Exterior', 'Office'] },
+  { id: 'MG-905', name: 'Fern Shadow', family: 'GREENS', hex: '#7DA68A', collection: 'Botanical Calm', recommendedRooms: ['Bedroom', 'Living Room'] },
+  { id: 'MG-906', name: 'Emerald Deep', family: 'GREENS', hex: '#2D7A5A', collection: 'Botanical Calm', recommendedRooms: ['Feature Wall', 'Exterior'] },
 
-  // BLUE GREENS
+  // ── BLUE GREENS (TEALS) ─────────────────────────────
   { id: 'VBG-01', name: 'Aquamarine', family: 'BLUE GREENS', hex: '#58B7B1', collection: 'Teal Sanctuary', recommendedRooms: ['Kitchen', 'Kids Room'] },
   { id: 'VBG-02', name: 'Phirozi Turquoise', family: 'BLUE GREENS', hex: '#53A8A8', collection: 'Teal Sanctuary', recommendedRooms: ['Kitchen', 'Bathroom'] },
   { id: 'VBG-03', name: 'Water Green', family: 'BLUE GREENS', hex: '#78B9A6', collection: 'Teal Sanctuary', recommendedRooms: ['Kitchen', 'Bedroom'] },
   { id: 'VBG-04', name: 'Cyan Wave', family: 'BLUE GREENS', hex: '#00C8FF', collection: 'Teal Sanctuary', recommendedRooms: ['Bathroom', 'Feature Wall'] },
+  { id: 'VBG-05', name: 'Seafoam Drift', family: 'BLUE GREENS', hex: '#8ACCBF', collection: 'Teal Sanctuary', recommendedRooms: ['Bathroom', 'Bedroom'] },
+  { id: 'VBG-06', name: 'Deep Teal', family: 'BLUE GREENS', hex: '#2E8B8B', collection: 'Teal Sanctuary', recommendedRooms: ['Office', 'Feature Wall'] },
+  { id: 'VBG-07', name: 'Verdigris', family: 'BLUE GREENS', hex: '#43A6A0', collection: 'Teal Sanctuary', recommendedRooms: ['Kitchen', 'Living Room'] },
 
-  // BLUES
+  // ── BLUES ───────────────────────────────────────────
   { id: 'MB-801', name: 'Coastal Air', family: 'BLUES', hex: '#89B7CA', collection: 'Open Skies', recommendedRooms: ['Bedroom', 'Office'] },
   { id: 'MB-802', name: 'Indigo Hour', family: 'BLUES', hex: '#425D7D', collection: 'Open Skies', recommendedRooms: ['Office', 'Dining'] },
   { id: 'MB-803', name: 'Rainwashed Sky', family: 'BLUES', hex: '#B7D0D6', collection: 'Open Skies', recommendedRooms: ['Kitchen', 'Bedroom'] },
@@ -234,12 +269,18 @@ const basePaintShades = [
   { id: 'VB-125', name: 'Sky Blue Breeze', family: 'BLUES', hex: '#81B9D2', collection: 'Open Skies', recommendedRooms: ['Bedroom', 'Kids Room'] },
   { id: 'VB-128', name: 'French Blue', family: 'BLUES', hex: '#527DA9', collection: 'Open Skies', recommendedRooms: ['Bedroom', 'Office'] },
   { id: 'VB-131', name: 'Satin Blue', family: 'BLUES', hex: '#5F88B6', collection: 'Open Skies', recommendedRooms: ['Bedroom', 'Office'] },
+  { id: 'VB-132', name: 'Ice Blue', family: 'BLUES', hex: '#C2DFF0', collection: 'Open Skies', recommendedRooms: ['Bathroom', 'Bedroom'] },
+  { id: 'VB-133', name: 'Cobalt Strike', family: 'BLUES', hex: '#264E8C', collection: 'Open Skies', recommendedRooms: ['Office', 'Feature Wall'] },
+  { id: 'VB-134', name: 'Powder Blue', family: 'BLUES', hex: '#A6C8E0', collection: 'Open Skies', recommendedRooms: ['Bedroom', 'Kids Room'] },
 
-  // VIOLETS
+  // ── VIOLETS ─────────────────────────────────────────
   { id: 'MV-701', name: 'Plum Whisper', family: 'VIOLETS', hex: '#8F719A', collection: 'Quiet Drama', recommendedRooms: ['Bedroom', 'Office'] },
   { id: 'MV-702', name: 'Lilac Haze', family: 'VIOLETS', hex: '#C1AFCC', collection: 'Quiet Drama', recommendedRooms: ['Kids Room', 'Bedroom'] },
   { id: 'VP-718', name: 'Wild Purple', family: 'VIOLETS', hex: '#7669A3', collection: 'Statement Collection', recommendedRooms: ['Bedroom', 'Living Room', 'Dining'] },
   { id: 'VP-719', name: 'Wild Lilac', family: 'VIOLETS', hex: '#AD9DC6', collection: 'Statement Collection', recommendedRooms: ['Bedroom', 'Kids Room'] },
+  { id: 'MV-703', name: 'Lavender Fields', family: 'VIOLETS', hex: '#B8A9D4', collection: 'Quiet Drama', recommendedRooms: ['Bedroom', 'Nursery'] },
+  { id: 'MV-704', name: 'Amethyst Night', family: 'VIOLETS', hex: '#5C4280', collection: 'Quiet Drama', recommendedRooms: ['Office', 'Feature Wall'] },
+  { id: 'MV-705', name: 'Orchid Mist', family: 'VIOLETS', hex: '#C9A8D8', collection: 'Quiet Drama', recommendedRooms: ['Bedroom', 'Kids Room'] },
 ];
 
 export const paintShades: PaintShade[] = basePaintShades.map((shade) => ({

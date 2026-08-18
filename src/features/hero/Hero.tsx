@@ -8,8 +8,8 @@ import {
   useState,
 } from 'react';
 import { ArrowDown, ArrowRight } from 'lucide-react';
-import companyLogo from '../../../assets/logo.png';
 import { cinematicHero } from '../../data/brand';
+import { FloatingPaintBubbles, PaintSplash } from '../../components/paint';
 import { createHeroMotionState, getHeroViewportProfile } from './heroMotion';
 import { useHeroTimeline } from './useHeroTimeline';
 
@@ -22,23 +22,13 @@ const housePaintStageTwoUrl = '/assets/hero/house/house-02-blue-painted.webp';
 const housePaintStageThreeUrl = '/assets/hero/house/house-03-accent-painted.webp';
 const housePaintStageFourUrl = '/assets/hero/house/house-04-details-painted.webp';
 const housePaintStageFiveUrl = '/assets/hero/house/house-05-luxury-final.webp';
-const paintFlowUrl = '/assets/hero/paint/blue-paint-splash.png';
+const paintFlowUrl = '/assets/hero/paint/blue-paint-splash.webp';
 
 const heroPreloadAssets = [
+  closedBucketUrl,
   houseUnpaintedUrl,
   housePaintStageOneUrl,
   housePaintStageTwoUrl,
-  housePaintStageThreeUrl,
-  housePaintStageFourUrl,
-  housePaintStageFiveUrl,
-  '/assets/hero/masks/wall-main-mask.png',
-  '/assets/hero/masks/wall-secondary-mask.png',
-  '/assets/hero/masks/accent-mask.png',
-  '/assets/hero/masks/trims-mask.png',
-  '/assets/hero/masks/facade-mask.png',
-  '/assets/hero/environment/background-plants.webp',
-  '/assets/hero/environment/foreground-plants.webp',
-  '/assets/hero/environment/ground-shadow.webp',
 ];
 
 const heroChapters = [
@@ -209,13 +199,38 @@ export function Hero({ scrollTo }: HeroProps) {
         <div className="cinematic-hero__halo cinematic-hero__halo--blue" aria-hidden="true" />
         <div className="cinematic-hero__halo cinematic-hero__halo--magenta" aria-hidden="true" />
 
+        <FloatingPaintBubbles
+          count={6}
+          mobileCount={2}
+          tabletCount={4}
+          placement="hero"
+          className="cinematic-hero__paint-atmosphere"
+        />
+
+        <div className="cinematic-hero__splash-moments" aria-hidden="true">
+          <PaintSplash
+            color="#0968c9"
+            size="medium"
+            variant="impact"
+            trigger="static"
+            className="cinematic-hero__splash cinematic-hero__splash--impact"
+          />
+          <PaintSplash
+            color="#4da7ef"
+            size="small"
+            variant="wide"
+            trigger="static"
+            className="cinematic-hero__splash cinematic-hero__splash--accelerate"
+          />
+        </div>
+
         <div ref={posterRef} className="cinematic-hero__poster" aria-hidden="true">
           <img src={closedBucketUrl} alt="" width="1280" height="853" />
         </div>
 
         <div className="cinematic-hero__webgl" aria-hidden="true">
           {webglAvailable && (
-            <Suspense fallback={null}>
+            <Suspense fallback={<div className="absolute inset-0" style={{ background: '#0B1020' }} />}>
               <HeroScene
                 motion={motion}
                 profile={profile}
@@ -280,7 +295,6 @@ export function Hero({ scrollTo }: HeroProps) {
 
         <div ref={contentRef} className="cinematic-hero__content">
           <div data-hero-reveal data-hero-eyebrow className="cinematic-hero__eyebrow">
-            <img src={companyLogo} alt="Visaka Paints & Chemicals India" width="285" height="130" />
             <span>{cinematicHero.eyebrow}</span>
           </div>
           <span data-hero-rule className="cinematic-hero__rule" aria-hidden="true" />

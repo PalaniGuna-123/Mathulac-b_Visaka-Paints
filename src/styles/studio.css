@@ -766,6 +766,26 @@
   grid-template-columns: repeat(6, minmax(0, 1fr));
   gap: 0.6rem;
   padding: 0.25rem 0 0.65rem;
+  max-height: 380px;
+  overflow-y: auto;
+  scroll-behavior: smooth;
+}
+
+.studio-palette::-webkit-scrollbar {
+  width: 4px;
+}
+
+.studio-palette::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.studio-palette::-webkit-scrollbar-thumb {
+  background: #d43b7a50;
+  border-radius: 2px;
+}
+
+.studio-palette::-webkit-scrollbar-thumb:hover {
+  background: #d43b7a;
 }
 
 .studio-palette-card {
@@ -922,6 +942,7 @@
 @media (max-width: 850px) {
   .studio-palette {
     grid-template-columns: repeat(4, minmax(0, 1fr));
+    max-height: 320px;
   }
 }
 

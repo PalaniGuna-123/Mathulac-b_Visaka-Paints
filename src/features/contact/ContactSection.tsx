@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Phone, ArrowRight, Sparkles, CheckCircle2 } from 'lucide-react';
 import { phoneNumbers } from '../../data';
+import { FloatingPaintBubbles, PaintSplash } from '../../components/paint';
 
 export function ContactSection() {
   const [sent, setSent] = useState(false);
@@ -31,9 +32,24 @@ export function ContactSection() {
             'radial-gradient(circle at 20% 30%, #FFD400, transparent 40%), radial-gradient(circle at 80% 70%, #67D600, transparent 40%)',
         }}
       />
+      <FloatingPaintBubbles
+        count={10}
+        mobileCount={4}
+        tabletCount={6}
+        placement="cta"
+        accent="#ffd400"
+        className="contact-paint-bubbles"
+      />
 
       <div className="relative z-10 max-w-[1200px] mx-auto">
-        <div className="text-center max-w-3xl mx-auto mb-10" data-reveal>
+        <div className="relative isolate text-center max-w-3xl mx-auto mb-10" data-reveal data-splash-trigger>
+          <PaintSplash
+            color="#fff8ed"
+            size="medium"
+            variant="wide"
+            trigger="scroll"
+            className="section-title-splash"
+          />
           <div className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-white/20 text-white text-[11px] font-extrabold uppercase tracking-widest mb-3 backdrop-blur-md">
             <Sparkles className="w-3.5 h-3.5 text-yellow-300" /> Start Your Project
           </div>
@@ -156,7 +172,7 @@ export function ContactSection() {
 
               <button
                 type="submit"
-                className="w-full py-4 rounded-xl bg-white text-ink font-bold flex items-center justify-center gap-2 hover:bg-cream shadow-xl transition-all hover:scale-[1.02]"
+                className="paint-button paint-button--blue w-full py-4 rounded-xl bg-white text-ink font-bold flex items-center justify-center gap-2 hover:bg-cream shadow-xl transition-all hover:scale-[1.02]"
               >
                 <span>Send Inquiry &amp; Request Callback</span>
                 <ArrowRight className="w-4 h-4" />

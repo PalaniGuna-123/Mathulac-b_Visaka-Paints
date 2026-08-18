@@ -32,6 +32,7 @@ import { ProductVisual } from './ProductVisual';
 import { CategoryProductsModal } from './CategoryProductsModal';
 import { trustPillars, timeline } from '../../data/brand';
 import { gsap, ScrollTrigger } from '../../lib/animation';
+import { FloatingPaintBubbles, PaintSplash } from '../../components/paint';
 
 interface ProductShowcaseProps {
   initialFilter?: string;
@@ -192,6 +193,14 @@ export function ProductShowcase({ initialFilter = 'thinners', scrollTo }: Produc
 
   return (
     <section ref={sectionRef} id="products" className="relative bg-[#0B0D17] text-white overflow-hidden">
+      <FloatingPaintBubbles
+        count={10}
+        mobileCount={3}
+        tabletCount={6}
+        placement="product"
+        accent="#e6007e"
+        className="product-section-bubbles"
+      />
       <div ref={scrollContentRef} className="relative py-16 md:py-20 px-4 md:px-8">
         {/* Background ambient lighting */}
         <div className="absolute top-1/4 left-1/4 w-[500px] h-[500px] bg-magenta/15 rounded-full filter blur-[140px] pointer-events-none" />
@@ -199,7 +208,14 @@ export function ProductShowcase({ initialFilter = 'thinners', scrollTo }: Produc
 
         <div className="max-w-[1400px] mx-auto relative z-10">
         {/* Section Header */}
-        <div className="text-center max-w-3xl mx-auto mb-10" data-reveal>
+        <div className="relative isolate text-center max-w-3xl mx-auto mb-10" data-reveal data-splash-trigger>
+          <PaintSplash
+            color="#0871d6"
+            size="medium"
+            variant="wide"
+            trigger="scroll"
+            className="section-title-splash"
+          />
           <div className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-cyan/15 text-cyan text-[11px] font-extrabold uppercase tracking-widest border border-cyan/30 mb-3">
             <Sparkles className="w-3.5 h-3.5 text-cyan" /> Full Product Range &amp; Formulations
           </div>
@@ -289,6 +305,22 @@ export function ProductShowcase({ initialFilter = 'thinners', scrollTo }: Produc
                 className="product-paint-stage w-full flex items-center justify-center relative"
                 style={{ '--paint-accent': currentProduct.color || '#00C8FF' } as React.CSSProperties}
               >
+                <PaintSplash
+                  color={currentProduct.color || '#0871d6'}
+                  size="large"
+                  variant="impact"
+                  trigger="mount"
+                  className="product-paint-stage__splash"
+                />
+                <FloatingPaintBubbles
+                  count={4}
+                  mobileCount={2}
+                  tabletCount={3}
+                  placement="product"
+                  accent={currentProduct.color || '#0871d6'}
+                  parallax={false}
+                  className="product-paint-stage__bubbles"
+                />
                 <ProductVisual
                   product={currentProduct}
                   className="w-full h-[360px] sm:h-[400px]"

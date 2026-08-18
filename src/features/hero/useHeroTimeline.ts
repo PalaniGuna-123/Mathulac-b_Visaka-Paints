@@ -1,5 +1,6 @@
 import { useLayoutEffect, type MutableRefObject, type RefObject } from 'react';
 import { gsap } from '../../lib/animation';
+import { heroNav } from '../../lib/heroPhase';
 import { createHeroMotionState, type HeroMotionState, type HeroViewportProfile } from './heroMotion';
 
 interface HeroTimelineRefs {
@@ -60,6 +61,9 @@ export function useHeroTimeline({ motion, profile, ready, useWebGL, refs }: UseH
     const chapter = (id: string) => chapters.querySelector<HTMLElement>(`[data-hero-chapter="${id}"]`);
     const finalCopy = finalReveal.querySelectorAll<HTMLElement>('[data-hero-final-copy]');
     const finalActions = finalReveal.querySelector<HTMLElement>('[data-hero-final-actions]');
+    const heroSplashes = Array.from(root.querySelectorAll<HTMLElement>('.cinematic-hero__splash'));
+    const impactSplash = root.querySelector<HTMLElement>('.cinematic-hero__splash--impact');
+    const accelerateSplash = root.querySelector<HTMLElement>('.cinematic-hero__splash--accelerate');
 
     const ctx = gsap.context(() => {
       if (reducedMotion) {
@@ -85,6 +89,7 @@ export function useHeroTimeline({ motion, profile, ready, useWebGL, refs }: UseH
         gsap.set(poster, { autoAlpha: 0 });
         gsap.set(finalReveal, { autoAlpha: 1, y: 0 });
         gsap.set([finalCopy, finalActions], { autoAlpha: 1, y: 0 });
+        gsap.set(heroSplashes, { autoAlpha: 0.34, scale: 1 });
         gsap.set(progressLine, { [progressProperty]: 1 });
         if (!useWebGL) {
           gsap.set(story, { autoAlpha: 1, scale: 1, xPercent: 0 });
@@ -120,6 +125,8 @@ export function useHeroTimeline({ motion, profile, ready, useWebGL, refs }: UseH
       gsap.set(finalReveal, { autoAlpha: 0, y: 28 });
       gsap.set(finalCopy, { autoAlpha: 0, y: 14 });
       gsap.set(finalActions, { autoAlpha: 0, y: 12 });
+      gsap.set(heroSplashes, { autoAlpha: 0, scale: 0.08, transformOrigin: '50% 54%' });
+      gsap.set(root.querySelectorAll('.cinematic-hero__splash [data-splash-drop]'), { autoAlpha: 0, scale: 0.1 });
       gsap.set(poster, { autoAlpha: useWebGL ? 0 : 1 });
 
       const heroTimeline = gsap.timeline({
@@ -134,6 +141,9 @@ export function useHeroTimeline({ motion, profile, ready, useWebGL, refs }: UseH
           anticipatePin: 1,
           invalidateOnRefresh: true,
           refreshPriority: 30,
+          onUpdate(self) {
+            heroNav.emit(self.progress >= 0.10 && self.progress < 0.35);
+          },
         },
       });
 
@@ -155,6 +165,36 @@ export function useHeroTimeline({ motion, profile, ready, useWebGL, refs }: UseH
         .to(motionState, { intro: 1, duration: 10, ease: 'power2.out' }, 'bucket')
         .to(content.querySelector('[data-hero-scroll]'), { autoAlpha: 0, duration: 2.5 }, 5.5)
         .to(content, { autoAlpha: 0, y: -28, duration: 3, ease: 'power2.inOut' }, 7)
+        .to(impactSplash, {
+          autoAlpha: 0.78,
+          scale: 1.04,
+          rotation: -2,
+          duration: 1.1,
+          ease: 'expo.out',
+        }, 10.15)
+        .to(impactSplash?.querySelectorAll('[data-splash-drop]') ?? [], {
+          autoAlpha: 1,
+          scale: 1,
+          duration: 1.3,
+          stagger: 0.07,
+          ease: 'power3.out',
+        }, 10.28)
+        .to(impactSplash, { autoAlpha: 0.45, scale: 1, duration: 2.5, ease: 'power2.out' }, 11.25)
+        .to(accelerateSplash, {
+          autoAlpha: 0.64,
+          scale: 1.02,
+          rotation: 1,
+          duration: 1,
+          ease: 'expo.out',
+        }, 18.2)
+        .to(accelerateSplash?.querySelectorAll('[data-splash-drop]') ?? [], {
+          autoAlpha: 0.72,
+          scale: 1,
+          duration: 1.05,
+          stagger: 0.055,
+          ease: 'power3.out',
+        }, 18.32)
+        .to(accelerateSplash, { autoAlpha: 0.24, scale: 1, duration: 2.2, ease: 'power2.out' }, 19.2)
         // The first 48% of the Catmull-Rom curve is the product orbit.
         .to(motionState, { paintProgress: 0.48, duration: 15, ease: 'power1.inOut' }, 'paint')
         .to(motionState, { bucketExit: 1, duration: 10, ease: 'power2.inOut' }, 'bucketExit')
