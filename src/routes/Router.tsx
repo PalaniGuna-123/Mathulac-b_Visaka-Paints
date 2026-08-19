@@ -115,6 +115,12 @@ export function useNavigate() {
   return context.navigate;
 }
 
+const ParamsContext = createContext<Record<string, string>>({});
+
+export function useParams<T extends Record<string, string> = Record<string, string>>(): T {
+  return (useContext(ParamsContext) || {}) as T;
+}
+
 export interface RouteProps {
   path: string;
   element: React.ReactNode;
@@ -124,27 +130,66 @@ export function Route({ element }: RouteProps): React.ReactElement | null {
   return (element as React.ReactElement) || null;
 }
 
+function matchRoutePath(pattern: string, pathname: string): { match: boolean; params: Record<string, string> } {
+  const cleanPattern = (pattern || '').toLowerCase().replace(/\/$/, '') || '/';
+  const cleanPath = (pathname || '').toLowerCase().replace(/\/$/, '') || '/';
+
+  if (cleanPattern === '*' || pattern === '/*') {
+    return { match: true, params: {} };
+  }
+
+  const patternParts = cleanPattern.split('/').filter(Boolean);
+  const pathParts = cleanPath.split('/').filter(Boolean);
+
+  if (patternParts.length !== pathParts.length) {
+    return { match: false, params: {} };
+  }
+
+  const params: Record<string, string> = {};
+  for (let i = 0; i < patternParts.length; i++) {
+    if (patternParts[i].startsWith(':')) {
+      const paramName = patternParts[i].slice(1);
+      params[paramName] = pathParts[i];
+    } else if (patternParts[i] !== pathParts[i]) {
+      return { match: false, params: {} };
+    }
+  }
+
+  return { match: true, params };
+}
+
 export function Routes({ children }: { children: React.ReactNode }): React.ReactElement | null {
   const location = useLocation();
   const currentPath = location.pathname.toLowerCase().replace(/\/$/, '') || '/';
 
   let matchElement: React.ReactNode = null;
+  let matchedParams: Record<string, string> = {};
   let fallbackElement: React.ReactNode = null;
 
   React.Children.forEach(children, (child) => {
     if (!React.isValidElement<RouteProps>(child)) return;
+    if (matchElement) return;
 
     const { path, element } = child.props;
-    const cleanPath = (path || '').toLowerCase().replace(/\/$/, '') || '/';
-
-    if (cleanPath === '*' || path === '*') {
+    if (path === '*' || path === '/*') {
       fallbackElement = element;
-    } else if (cleanPath === currentPath) {
+      return;
+    }
+
+    const { match, params } = matchRoutePath(path || '', currentPath);
+    if (match) {
       matchElement = element;
+      matchedParams = params;
     }
   });
 
-  return (matchElement || fallbackElement || null) as React.ReactElement | null;
+  const finalElement = matchElement || fallbackElement || null;
+
+  return (
+    <ParamsContext.Provider value={matchedParams}>
+      {finalElement as React.ReactElement | null}
+    </ParamsContext.Provider>
+  );
 }
 
 export interface LinkProps extends React.AnchorHTMLAttributes<HTMLAnchorElement> {

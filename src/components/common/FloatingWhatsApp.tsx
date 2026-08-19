@@ -6,7 +6,7 @@ interface FloatingWhatsAppProps {
 }
 
 export function FloatingWhatsApp({
-  phoneNumber = '919363114343',
+  phoneNumber = '919363114313',
   defaultMessage = 'Hi Visaka Mathulac Paints, I would like to inquire about your paint products and color consultation.',
 }: FloatingWhatsAppProps) {
   const [showTooltip, setShowTooltip] = useState(false);

@@ -98,6 +98,20 @@ export function PaintStudio({ scrollTo, initialShadeId }: PaintStudioProps) {
     if (defaultShade) setShade(defaultShade);
   }, [defaultShade]);
 
+  // Listen for shade selection from the ShadeLibrary on the same page
+  useEffect(() => {
+    const handleCustomShadeSelect = (e: Event) => {
+      const customEvent = e as CustomEvent<PaintShade>;
+      if (customEvent.detail) {
+        selectShade(customEvent.detail);
+      }
+    };
+    window.addEventListener('visaka:select-shade', handleCustomShadeSelect);
+    return () => {
+      window.removeEventListener('visaka:select-shade', handleCustomShadeSelect);
+    };
+  }, []);
+
   // Load Favourites from localStorage
   useEffect(() => {
     try {
@@ -295,6 +309,19 @@ export function PaintStudio({ scrollTo, initialShadeId }: PaintStudioProps) {
     }
   };
 
+  const handleExploreShades = () => {
+    const el = document.getElementById('shade-library');
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth' });
+    } else {
+      navigate('/colours');
+      setTimeout(() => {
+        const target = document.getElementById('shade-library');
+        if (target) target.scrollIntoView({ behavior: 'smooth' });
+      }, 100);
+    }
+  };
+
   return (
     <section id="studio" className="studio-shell relative py-16 md:py-24 px-4 md:px-8 overflow-hidden">
       {/* Animated Liquid Paint Background */}
@@ -337,7 +364,7 @@ export function PaintStudio({ scrollTo, initialShadeId }: PaintStudioProps) {
           </button>
 
           <button
-            onClick={() => navigate('/colours')}
+            onClick={handleExploreShades}
             className="studio-secondary cursor-pointer group"
             data-cursor="explore"
           >
@@ -607,7 +634,7 @@ export function PaintStudio({ scrollTo, initialShadeId }: PaintStudioProps) {
 
             <div className="mt-4 text-center">
               <button
-                onClick={() => navigate('/colours')}
+                onClick={handleExploreShades}
                 className="text-xs font-extrabold uppercase tracking-widest text-[#d43b7a] hover:underline inline-flex items-center gap-1 cursor-pointer"
               >
                 OPEN FULL 1,000+ SHADE LIBRARY <ArrowRight className="w-3.5 h-3.5" />

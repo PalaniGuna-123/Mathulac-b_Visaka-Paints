@@ -1,7 +1,6 @@
 import { Sparkles, ArrowRight } from 'lucide-react';
 import { Link } from '../../routes/Router';
 import { BRAND_COLORS } from '../../styles/colors';
-import { PaintSplash } from '../../components/paint';
 
 export function DecorSection() {
   const decorFinishes = [
@@ -18,14 +17,7 @@ export function DecorSection() {
       style={{ background: 'linear-gradient(135deg, #2a0a3a, #3a0a2a, #1a0a3a)' }}
     >
       <div className="max-w-[1400px] mx-auto">
-        <div className="relative isolate text-center max-w-3xl mx-auto mb-10" data-reveal data-splash-trigger>
-          <PaintSplash
-            color="#7b2cff"
-            size="small"
-            variant="impact"
-            trigger="scroll"
-            className="surface-section-title-splash surface-section-title-splash--center"
-          />
+        <div className="text-center max-w-3xl mx-auto mb-10" data-reveal>
           <div className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-fuchsia-500/20 text-fuchsia-300 text-[11px] font-extrabold uppercase tracking-widest mb-3 border border-fuchsia-500/30">
             <Sparkles className="w-3.5 h-3.5" /> Decorative &amp; Textures
           </div>
@@ -83,10 +75,10 @@ export function DecorSection() {
 
         <div className="text-center mt-12">
           <Link
-            to="/decor"
-            className="paint-button inline-flex items-center gap-2 px-7 py-3.5 rounded-xl font-bold bg-violet hover:bg-purple-600 text-white shadow-xl transition-all"
+            to="/contact"
+            className="inline-flex items-center gap-2 px-7 py-3.5 rounded-xl font-bold bg-violet hover:bg-purple-600 text-white shadow-xl transition-all"
           >
-            Explore Decorative Collection <ArrowRight className="w-4 h-4" />
+            Request Decorative Swatch Kit <ArrowRight className="w-4 h-4" />
           </Link>
         </div>
       </div>

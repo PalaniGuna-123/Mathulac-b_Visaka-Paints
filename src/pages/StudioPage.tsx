@@ -1,20 +1,5 @@
-import { PaintStudio } from '../features/paint-studio';
-import { BeforeAfter } from '../features/comparison';
-import { ContactSection } from '../features/contact';
+import { ColoursPage } from './ColoursPage';
 
-export function StudioPage() {
-  return (
-    <div className="w-full pt-16">
-      {/* Interactive Paint Studio Feature */}
-      <PaintStudio />
-
-      {/* Real-World Before & After Slider */}
-      <BeforeAfter />
-
-      {/* Direct Spec / Free Consultation CTA */}
-      <ContactSection />
-    </div>
-  );
-}
-
+export const StudioPage = ColoursPage;
 export default StudioPage;
+

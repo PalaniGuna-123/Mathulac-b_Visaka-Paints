@@ -1,499 +1,300 @@
-import { useCallback, useLayoutEffect, useMemo, useRef, useState } from 'react';
-import { ArrowRight, Check, Eye, Layers3, Library, RotateCcw, Sparkles } from 'lucide-react';
+import { useLayoutEffect, useRef, type CSSProperties } from 'react';
+import { ArrowRight, Library, Sparkles } from 'lucide-react';
 import exteriorPreview from '../../../assets/hero/house-unpainted-flat.webp';
-import { homepageVisualizer, paintShades, type PaintShade } from '../../data';
+import { homepageVisualizer } from '../../data';
 import { gsap } from '../../lib/animation';
 import { Link } from '../../routes/Router';
 
-type SurfaceId = 'main-wall' | 'accent-wall' | 'facade' | 'trim' | 'exterior';
-type PaletteGroup = 'All' | 'Neutrals' | 'Warm' | 'Cool';
-
-type SurfaceDefinition = {
-  id: SurfaceId;
-  label: string;
-  shortLabel: string;
-  origin: { x: number; y: number };
-  paths: string[];
-};
-
-type PaintTransition = {
-  surface: SurfaceId;
-  shade: PaintShade;
-  token: number;
-};
-
-const surfaces: SurfaceDefinition[] = [
-  {
-    id: 'main-wall',
-    label: 'Main Wall',
-    shortLabel: 'Main',
-    origin: { x: 48, y: 53 },
-    paths: [
-      'M463 187 1057 242 1060 458 463 414ZM505 193 651 208 651 407 505 391ZM807 265 944 284 944 445 807 427Z',
-      'M397 506 1071 561 1102 814 392 813 397 629 444 607ZM477 532 650 541 650 809 477 809ZM665 544 771 549 771 812 665 812ZM858 557 988 563 988 812 858 812Z',
-    ],
-  },
-  {
-    id: 'accent-wall',
-    label: 'Accent Wall',
-    shortLabel: 'Accent',
-    origin: { x: 69, y: 32 },
-    paths: [
-      'M1097 84 1256 159 1254 522 1192 520 1180 328 1098 304ZM1162 245 1206 260 1206 497 1163 491Z',
-      'M996 552 1135 562 1143 807 1005 808ZM1037 568 1107 570 1107 805 1038 805Z',
-    ],
-  },
-  {
-    id: 'facade',
-    label: 'Facade',
-    shortLabel: 'Facade',
-    origin: { x: 23, y: 47 },
-    paths: [
-      'M166 291 463 187 464 565 403 589 397 808 167 704ZM202 307 279 280 279 569 202 594ZM333 258 462 215 462 520 333 554ZM194 589 310 570 310 753 194 721Z',
-      'M1253 309 1353 337 1354 533 1251 523ZM1280 354 1332 365 1333 515 1280 507Z',
-    ],
-  },
-  {
-    id: 'trim',
-    label: 'Trim',
-    shortLabel: 'Trim',
-    origin: { x: 53, y: 47 },
-    paths: [
-      'M166 291 555 29 1046 193 1045 252 554 101 166 330Z',
-      'M279 394 560 432 1059 450 1058 527 553 484 280 449Z',
-      'M1193 535 1450 524 1627 574 1624 629 1454 585 1190 596Z',
-      'M474 479 514 486 515 815 477 814Z',
-      'M1451 580 1482 584 1484 820 1452 817Z',
-    ],
-  },
-  {
-    id: 'exterior',
-    label: 'Exterior',
-    shortLabel: 'Exterior',
-    origin: { x: 83, y: 62 },
-    paths: [
-      'M1252 521 1450 523 1627 574 1627 820 1451 819 1450 585 1252 596ZM1275 610 1376 601 1376 806 1275 811Z',
-      'M1192 596 1252 593 1252 815 1192 816Z',
-    ],
-  },
-];
-
-const featuredShadeIds = [
-  'MW-004', 'VOW-04', 'MB-101', 'MB-103', 'VC-301', 'MGY-01',
-  'MGY-02', 'MBR-02', 'MR-501', 'VP-607', 'MO-402', 'MY-301',
-  'MG-901', 'MG-902', 'VG-818', 'VBG-01', 'MB-801', 'VB-122',
-  'VB-128', 'MV-701', 'MV-702', 'VP-718',
-] as const;
-
-const paletteGroups: Record<Exclude<PaletteGroup, 'All'>, string[]> = {
-  Neutrals: ['WHITES', 'OFF WHITES', 'BEIGES', 'CREAMS', 'GREYS', 'BROWNS'],
-  Warm: ['REDS', 'PINKS', 'ORANGES', 'YELLOWS'],
-  Cool: ['YELLOW GREENS', 'GREENS', 'BLUE GREENS', 'BLUES', 'VIOLETS'],
-};
-
-const initialSurfaceColours: Record<SurfaceId, string> = {
-  'main-wall': '#DCCBB5',
-  'accent-wall': '#315A9B',
-  facade: '#E9DDCA',
-  trim: '#F6F1E8',
-  exterior: '#9EAE91',
-};
-
-function SurfacePaths({ surface }: { surface: SurfaceDefinition }) {
-  return (
-    <>
-      {surface.paths.map((path, index) => (
-        <path key={`${surface.id}-${index}`} d={path} fillRule="evenodd" clipRule="evenodd" />
-      ))}
-    </>
-  );
-}
+const shadeNames = homepageVisualizer.shades;
 
 export function HomepageVisualizer() {
   const sectionRef = useRef<HTMLElement>(null);
-  const workspaceRef = useRef<HTMLDivElement>(null);
-  const imageInnerRef = useRef<HTMLDivElement>(null);
-  const revealCircleRef = useRef<SVGCircleElement>(null);
-  const transitionCountRef = useRef(0);
-
-  const featuredShades = useMemo(
-    () => featuredShadeIds
-      .map((id) => paintShades.find((shade) => shade.id === id))
-      .filter((shade): shade is PaintShade => Boolean(shade)),
-    [],
-  );
-
-  const defaultShade = featuredShades.find((item) => item.id === 'VB-122') ?? featuredShades[0];
-  const [selectedSurface, setSelectedSurface] = useState<SurfaceId>('accent-wall');
-  const [selectedShade, setSelectedShade] = useState<PaintShade>(defaultShade);
-  const [surfaceColours, setSurfaceColours] = useState(initialSurfaceColours);
-  const [paintTransition, setPaintTransition] = useState<PaintTransition | null>(null);
-  const [paletteGroup, setPaletteGroup] = useState<PaletteGroup>('All');
-  const [previewMode, setPreviewMode] = useState<'before' | 'after'>('after');
-
-  const activeSurface = surfaces.find((surface) => surface.id === selectedSurface) ?? surfaces[0];
-  const visibleShades = useMemo(() => {
-    if (paletteGroup === 'All') return featuredShades;
-    return featuredShades.filter((shade) => paletteGroups[paletteGroup].includes(shade.family));
-  }, [featuredShades, paletteGroup]);
+  const stageRef = useRef<HTMLDivElement>(null);
 
   useLayoutEffect(() => {
     const section = sectionRef.current;
-    if (!section) return;
+    const stage = stageRef.current;
+    if (!section || !stage) return;
 
     const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    const ctx = gsap.context(() => {
-      const revealItems = section.querySelectorAll('[data-architecture-reveal]');
+    const wallSurfaces = Array.from(stage.querySelectorAll<SVGElement>('[data-viz-wall]'));
+    const shadeLabels = Array.from(stage.querySelectorAll<HTMLElement>('[data-viz-shade]'));
+    const swatches = Array.from(stage.querySelectorAll<HTMLElement>('[data-viz-swatch]'));
+    const headingParts = Array.from(stage.querySelectorAll<HTMLElement>('[data-viz-heading]'));
+    const preview = stage.querySelector<HTMLElement>('[data-viz-preview]');
+    const surfacePreview = stage.querySelector<HTMLElement>('[data-viz-surface]');
+    const palette = stage.querySelector<HTMLElement>('[data-viz-palette]');
+    const actions = stage.querySelector<HTMLElement>('[data-viz-actions]');
+    const exitVeil = stage.querySelector<HTMLElement>('[data-viz-exit]');
+    const paintSpread = stage.querySelector<HTMLElement>('[data-viz-paint-spread]');
+    if (!preview || !surfacePreview || !palette || !actions || !exitVeil || !paintSpread) return;
 
+    const ctx = gsap.context(() => {
       if (reducedMotion) {
-        gsap.set(revealItems, { autoAlpha: 1, clearProps: 'transform' });
+        gsap.set([headingParts, preview, surfacePreview, palette, actions], { autoAlpha: 1, clearProps: 'transform' });
+        gsap.set(shadeLabels, { autoAlpha: 0 });
+        gsap.set(shadeLabels[shadeLabels.length - 1], { autoAlpha: 1 });
+        gsap.set(wallSurfaces, { fill: shadeNames[shadeNames.length - 1].hex });
+        gsap.set(paintSpread, { autoAlpha: 0 });
         return;
       }
 
-      gsap.fromTo(
-        revealItems,
-        { autoAlpha: 0, y: 34 },
-        {
-          autoAlpha: 1,
-          y: 0,
-          duration: 1,
-          stagger: 0.11,
-          ease: 'power3.out',
-          scrollTrigger: {
-            trigger: section,
-            start: 'top 72%',
-            once: true,
-          },
-        },
-      );
-
-      gsap.to(section.querySelectorAll('.architecture-studio__bubble'), {
-        y: (_, element) => (element as HTMLElement).dataset.drift === 'down' ? 16 : -18,
-        x: (_, element) => (element as HTMLElement).dataset.drift === 'down' ? -8 : 10,
-        duration: 3.8,
-        repeat: -1,
-        yoyo: true,
-        stagger: 0.35,
-        ease: 'sine.inOut',
+      gsap.set(headingParts, { autoAlpha: 0, y: 34 });
+      gsap.set(preview, {
+        autoAlpha: 0.16,
+        scale: 1.045,
+        clipPath: 'inset(9% 7% 9% 7% round 2rem)',
       });
+      gsap.set(surfacePreview, { autoAlpha: 0, y: 24, scale: 0.94 });
+      gsap.set(palette, { autoAlpha: 0, y: 20 });
+      gsap.set(swatches, { autoAlpha: 0, y: 12, scale: 0.82 });
+      gsap.set(actions, { autoAlpha: 0, y: 22 });
+      gsap.set(shadeLabels, { autoAlpha: 0, y: 8 });
+      gsap.set(shadeLabels[0], { autoAlpha: 1, y: 0 });
+      gsap.set(exitVeil, { yPercent: 100 });
+      gsap.set(paintSpread, { autoAlpha: 0, scale: 0.08, xPercent: -50, yPercent: -50 });
+
+      const timeline = gsap.timeline({
+        defaults: { ease: 'none' },
+        scrollTrigger: {
+          id: 'visualizer-scroll-chapter',
+          trigger: section,
+          start: 'top top',
+          end: () => `+=${Math.round(window.innerHeight * (window.innerWidth < 768 ? 3.45 : 4.15))}`,
+          pin: stage,
+          pinSpacing: true,
+          scrub: window.innerWidth < 768 ? 0.32 : 0.58,
+          anticipatePin: 1,
+          invalidateOnRefresh: true,
+          refreshPriority: 20,
+        },
+      });
+
+      // 0–20%: introduce the Visualizer chapter and its promise.
+      timeline
+        .to(headingParts, { autoAlpha: 1, y: 0, duration: 1.8, stagger: 0.12, ease: 'power3.out' }, 0)
+        // 20–40%: establish the neutral architectural scene.
+        .to(preview, {
+          autoAlpha: 1,
+          scale: 1,
+          clipPath: 'inset(0% 0% 0% 0% round 1.65rem)',
+          duration: 1.8,
+          ease: 'power3.inOut',
+        }, 1.9)
+        // 40–55%: recolour only the wall planes to Warm Beige.
+        .fromTo(paintSpread, {
+          autoAlpha: 0.72,
+          scale: 0.08,
+          backgroundColor: shadeNames[1].hex,
+        }, {
+          autoAlpha: 0.2,
+          scale: 2.7,
+          duration: 0.82,
+          ease: 'power2.in',
+        }, 3.82)
+        .to(paintSpread, { autoAlpha: 0, duration: 0.35 }, 4.5)
+        .to(wallSurfaces, { fill: shadeNames[1].hex, duration: 1.45, ease: 'sine.inOut' }, 3.85)
+        .to(shadeLabels[0], { autoAlpha: 0, y: -8, duration: 0.32 }, 4.1)
+        .to(shadeLabels[1], { autoAlpha: 1, y: 0, duration: 0.42 }, 4.34)
+        // 55–70%: move to Mathulac Blue while retaining scene lighting and texture.
+        .fromTo(paintSpread, {
+          autoAlpha: 0.74,
+          scale: 0.08,
+          backgroundColor: shadeNames[2].hex,
+        }, {
+          autoAlpha: 0.2,
+          scale: 2.75,
+          duration: 0.86,
+          ease: 'power2.in',
+        }, 5.32)
+        .to(paintSpread, { autoAlpha: 0, duration: 0.36 }, 6.04)
+        .to(wallSurfaces, { fill: shadeNames[2].hex, duration: 1.5, ease: 'sine.inOut' }, 5.35)
+        .to(shadeLabels[1], { autoAlpha: 0, y: -8, duration: 0.32 }, 5.55)
+        .to(shadeLabels[2], { autoAlpha: 1, y: 0, duration: 0.42 }, 5.78)
+        // 70–82%: show the same colour system applied to an exterior surface.
+        .to(surfacePreview, { autoAlpha: 1, y: 0, scale: 1, duration: 1.1, ease: 'power3.out' }, 6.9)
+        // 82–92%: reveal the shade system.
+        .to(palette, { autoAlpha: 1, y: 0, duration: 0.5 }, 8.05)
+        .to(swatches, { autoAlpha: 1, y: 0, scale: 1, duration: 0.6, stagger: 0.075, ease: 'back.out(1.7)' }, 8.16)
+        // 92–100%: reveal the hand-off actions, hold, then cue Products.
+        .to(actions, { autoAlpha: 1, y: 0, duration: 0.62, ease: 'power3.out' }, 9.08)
+        .to({}, { duration: 0.56 }, 9.7)
+        .to(stage.querySelector('[data-viz-content]'), { yPercent: -2.5, autoAlpha: 0.82, duration: 0.72, ease: 'power2.inOut' }, 10.08)
+        .to(exitVeil, { yPercent: 78, duration: 0.72, ease: 'power3.inOut' }, 10.08);
     }, section);
 
     return () => ctx.revert();
   }, []);
 
-  useLayoutEffect(() => {
-    const circle = revealCircleRef.current;
-    const transition = paintTransition;
-    if (!circle || !transition) return;
-
-    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    if (reducedMotion) {
-      setSurfaceColours((current) => ({ ...current, [transition.surface]: transition.shade.hex }));
-      setPaintTransition(null);
-      return;
-    }
-
-    const surface = surfaces.find((item) => item.id === transition.surface) ?? surfaces[0];
-    const ctx = gsap.context(() => {
-      gsap.set(circle, {
-        attr: {
-          cx: surface.origin.x * 16.72,
-          cy: surface.origin.y * 9.41,
-          r: 0,
-        },
-      });
-      gsap.to(circle, {
-        attr: { r: 1480 },
-        duration: 0.92,
-        ease: 'power3.inOut',
-        onComplete: () => {
-          setSurfaceColours((current) => ({ ...current, [transition.surface]: transition.shade.hex }));
-          setPaintTransition((current) => current?.token === transition.token ? null : current);
-        },
-      });
-    }, workspaceRef);
-
-    return () => ctx.revert();
-  }, [paintTransition]);
-
-  const selectShade = useCallback((shade: PaintShade) => {
-    setSelectedShade(shade);
-    setPreviewMode('after');
-    transitionCountRef.current += 1;
-    setPaintTransition({
-      surface: selectedSurface,
-      shade,
-      token: transitionCountRef.current,
-    });
-  }, [selectedSurface]);
-
-  const resetPalette = () => {
-    setPaintTransition(null);
-    setSurfaceColours(initialSurfaceColours);
-    setSelectedSurface('accent-wall');
-    setSelectedShade(defaultShade);
-    setPreviewMode('after');
-  };
-
-  const selectSurface = (surface: SurfaceDefinition) => {
-    setPaintTransition(null);
-    setSelectedSurface(surface.id);
-    const appliedShade = paintShades.find(
-      (item) => item.hex.toLowerCase() === surfaceColours[surface.id].toLowerCase(),
-    );
-    if (appliedShade) setSelectedShade(appliedShade);
-  };
-
-  const handlePointerMove = (event: React.PointerEvent<HTMLDivElement>) => {
-    if (!imageInnerRef.current || window.innerWidth < 900 || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-    const rect = event.currentTarget.getBoundingClientRect();
-    const rotateY = ((event.clientX - rect.left) / rect.width - 0.5) * 1.4;
-    const rotateX = -((event.clientY - rect.top) / rect.height - 0.5) * 1.1;
-    gsap.to(imageInnerRef.current, { rotateX, rotateY, duration: 0.55, ease: 'power2.out', overwrite: 'auto' });
-  };
-
-  const resetPointerTilt = () => {
-    if (!imageInnerRef.current) return;
-    gsap.to(imageInnerRef.current, { rotateX: 0, rotateY: 0, duration: 0.7, ease: 'power3.out', overwrite: 'auto' });
-  };
-
   return (
     <section
       ref={sectionRef}
       id="studio"
-      className="architecture-studio"
+      className="visualizer-chapter"
       aria-labelledby="visualizer-heading"
-      style={{ '--active-paint': selectedShade.hex } as React.CSSProperties}
     >
-      <div className="architecture-studio__aurora architecture-studio__aurora--rose" aria-hidden="true" />
-      <div className="architecture-studio__aurora architecture-studio__aurora--blue" aria-hidden="true" />
-      <div className="architecture-studio__bubble architecture-studio__bubble--one" aria-hidden="true" />
-      <div className="architecture-studio__bubble architecture-studio__bubble--two" data-drift="down" aria-hidden="true" />
-      <div className="architecture-studio__bubble architecture-studio__bubble--three" aria-hidden="true" />
-      <div className="architecture-studio__bubble architecture-studio__bubble--four" data-drift="down" aria-hidden="true" />
-      <span className="architecture-studio__droplet architecture-studio__droplet--one" aria-hidden="true" />
-      <span className="architecture-studio__droplet architecture-studio__droplet--two" aria-hidden="true" />
+      <div ref={stageRef} className="visualizer-chapter__stage">
+        <div className="visualizer-chapter__ambient visualizer-chapter__ambient--warm" aria-hidden="true" />
+        <div className="visualizer-chapter__ambient visualizer-chapter__ambient--blue" aria-hidden="true" />
+        <div className="visualizer-paint-bubbles" aria-hidden="true">
+          <i style={{ '--bubble-colour': '#315a9b' } as CSSProperties} />
+          <i style={{ '--bubble-colour': '#e7c35c' } as CSSProperties} />
+          <i style={{ '--bubble-colour': '#d7658e' } as CSSProperties} />
+          <i style={{ '--bubble-colour': '#78906f' } as CSSProperties} />
+        </div>
+        <span className="visualizer-chapter__index" aria-hidden="true">02</span>
 
-      <div className="architecture-studio__inner">
-        <header className="architecture-studio__heading">
-          <div data-architecture-reveal className="architecture-studio__eyebrow">
-            <Sparkles aria-hidden="true" />
-            {homepageVisualizer.eyebrow}
+        <div data-viz-content className="visualizer-chapter__content">
+          <div className="visualizer-chapter__copy">
+            <div data-viz-heading className="visualizer-chapter__eyebrow">
+              <Sparkles aria-hidden="true" />
+              {homepageVisualizer.eyebrow}
+            </div>
+            <h2 id="visualizer-heading" data-viz-heading data-paint-heading className="paint-heading">
+              {homepageVisualizer.headline} <em>{homepageVisualizer.headlineAccent}</em>
+            </h2>
+            <p data-viz-heading>{homepageVisualizer.description}</p>
+
+            <div data-viz-actions className="visualizer-chapter__actions">
+              <Link to="/colours" className="paint-button visualizer-cta visualizer-cta--primary" data-cursor="visualize">
+                {homepageVisualizer.primaryCta}
+                <ArrowRight aria-hidden="true" />
+              </Link>
+              <Link to="/colours#palette" className="paint-button visualizer-cta visualizer-cta--secondary">
+                <Library aria-hidden="true" />
+                {homepageVisualizer.secondaryCta}
+                <span className="visualizer-cta__dots" aria-hidden="true">
+                  {shadeNames.map((item) => <i key={item.code} style={{ backgroundColor: item.hex }} />)}
+                </span>
+              </Link>
+            </div>
           </div>
-          <h2 id="visualizer-heading" data-architecture-reveal data-paint-heading>
-            {homepageVisualizer.headline} <em>{homepageVisualizer.headlineAccent}</em>
-          </h2>
-          <p data-architecture-reveal>{homepageVisualizer.description}</p>
-        </header>
 
-        <div ref={workspaceRef} data-architecture-reveal className="architecture-studio__workspace">
-          <div className="architecture-studio__canvas-shell">
-            <div className="architecture-studio__topbar">
-              <div className="architecture-studio__live">
-                <i />
-                <span>Live preview</span>
-                <strong>Modern Villa 01</strong>
-              </div>
-
-              <div className="architecture-studio__compare" aria-label="Before and after preview">
-                <button
-                  type="button"
-                  className={previewMode === 'before' ? 'is-active' : ''}
-                  onClick={() => setPreviewMode('before')}
-                  aria-pressed={previewMode === 'before'}
-                >
-                  Before
-                </button>
-                <button
-                  type="button"
-                  className={previewMode === 'after' ? 'is-active' : ''}
-                  onClick={() => setPreviewMode('after')}
-                  aria-pressed={previewMode === 'after'}
-                >
-                  After
-                </button>
-              </div>
+          <div data-viz-preview className="visualizer-preview" aria-label="Interactive living-room colour preview">
+            <span data-viz-paint-spread className="visualizer-preview__paint-spread" aria-hidden="true" />
+            <div className="visualizer-preview__bar">
+              <span><i /> Live architectural preview</span>
+              <span>Living room · Matte</span>
             </div>
 
-            <div
-              className="architecture-studio__media"
-              onPointerMove={handlePointerMove}
-              onPointerLeave={resetPointerTilt}
+            <svg
+              className="visualizer-preview__scene"
+              viewBox="0 0 960 640"
+              preserveAspectRatio="xMidYMid slice"
+              role="img"
+              aria-label="Architectural living room with colour-changing walls"
             >
-              <div ref={imageInnerRef} className="architecture-studio__media-inner">
-                <img
-                  src={exteriorPreview}
-                  alt="Premium modern villa with interactive paintable exterior surfaces"
-                  width="1672"
-                  height="940"
-                />
+              <defs>
+                <linearGradient id="viz-floor" x1="0" y1="0" x2="0.8" y2="1">
+                  <stop offset="0" stopColor="#9a7657" />
+                  <stop offset="1" stopColor="#5b4132" />
+                </linearGradient>
+                <linearGradient id="viz-window" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0" stopColor="#a8d6e8" />
+                  <stop offset="0.58" stopColor="#d8e5d6" />
+                  <stop offset="1" stopColor="#76916f" />
+                </linearGradient>
+                <linearGradient id="viz-sofa" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0" stopColor="#f2ede4" />
+                  <stop offset="1" stopColor="#c9c0b5" />
+                </linearGradient>
+                <radialGradient id="viz-light" cx="50%" cy="20%" r="75%">
+                  <stop offset="0" stopColor="#fff8dc" stopOpacity=".56" />
+                  <stop offset="1" stopColor="#fff8dc" stopOpacity="0" />
+                </radialGradient>
+                <pattern id="viz-plaster" width="34" height="34" patternUnits="userSpaceOnUse">
+                  <path d="M0 22 C8 17 13 28 22 20 S34 18 40 15" fill="none" stroke="#fff" strokeOpacity=".1" strokeWidth="1" />
+                </pattern>
+                <filter id="viz-shadow" x="-30%" y="-30%" width="160%" height="180%">
+                  <feDropShadow dx="0" dy="14" stdDeviation="16" floodColor="#171119" floodOpacity=".26" />
+                </filter>
+              </defs>
 
-                <svg
-                  className={`architecture-studio__paint-map ${previewMode === 'before' ? 'is-before' : ''}`}
-                  viewBox="0 0 1672 941"
-                  preserveAspectRatio="xMidYMid slice"
-                  aria-hidden="true"
-                >
-                  <defs>
-                    <mask id="architecture-paint-reveal">
-                      <rect width="1672" height="941" fill="black" />
-                      <circle ref={revealCircleRef} cx="0" cy="0" r="0" fill="white" />
-                    </mask>
-                    <filter id="architecture-paint-soften" x="-5%" y="-5%" width="110%" height="110%">
-                      <feGaussianBlur stdDeviation="0.35" />
-                    </filter>
-                  </defs>
+              <rect data-viz-wall width="960" height="454" fill={shadeNames[0].hex} />
+              <polygon data-viz-wall points="0,0 155,54 155,454 0,492" fill={shadeNames[0].hex} opacity=".78" />
+              <rect width="960" height="454" fill="url(#viz-plaster)" />
+              <rect width="960" height="454" fill="url(#viz-light)" />
+              <polygon points="0,454 960,454 960,640 0,640" fill="url(#viz-floor)" />
+              <path d="M0 454H960" stroke="#f7eee3" strokeWidth="15" opacity=".72" />
+              <path d="M0 560L960 510M145 640L585 454M610 640L805 454" stroke="#d8b995" strokeOpacity=".18" strokeWidth="2" />
 
-                  <g className="architecture-studio__committed-paint" filter="url(#architecture-paint-soften)">
-                    {surfaces.map((surface) => (
-                      <g
-                        key={surface.id}
-                        fill={surfaceColours[surface.id]}
-                        className={selectedSurface === surface.id ? 'is-selected' : ''}
-                      >
-                        <SurfacePaths surface={surface} />
-                      </g>
-                    ))}
-                  </g>
+              <g filter="url(#viz-shadow)">
+                <rect x="620" y="72" width="258" height="282" rx="4" fill="#302d31" />
+                <rect x="633" y="85" width="232" height="256" fill="url(#viz-window)" />
+                <path d="M749 85V341M633 218H865" stroke="#302d31" strokeWidth="12" />
+                <path d="M650 333C690 265 706 266 751 333C788 285 819 284 853 333Z" fill="#657b5d" opacity=".7" />
+                <path d="M607 52C634 86 637 316 604 376" fill="none" stroke="#d2c4af" strokeWidth="26" />
+                <path d="M892 52C864 86 861 316 894 376" fill="none" stroke="#d2c4af" strokeWidth="26" />
+              </g>
 
-                  {paintTransition && (
-                    <g
-                      key={paintTransition.token}
-                      className="architecture-studio__fresh-paint"
-                      fill={paintTransition.shade.hex}
-                      mask="url(#architecture-paint-reveal)"
-                      filter="url(#architecture-paint-soften)"
-                    >
-                      <SurfacePaths surface={surfaces.find((item) => item.id === paintTransition.surface) ?? surfaces[0]} />
-                    </g>
-                  )}
-                </svg>
+              <g opacity=".92">
+                <ellipse cx="299" cy="483" rx="219" ry="32" fill="#241b1d" opacity=".18" />
+                <path d="M89 379Q94 348 127 346H470Q505 349 510 379L495 509H104Z" fill="url(#viz-sofa)" filter="url(#viz-shadow)" />
+                <rect x="114" y="365" width="175" height="93" rx="29" fill="#ded5c9" />
+                <rect x="307" y="365" width="175" height="93" rx="29" fill="#d7cdc1" />
+                <path d="M92 397Q65 403 73 465L104 504L128 488L120 418Z" fill="#bcb1a5" />
+                <path d="M507 397Q534 403 526 465L495 504L471 488L479 418Z" fill="#bcb1a5" />
+                <path d="M132 511L121 558M470 511L482 558" stroke="#342a2a" strokeWidth="12" />
+                <rect x="164" y="383" width="105" height="72" rx="19" fill="#596e78" transform="rotate(-4 164 383)" />
+                <rect x="334" y="384" width="93" height="70" rx="18" fill="#b27b64" transform="rotate(4 334 384)" />
+              </g>
 
-                <div className="architecture-studio__light-wash" aria-hidden="true" />
+              <g filter="url(#viz-shadow)">
+                <ellipse cx="675" cy="540" rx="151" ry="31" fill="#251c1f" opacity=".23" />
+                <ellipse cx="675" cy="512" rx="131" ry="37" fill="#4b352b" />
+                <ellipse cx="675" cy="502" rx="131" ry="37" fill="#aa8060" />
+                <path d="M623 516L600 594M727 516L750 594" stroke="#4a3429" strokeWidth="13" />
+                <ellipse cx="674" cy="493" rx="30" ry="9" fill="#eadcc8" />
+                <path d="M667 487V447M680 487V438" stroke="#4f7d5d" strokeWidth="5" />
+                <path d="M666 458C632 446 638 424 668 438M678 449C708 433 716 453 683 464" fill="#6d9872" />
+              </g>
 
-                {paintTransition && (
-                  <span
-                    key={paintTransition.token}
-                    className="architecture-studio__splash"
-                    style={{
-                      left: `${activeSurface.origin.x}%`,
-                      top: `${activeSurface.origin.y}%`,
-                      '--splash-colour': paintTransition.shade.hex,
-                    } as React.CSSProperties}
-                    aria-hidden="true"
-                  >
-                    <i /><i /><i /><i /><i />
-                  </span>
-                )}
+              <g transform="translate(825 372)">
+                <path d="M50 126V27" stroke="#476953" strokeWidth="7" />
+                <path d="M51 78C9 64 4 25 47 47M53 67C91 42 112 77 59 88M51 49C28 15 55 -4 67 39" fill="#557d61" />
+                <path d="M16 118H84L74 179H27Z" fill="#bc8062" />
+                <ellipse cx="50" cy="118" rx="34" ry="10" fill="#d49a76" />
+              </g>
 
-                <div className="architecture-studio__surface-marker" style={{ left: `${activeSurface.origin.x}%`, top: `${activeSurface.origin.y}%` }}>
-                  <i style={{ backgroundColor: selectedShade.hex }} />
-                  <span>{activeSurface.label}</span>
-                </div>
-              </div>
-            </div>
+              <circle cx="420" cy="146" r="47" fill="#f3ead9" opacity=".2" />
+              <circle cx="420" cy="146" r="31" fill="#f8e8b8" opacity=".84" />
+              <path d="M420 0V107" stroke="#504544" strokeWidth="4" />
+              <path d="M381 151H459" stroke="#645653" strokeWidth="3" opacity=".55" />
+            </svg>
 
-            <div className="architecture-studio__surface-dock" aria-label="Select a paintable surface">
-              <span><Layers3 aria-hidden="true" /> Select surface</span>
-              <div>
-                {surfaces.map((surface) => (
-                  <button
-                    key={surface.id}
-                    type="button"
-                    className={selectedSurface === surface.id ? 'is-active' : ''}
-                    onClick={() => selectSurface(surface)}
-                    aria-pressed={selectedSurface === surface.id}
-                  >
-                    <i style={{ backgroundColor: surfaceColours[surface.id] }} />
-                    {surface.shortLabel}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            <div className="architecture-studio__shade-readout" aria-live="polite">
-              <i style={{ backgroundColor: selectedShade.hex }} />
-              <span>
-                <small>{activeSurface.label}</small>
-                <strong>{selectedShade.name}</strong>
-                <b>{selectedShade.id} · Premium Matte</b>
-              </span>
-            </div>
-          </div>
-
-          <aside className="architecture-studio__palette-card" aria-label="VISAKA colour palette">
-            <div className="architecture-studio__palette-heading">
-              <div>
-                <small>VISAKA colour studio</small>
-                <h3>Choose your shade</h3>
-              </div>
-              <button type="button" onClick={resetPalette} aria-label="Reset visualizer colours" title="Reset colours">
-                <RotateCcw aria-hidden="true" />
-              </button>
-            </div>
-
-            <div className="architecture-studio__selected-colour">
-              <i style={{ backgroundColor: selectedShade.hex }} />
-              <span>
-                <small>Painting {activeSurface.label}</small>
-                <strong>{selectedShade.name}</strong>
-                <b>{selectedShade.id}</b>
-              </span>
-              <em>{selectedShade.hex}</em>
-            </div>
-
-            <div className="architecture-studio__groups" aria-label="Filter colour families">
-              {(['All', 'Neutrals', 'Warm', 'Cool'] as PaletteGroup[]).map((group) => (
-                <button
-                  key={group}
-                  type="button"
-                  className={paletteGroup === group ? 'is-active' : ''}
-                  onClick={() => setPaletteGroup(group)}
-                  aria-pressed={paletteGroup === group}
-                >
-                  {group}
-                </button>
+            <div className="visualizer-preview__shade">
+              {shadeNames.map((shade, index) => (
+                <span key={shade.code} data-viz-shade className={index === 0 ? 'is-active' : ''}>
+                  <i style={{ backgroundColor: shade.hex }} />
+                  <strong>{shade.name}</strong>
+                  <small>{shade.code} · Premium Matte</small>
+                </span>
               ))}
             </div>
 
-            <div className="architecture-studio__swatches" aria-label={`${paletteGroup} VISAKA shades`}>
-              {visibleShades.map((shade) => {
-                const isSelected = selectedShade.id === shade.id;
-                return (
-                  <button
-                    key={shade.id}
-                    type="button"
-                    className={isSelected ? 'is-selected' : ''}
-                    style={{ '--swatch': shade.hex } as React.CSSProperties}
-                    onClick={() => selectShade(shade)}
-                    aria-label={`Apply ${shade.name}, shade ${shade.id}, to ${activeSurface.label}`}
-                    aria-pressed={isSelected}
-                    title={`${shade.name} · ${shade.id}`}
-                  >
-                    <span>{isSelected && <Check aria-hidden="true" />}</span>
-                    <small>{shade.id.replace('-', ' ')}</small>
-                  </button>
-                );
-              })}
+            <div data-viz-surface className="visualizer-preview__surface">
+              <img src={exteriorPreview} alt="Modern exterior facade preview" width="1672" height="941" />
+              <div>
+                <small>Another surface</small>
+                <strong>Exterior facade</strong>
+                <span>Weatherproof colour system</span>
+              </div>
             </div>
 
-            <div className="architecture-studio__palette-note">
-              <Eye aria-hidden="true" />
-              <span><strong>True-colour preview</strong> Finish and lighting may vary on real surfaces.</span>
+            <div data-viz-palette className="visualizer-preview__palette" aria-label="Featured colour shades">
+              <span>Curated shade system</span>
+              <div>
+                {['#eee9e1', '#cdb99f', '#315a9b', '#9eae91', '#d7658e', '#e7c35c'].map((hex, index) => (
+                  <i key={hex} data-viz-swatch style={{ backgroundColor: hex }}>
+                    {index === 2 && <b aria-label="Selected shade" />}
+                  </i>
+                ))}
+              </div>
             </div>
-
-            <div className="architecture-studio__actions">
-              <Link to="/studio" className="architecture-studio__primary" data-cursor="visualize">
-                Open full visualizer
-                <ArrowRight aria-hidden="true" />
-              </Link>
-              <Link to="/colours#palette" className="architecture-studio__secondary">
-                <Library aria-hidden="true" />
-                Browse all shades
-              </Link>
-            </div>
-          </aside>
+          </div>
         </div>
+
+        <div data-viz-exit className="visualizer-chapter__exit" aria-hidden="true" />
       </div>
     </section>
   );

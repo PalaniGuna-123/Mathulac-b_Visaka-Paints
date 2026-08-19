@@ -82,11 +82,22 @@ export function ShadeLibrary() {
     if (targetShade) {
       setActiveShadeModal(null);
     }
-    navigate('/studio');
+    const visualizerEl = document.getElementById('main-visualizer') || document.getElementById('studio');
+    if (visualizerEl) {
+      visualizerEl.scrollIntoView({ behavior: 'smooth' });
+      window.dispatchEvent(new CustomEvent('visaka:select-shade', { detail: targetShade }));
+    } else {
+      navigate('/colours');
+      setTimeout(() => {
+        const el = document.getElementById('main-visualizer') || document.getElementById('studio');
+        if (el) el.scrollIntoView({ behavior: 'smooth' });
+        window.dispatchEvent(new CustomEvent('visaka:select-shade', { detail: targetShade }));
+      }, 100);
+    }
   };
 
   return (
-    <section className="w-full bg-ink text-white py-16 md:py-20 px-4 md:px-8 relative min-h-screen">
+    <section id="shade-library" className="w-full bg-ink text-white py-16 md:py-20 px-4 md:px-8 relative min-h-screen">
       {/* Header Banner */}
       <div className="max-w-3xl mx-auto text-center mb-10">
         <div className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-magenta/20 text-magenta text-[11px] font-extrabold uppercase tracking-widest border border-magenta/30 mb-3">
@@ -233,7 +244,13 @@ export function ShadeLibrary() {
                   </div>
 
                   {/* Hover Visualize Button */}
-                  <div className="mt-3 pt-2 border-t border-white/10 flex items-center justify-between text-xs font-bold text-magenta opacity-90 group-hover:opacity-100">
+                  <div
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleVisualize(shadeItem);
+                    }}
+                    className="mt-3 pt-2 border-t border-white/10 flex items-center justify-between text-xs font-bold text-magenta opacity-90 group-hover:opacity-100 hover:text-white transition-colors cursor-pointer"
+                  >
                     <span className="inline-flex items-center gap-1 group-hover:translate-x-1 transition-transform">
                       Visualize <ArrowRight className="w-3.5 h-3.5" />
                     </span>

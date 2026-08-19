@@ -44,7 +44,32 @@ export const homepageVisualizer = {
   ],
 } as const;
 
-export const phoneNumbers: string[] = ['+91 93631 14343', '+91 96009 09066'];
+export const phoneNumbers: string[] = ['+91 93631 14313', '+91 96009 09056', '+91 96009 09077'];
+
+export const companyContact = {
+  companyName: 'VISAKA PAINTS & CHEMICALS INDIA',
+  certification: 'An ISO 9001 Certified Company',
+  brandName: 'MATHULAC PAINT',
+  locationName: 'MATHULAC PAINT kariampalayam',
+  addressLines: [
+    'S.F.No.127/2A2, Kariampalayam,',
+    'Ellapalayam ( P.O.) Pogalur (Via),',
+    'Coimbatore - 641 697. TamilNadu, INDIA',
+  ],
+  fullAddress: 'S.F.No.127/2A2, Kariampalayam, Ellapalayam (P.O.) Pogalur (Via), Coimbatore - 641 697. TamilNadu, INDIA',
+  shortAddress: 'Kariampalayam, Pogalur Via, Coimbatore, Tamil Nadu 641697',
+  phones: ['+91 93631 14313', '+91 96009 09056', '+91 96009 09077'],
+  emails: ['visaka_cbe@yahoo.co.in', 'mathulac.cbe@gmail.com'],
+  website: 'www.mathulac.com',
+  workingHours: 'Mon – Sat: 9:00 AM – 6:00 PM (Sunday Closed)',
+  rating: {
+    score: 4.1,
+    reviews: 26,
+  },
+  googleMapsEmbedUrl: 'https://maps.google.com/maps?q=MATHULAC%20PAINT%20kariampalayam%20Coimbatore&t=&z=15&ie=UTF8&iwloc=&output=embed',
+  googleMapsDirectionsUrl: 'https://www.google.com/maps/dir/?api=1&destination=MATHULAC+PAINT+kariampalayam+Coimbatore+641697',
+  googleMapsSearchUrl: 'https://www.google.com/maps/search/?api=1&query=MATHULAC+PAINT+kariampalayam+Coimbatore+641697',
+};
 
 export const companyFacts: CompanyFact[] = [
   { label: 'Established', value: '2004' },

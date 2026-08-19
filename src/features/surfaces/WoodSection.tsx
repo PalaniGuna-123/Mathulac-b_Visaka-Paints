@@ -1,6 +1,5 @@
 import { ArrowRight, Sparkles } from 'lucide-react';
 import { Link } from '../../routes/Router';
-import { PaintSplash } from '../../components/paint';
 
 export function WoodSection() {
   const woodImages = [
@@ -18,14 +17,7 @@ export function WoodSection() {
     >
       <div className="max-w-[1400px] mx-auto">
         <div className="grid lg:grid-cols-2 gap-10 items-center">
-          <div className="relative isolate" data-reveal-left data-splash-trigger>
-            <PaintSplash
-              color="#d89a42"
-              size="small"
-              variant="brush"
-              trigger="scroll"
-              className="surface-section-title-splash"
-            />
+          <div data-reveal-left>
             <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/20 text-amber-300 text-[11px] font-bold uppercase tracking-widest mb-2.5 border border-amber-500/30">
               <Sparkles className="w-3.5 h-3.5" /> Wood Finishes
             </div>
@@ -49,8 +41,8 @@ export function WoodSection() {
 
             <div className="mt-8">
               <Link
-                to="/wood"
-                className="paint-button inline-flex items-center gap-2 px-6 py-3.5 rounded-xl font-bold bg-amber-500 hover:bg-amber-400 text-ink shadow-xl transition-all"
+                to="/specifications?division=wood"
+                className="inline-flex items-center gap-2 px-6 py-3.5 rounded-xl font-bold bg-amber-500 hover:bg-amber-400 text-ink shadow-xl transition-all"
               >
                 View Wood Systems <ArrowRight className="w-4 h-4" />
               </Link>
