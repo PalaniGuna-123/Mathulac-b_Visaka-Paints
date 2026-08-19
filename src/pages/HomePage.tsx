@@ -2,14 +2,6 @@ import { lazy, Suspense, useEffect } from 'react';
 import { gsap } from '../lib/animation';
 import { Hero } from '../features/hero';
 import { PaintStudio } from '../features/paint-studio';
-import { HomepageVisualizer } from '../features/paint-studio';
-import { ProductShowcase } from '../features/products';
-import { OneBrandManySurfaces, WoodSection, AutoSection, DecorSection } from '../features/surfaces';
-import { ServicesSection } from '../features/services';
-import { ColorPaletteSection, ColorScrollSection } from '../features/palette';
-import { BeforeAfter } from '../features/comparison';
-import { CompanyStory, TrustSection } from '../features/about';
-import { ContactSection } from '../features/contact';
 import { useSmoothScroll } from '../providers/smoothScrollContext';
 
 const HomepageVisualizer = lazy(() => import('../features/paint-studio/HomepageVisualizer'));
@@ -106,7 +98,6 @@ export function HomePage() {
         <HomepageVisualizer />
       </Suspense>
       <PaintStudio scrollTo={scrollTo} />
-      <HomepageVisualizer />
       <div className="section-paint-divider section-paint-divider--blue" aria-hidden="true">
         <span data-paint-heading />
         <i />
