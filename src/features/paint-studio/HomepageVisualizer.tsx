@@ -1,6 +1,6 @@
 import { useLayoutEffect, useRef, type CSSProperties } from 'react';
 import { ArrowRight, Library, Sparkles } from 'lucide-react';
-import exteriorPreview from '../../../assets/hero/house-unpainted-flat.webp';
+import exteriorPreview from '../../assets/hero/house-unpainted-flat.webp';
 import { homepageVisualizer } from '../../data';
 import { gsap } from '../../lib/animation';
 import { Link } from '../../routes/Router';
