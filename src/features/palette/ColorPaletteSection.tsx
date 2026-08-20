@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { palette } from '../../data';
-import colourFan from '../../../assets/colours.webp';
+import colourFan from '../../assets/colours.webp';
 import { X, Copy, Check, Sparkles, ArrowRight } from 'lucide-react';
 import { Link } from '../../routes/Router';
 
@@ -15,18 +15,24 @@ export function ColorPaletteSection() {
     'Blues',
     'Purples',
     'Pinks',
-    'Browns',
     'Beiges',
-    'Creams',
     'Whites',
     'Greys',
-    'Blacks',
-    'Neutrals',
   ];
   const [family, setFamily] = useState('All');
   const [copied, setCopied] = useState(false);
 
-  const shown = family === 'All' ? palette : palette.filter((c) => c.family === family);
+  const shown =
+    family === 'All'
+      ? palette
+      : palette.filter((c) => {
+          const cFam = (c.family || '').toUpperCase();
+          const fFam = family.toUpperCase();
+          if (cFam === fFam) return true;
+          if (fFam === 'PURPLES' && (cFam === 'VIOLETS' || cFam === 'PURPLE')) return true;
+          if (fFam === 'BLUES' && (cFam === 'BLUES' || cFam === 'BLUE GREENS')) return true;
+          return cFam.includes(fFam) || fFam.includes(cFam);
+        });
 
   const copyHex = (hex: string) => {
     navigator.clipboard?.writeText(hex);

@@ -1,5 +1,5 @@
 import { companyFacts, timeline } from '../../data';
-import brandImg from '../../../assets/brand.webp';
+import brandImg from '../../assets/brand/brand.webp';
 import { Award, Sparkles } from 'lucide-react';
 
 export function CompanyStory() {
