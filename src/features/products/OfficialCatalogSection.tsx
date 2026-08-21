@@ -53,7 +53,7 @@ export function OfficialCatalogSection({
   };
 
   const [searchQuery, setSearchQuery] = useState('');
-  const [activeSubcategory, setActiveSubcategory] = useState<string>('all');
+  const [activeSubcategory, setActiveSubcategory] = useState<string>('auto-primers');
   const [copiedCode, setCopiedCode] = useState<string | null>(null);
 
   // Configuration for each Division
@@ -70,7 +70,6 @@ export function OfficialCatalogSection({
       gradient: 'from-red-600 via-pink-600 to-amber-500',
       pageUrl: '/auto',
       subcategories: [
-        { id: 'all', label: 'All Auto Formulations' },
         { id: 'auto-primers', label: 'Auto Primers', count: autoPrimersProducts.length },
         { id: 'undercoat-surfaces', label: 'Under Coat Surfaces', count: autoUnderCoatSurfaces.length },
         { id: 'putty-fillers', label: 'Body Putty & Fillers', count: puttyAutoBodyFillers.length },
@@ -92,7 +91,6 @@ export function OfficialCatalogSection({
       gradient: 'from-amber-500 via-yellow-500 to-orange-500',
       pageUrl: '/wood',
       subcategories: [
-        { id: 'all', label: 'All Wood Formulations' },
         { id: 'melamine-base', label: 'Melamine Base', count: 1 },
         { id: 'wood-polish', label: 'Wood Polish', count: 1 },
         { id: 'sealers', label: 'Sealers', count: 2 },
@@ -111,7 +109,6 @@ export function OfficialCatalogSection({
       gradient: 'from-pink-500 via-purple-500 to-cyan',
       pageUrl: '/decor',
       subcategories: [
-        { id: 'all', label: 'All Decorative Formulations' },
         { id: 'interior-primers', label: 'Interior Primers', count: 1 },
         { id: 'exterior-primers', label: 'Exterior Primers', count: 1 },
         { id: 'acrylic-putty', label: 'Acrylic Wall Putty', count: 1 },
@@ -125,6 +122,15 @@ export function OfficialCatalogSection({
   };
 
   const currentConfig = divisionConfigs[activeDivision];
+
+  // Ensure effectiveSubcategory is valid for current division
+  const effectiveSubcategory = useMemo(() => {
+    const validIds = currentConfig.subcategories.map((s) => s.id);
+    if (validIds.includes(activeSubcategory)) {
+      return activeSubcategory;
+    }
+    return currentConfig.subcategories[0]?.id || '';
+  }, [currentConfig, activeSubcategory]);
 
   // Copy hex code helper
   const handleCopyCode = async (code: string) => {
@@ -142,56 +148,43 @@ export function OfficialCatalogSection({
     let list: OfficialProductSpec[] = [];
 
     if (activeDivision === 'auto') {
-      if (activeSubcategory === 'all') {
-        list = [
-          ...autoPrimersProducts,
-          ...autoUnderCoatSurfaces,
-          ...puttyAutoBodyFillers,
-          ...autoTopCoatSolidColors,
-          ...autoTopCoatMetallicFinishes,
-          ...autoTopCoatClears,
-        ];
-      } else if (activeSubcategory === 'auto-primers') {
+      if (effectiveSubcategory === 'auto-primers') {
         list = autoPrimersProducts;
-      } else if (activeSubcategory === 'undercoat-surfaces') {
+      } else if (effectiveSubcategory === 'undercoat-surfaces') {
         list = autoUnderCoatSurfaces;
-      } else if (activeSubcategory === 'putty-fillers') {
+      } else if (effectiveSubcategory === 'putty-fillers') {
         list = puttyAutoBodyFillers;
-      } else if (activeSubcategory === 'solid-colors') {
+      } else if (effectiveSubcategory === 'solid-colors') {
         list = autoTopCoatSolidColors;
-      } else if (activeSubcategory === 'metallic-finishes') {
+      } else if (effectiveSubcategory === 'metallic-finishes') {
         list = autoTopCoatMetallicFinishes;
-      } else if (activeSubcategory === 'topcoat-clears') {
+      } else if (effectiveSubcategory === 'topcoat-clears') {
         list = autoTopCoatClears;
       }
     } else if (activeDivision === 'wood') {
-      if (activeSubcategory === 'all') {
-        list = woodFinishesProducts;
-      } else if (activeSubcategory === 'melamine-base') {
+      if (effectiveSubcategory === 'melamine-base') {
         list = woodFinishesProducts.filter((p) => p.subcategory === 'Melamine Base');
-      } else if (activeSubcategory === 'wood-polish') {
+      } else if (effectiveSubcategory === 'wood-polish') {
         list = woodFinishesProducts.filter((p) => p.subcategory === 'Wood Polish');
-      } else if (activeSubcategory === 'sealers') {
+      } else if (effectiveSubcategory === 'sealers') {
         list = woodFinishesProducts.filter((p) => p.subcategory === 'Sealers');
-      } else if (activeSubcategory === 'clears') {
+      } else if (effectiveSubcategory === 'clears') {
         list = woodFinishesProducts.filter((p) => p.subcategory === 'Clears');
       }
     } else if (activeDivision === 'decorative') {
-      if (activeSubcategory === 'all') {
-        list = decorativePaintsProducts;
-      } else if (activeSubcategory === 'interior-primers') {
+      if (effectiveSubcategory === 'interior-primers') {
         list = decorativePaintsProducts.filter((p) => p.id === 'interior-primers');
-      } else if (activeSubcategory === 'exterior-primers') {
+      } else if (effectiveSubcategory === 'exterior-primers') {
         list = decorativePaintsProducts.filter((p) => p.id === 'exterior-primers');
-      } else if (activeSubcategory === 'acrylic-putty') {
+      } else if (effectiveSubcategory === 'acrylic-putty') {
         list = decorativePaintsProducts.filter((p) => p.id === 'acrylic-putty');
-      } else if (activeSubcategory === 'acrylic-distemper') {
+      } else if (effectiveSubcategory === 'acrylic-distemper') {
         list = decorativePaintsProducts.filter((p) => p.id === 'acrylic-distemper');
-      } else if (activeSubcategory === 'interior-emulsion') {
+      } else if (effectiveSubcategory === 'interior-emulsion') {
         list = decorativePaintsProducts.filter((p) => p.id === 'trendy-interior-emulsion');
-      } else if (activeSubcategory === 'exterior-emulsion') {
+      } else if (effectiveSubcategory === 'exterior-emulsion') {
         list = decorativePaintsProducts.filter((p) => p.id === 'apt-exterior-emulsion');
-      } else if (activeSubcategory === 'weather-proof') {
+      } else if (effectiveSubcategory === 'weather-proof') {
         list = decorativePaintsProducts.filter((p) => p.id === 'optima-weather-proof-exterior-emulsion');
       }
     }
@@ -207,7 +200,7 @@ export function OfficialCatalogSection({
     }
 
     return list;
-  }, [activeDivision, activeSubcategory, searchQuery]);
+  }, [activeDivision, effectiveSubcategory, searchQuery]);
 
   return (
     <section
@@ -245,7 +238,7 @@ export function OfficialCatalogSection({
                 key={divKey}
                 onClick={() => {
                   handleSelectDivision(divKey);
-                  setActiveSubcategory('all');
+                  setActiveSubcategory(divisionConfigs[divKey].subcategories[0].id);
                 }}
                 className={`p-4 rounded-2xl border transition-all duration-300 flex items-center gap-3.5 text-left cursor-pointer shadow-lg ${
                   isSelected
@@ -473,7 +466,7 @@ export function OfficialCatalogSection({
           <div className="p-3 sm:p-4 rounded-2xl bg-white/[0.02] border border-white/10 backdrop-blur-xl">
             <div className="flex flex-wrap items-center gap-2 sm:gap-2.5">
               {currentConfig.subcategories.map((sub) => {
-                const isActive = activeSubcategory === sub.id;
+                const isActive = effectiveSubcategory === sub.id;
                 return (
                   <button
                     key={sub.id}
@@ -515,7 +508,7 @@ export function OfficialCatalogSection({
         {/* ============================================================ */}
         {/* TAB CONTENT: 24 ENAMEL COLOR SHADES (Auto Finishes) */}
         {/* ============================================================ */}
-        {activeDivision === 'auto' && activeSubcategory === 'enamel-shades' && (
+        {activeDivision === 'auto' && effectiveSubcategory === 'enamel-shades' && (
           <div className="space-y-6 animate-tab-fade">
             <div className="p-6 sm:p-8 rounded-3xl bg-midnight/90 border border-white/15 backdrop-blur-xl shadow-2xl">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-6 border-b border-white/10 mb-6">
@@ -576,7 +569,7 @@ export function OfficialCatalogSection({
         {/* ============================================================ */}
         {/* TAB CONTENT: PROBLEM SOLVER (Decorative Paints) */}
         {/* ============================================================ */}
-        {activeDivision === 'decorative' && activeSubcategory === 'problem-solver' && (
+        {activeDivision === 'decorative' && effectiveSubcategory === 'problem-solver' && (
           <div className="space-y-6 animate-tab-fade">
             {problemSolverList.map((item) => (
               <div
@@ -627,7 +620,7 @@ export function OfficialCatalogSection({
         {/* ============================================================ */}
         {/* REGULAR PRODUCT TECHNICAL SPECIFICATION CARDS */}
         {/* ============================================================ */}
-        {activeSubcategory !== 'enamel-shades' && activeSubcategory !== 'problem-solver' && (
+        {effectiveSubcategory !== 'enamel-shades' && effectiveSubcategory !== 'problem-solver' && (
           <div className="space-y-6 animate-tab-fade">
             {currentProducts.length > 0 ? (
               currentProducts.map((prod) => (

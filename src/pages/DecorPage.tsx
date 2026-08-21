@@ -10,10 +10,9 @@ import {
 import type { OfficialProductSpec } from '../types';
 
 export function DecorPage() {
-  const [activeTab, setActiveTab] = useState<string>('all-decorative');
+  const [activeTab, setActiveTab] = useState<string>('interior-primers');
 
   const subcategories = [
-    { id: 'all-decorative', label: 'All Decorative Datasheets', count: decorativePaintsProducts.length },
     { id: 'interior-primers', label: 'Interior Primers', count: 1 },
     { id: 'exterior-primers', label: 'Exterior Primers', count: 1 },
     { id: 'acrylic-putty', label: 'Acrylic Wall Putty', count: 1 },
@@ -116,7 +115,6 @@ export function DecorPage() {
             {activeTab !== 'problem-solver' &&
               decorativePaintsProducts
                 .filter((p) => {
-                  if (activeTab === 'all-decorative') return true;
                   if (activeTab === 'interior-primers') return p.id === 'interior-primers';
                   if (activeTab === 'exterior-primers') return p.id === 'exterior-primers';
                   if (activeTab === 'acrylic-putty') return p.id === 'acrylic-putty';
@@ -124,7 +122,7 @@ export function DecorPage() {
                   if (activeTab === 'interior-emulsion') return p.id === 'trendy-interior-emulsion';
                   if (activeTab === 'exterior-emulsion') return p.id === 'apt-exterior-emulsion';
                   if (activeTab === 'weather-proof') return p.id === 'optima-weather-proof-exterior-emulsion';
-                  return true;
+                  return false;
                 })
                 .map((prod) => (
                   <DecorProductSpecCard key={prod.id} product={prod} />

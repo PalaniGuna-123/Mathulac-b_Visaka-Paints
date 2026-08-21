@@ -44,12 +44,18 @@ export function ServicesSection() {
           })}
         </div>
 
-        <div className="mt-14 text-center">
+        <div className="mt-14 flex flex-wrap items-center justify-center gap-4 text-center">
+          <Link
+            to="/services"
+            className="inline-flex items-center gap-2 px-7 py-3.5 rounded-xl font-bold bg-gradient-to-r from-magenta to-violet text-white shadow-xl transition-all hover:scale-105"
+          >
+            Explore Turnkey Services <ArrowRight className="w-4 h-4" />
+          </Link>
           <Link
             to="/contact"
-            className="inline-flex items-center gap-2 px-7 py-3.5 rounded-xl font-bold bg-cyan hover:bg-sky-400 text-ink shadow-xl transition-all"
+            className="inline-flex items-center gap-2 px-7 py-3.5 rounded-xl font-bold bg-white/10 hover:bg-white/20 text-white shadow-xl transition-all"
           >
-            Book a Professional Service <ArrowRight className="w-4 h-4" />
+            Book Free Site Visit <ArrowRight className="w-4 h-4 text-cyan" />
           </Link>
         </div>
       </div>

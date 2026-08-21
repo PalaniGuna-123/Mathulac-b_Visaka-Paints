@@ -91,7 +91,7 @@ export function Navbar({ scrolled: externalScrolled }: NavbarProps) {
           </Link>
 
           {/* Desktop Navigation Links */}
-          <nav className="hidden lg:flex items-center justify-center gap-3 xl:gap-5 2xl:gap-7 min-w-0">
+          <nav className="hidden lg:flex items-center justify-center gap-2 xl:gap-3.5 2xl:gap-5 min-w-0">
             {navItems.map((n) => (
               <NavLink
                 key={n.id}
@@ -103,8 +103,10 @@ export function Navbar({ scrolled: externalScrolled }: NavbarProps) {
                   }
                 }}
                 className={({ isActive }) =>
-                  `nav-link paint-nav-link text-[13px] xl:text-sm font-bold transition-all px-0.5 py-1 whitespace-nowrap ${text} ${
-                    isActive ? 'text-white' : 'opacity-80 hover:opacity-100'
+                  `nav-link paint-nav-link text-xs xl:text-[13px] 2xl:text-sm font-bold transition-all px-1.5 py-1 whitespace-nowrap ${
+                    isActive 
+                      ? 'active text-white font-extrabold drop-shadow-[0_0_10px_rgba(255,255,255,0.4)]' 
+                      : 'text-white/75 hover:text-white hover:opacity-100'
                   }`
                 }
               >
@@ -160,16 +162,28 @@ export function Navbar({ scrolled: externalScrolled }: NavbarProps) {
             }`}
           >
             <div className="flex flex-col gap-1.5">
-              {navItems.map((n) => (
-                <button
-                  key={n.id}
-                  onClick={() => handleNavClick(n.path, n.anchor)}
-                  className="text-left py-3 px-4 rounded-xl text-[#322b3b] font-bold hover:bg-[#fff0f6] hover:text-[#d43b7a] transition-colors flex items-center justify-between"
-                >
-                  <span>{n.label}</span>
-                  <span className="text-xs uppercase tracking-widest text-[#322b3b]/40 font-semibold">{n.path}</span>
-                </button>
-              ))}
+              {navItems.map((n) => {
+                const currentPath = location.pathname.toLowerCase().replace(/\/$/, '') || '/';
+                const cleanTo = (n.path.split('#')[0] || '').toLowerCase().replace(/\/$/, '') || '/';
+                const isItemActive = currentPath === cleanTo;
+
+                return (
+                  <button
+                    key={n.id}
+                    onClick={() => handleNavClick(n.path, n.anchor)}
+                    className={`text-left py-3 px-4 rounded-xl font-bold transition-all flex items-center justify-between ${
+                      isItemActive
+                        ? 'bg-gradient-to-r from-magenta/15 via-pink-500/10 to-violet/10 text-magenta font-extrabold border-l-4 border-magenta pl-3 shadow-sm'
+                        : 'text-[#322b3b] hover:bg-[#fff0f6] hover:text-[#d43b7a]'
+                    }`}
+                  >
+                    <span>{n.label}</span>
+                    <span className={`text-xs uppercase tracking-widest font-semibold ${isItemActive ? 'text-magenta/80' : 'text-[#322b3b]/40'}`}>
+                      {n.path}
+                    </span>
+                  </button>
+                );
+              })}
 
               <button
                 onClick={handleEnquiryClick}

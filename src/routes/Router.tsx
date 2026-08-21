@@ -227,7 +227,10 @@ export function NavLink({ to, className, children, ...rest }: NavLinkProps) {
   const cleanTo = (to.split('#')[0] || '').toLowerCase().replace(/\/$/, '') || '/';
   const isActive = currentPath === cleanTo;
 
-  const computedClassName = typeof className === 'function' ? className({ isActive }) : `${className || ''} ${isActive ? 'active' : ''}`.trim();
+  const rawClassName = typeof className === 'function' ? className({ isActive }) : className || '';
+  const computedClassName = isActive && !rawClassName.includes('active') 
+    ? `${rawClassName} active`.trim() 
+    : rawClassName.trim();
 
   return (
     <Link to={to} className={computedClassName} {...rest}>

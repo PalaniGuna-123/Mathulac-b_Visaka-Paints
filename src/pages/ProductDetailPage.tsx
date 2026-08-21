@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import {
   ArrowLeft,
   ArrowRight,
@@ -16,6 +16,10 @@ import {
   FileDown,
   Paintbrush,
   Grid,
+  Copy,
+  Check,
+  Eye,
+  Palette,
 } from 'lucide-react';
 import { useParams, Link, useNavigate } from '../routes/Router';
 import {
@@ -24,6 +28,7 @@ import {
   type CatalogCategory,
 } from '../data/products';
 import { productAssetMap } from '../data/productAssets';
+import { paintShades, type PaintShade } from '../data/shades';
 import type { MathulacProductItem } from '../types';
 import { ContactSection } from '../features/contact';
 
@@ -31,6 +36,8 @@ export function ProductDetailPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [copied, setCopied] = useState(false);
+  const [copiedHex, setCopiedHex] = useState(false);
+  const [selectedShade, setSelectedShade] = useState<PaintShade | null>(null);
 
   // Clean and match ID or name or slug
   const cleanId = decodeURIComponent(id || '').trim().toLowerCase();
@@ -64,16 +71,36 @@ export function ProductDetailPage() {
     product.availableSizes[0] || '1 Ltr'
   );
 
-  // Reset selected size and scroll to top when product changes
+  // Reset selected size, selected shade and scroll to top when product changes
   useEffect(() => {
     if (product.availableSizes && product.availableSizes.length > 0) {
       setSelectedSize(product.availableSizes[0]);
     }
+    setSelectedShade(null);
     window.scrollTo({ top: 0, behavior: 'instant' });
   }, [product.id, id]);
 
-  const activeColor = product.color || category.accent || '#00C8FF';
+  const activeColor = selectedShade?.hex || product.color || category.accent || '#00C8FF';
   const activeImageUrl = productAssetMap[product.id] || product.image;
+
+  // Curate matching shades for this product based on division / category
+  const matchingShades = useMemo(() => {
+    const cat = (product.categoryKey || '').toLowerCase();
+    if (cat.includes('auto')) {
+      return paintShades.filter((s) => ['REDS', 'BLUES', 'GREYS', 'WHITES'].includes(s.family)).slice(0, 12);
+    }
+    if (cat.includes('wood')) {
+      return paintShades.filter((s) => ['BROWNS', 'BEIGES', 'CREAMS', 'ORANGES'].includes(s.family)).slice(0, 12);
+    }
+    // Decorative & primers
+    return paintShades.filter((s) => ['WHITES', 'OFF WHITES', 'BEIGES', 'CREAMS', 'PINKS', 'GREENS', 'BLUES'].includes(s.family)).slice(0, 14);
+  }, [product.categoryKey]);
+
+  const copyHex = (hex: string) => {
+    navigator.clipboard?.writeText(hex);
+    setCopiedHex(true);
+    setTimeout(() => setCopiedHex(false), 2000);
+  };
 
   const handleShare = () => {
     if (navigator.share) {
@@ -457,6 +484,89 @@ Inquiries: visakapaints@gmail.com | mathulac.com`;
             </div>
           </div>
         </div>
+
+        {/* ============================================================ */}
+        {/* 3.5. AVAILABLE SIGNATURE COLOR SHADES & TINT FORMULATIONS */}
+        {/* ============================================================ */}
+        {matchingShades.length > 0 && (
+          <div className="mb-16 p-6 sm:p-8 rounded-3xl bg-gradient-to-b from-white/[0.04] to-white/[0.01] border border-white/15 shadow-2xl backdrop-blur-md">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 pb-4 border-b border-white/10">
+              <div>
+                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-magenta/20 text-magenta text-[10px] font-mono font-bold uppercase tracking-widest border border-magenta/30 mb-2">
+                  <Palette className="w-3.5 h-3.5" /> Division Tint Library
+                </div>
+                <h3 className="font-display text-2xl sm:text-3xl text-white font-bold">
+                  Recommended Color Shades for {product.name}
+                </h3>
+                <p className="text-white/60 text-xs sm:text-sm mt-1">
+                  Click any shade to preview ambient reflection on the container or visualize on walls.
+                </p>
+              </div>
+
+              <div className="flex items-center gap-3">
+                {selectedShade && (
+                  <button
+                    onClick={() => copyHex(selectedShade.hex)}
+                    className="px-3.5 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-white font-bold text-xs flex items-center gap-1.5 transition-all border border-white/15 cursor-pointer"
+                  >
+                    {copiedHex ? <Check className="w-3.5 h-3.5 text-leaf" /> : <Copy className="w-3.5 h-3.5" />}
+                    <span>{copiedHex ? 'Copied HEX' : selectedShade.hex}</span>
+                  </button>
+                )}
+                <Link
+                  to="/colours"
+                  className="px-4 py-2 rounded-xl bg-gradient-to-r from-magenta via-pink-500 to-violet text-white font-bold text-xs uppercase tracking-wider flex items-center gap-1.5 shadow-md hover:shadow-magenta/25 transition-all"
+                >
+                  <Eye className="w-3.5 h-3.5" /> All 1,000+ Shades
+                </Link>
+              </div>
+            </div>
+
+            {/* Color Swatches Grid */}
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7 gap-3">
+              {matchingShades.map((s) => {
+                const isCurrentShade = selectedShade?.id === s.id;
+                return (
+                  <button
+                    key={s.id}
+                    onClick={() => setSelectedShade(s)}
+                    className={`group relative rounded-2xl p-3 text-left transition-all duration-300 cursor-pointer border flex flex-col justify-between overflow-hidden ${
+                      isCurrentShade
+                        ? 'bg-white/20 border-white shadow-xl shadow-magenta/20 ring-2 ring-magenta/70 scale-105'
+                        : 'bg-white/5 hover:bg-white/10 border-white/10 hover:border-white/30 hover:-translate-y-1'
+                    }`}
+                  >
+                    <div>
+                      {/* Swatch Pill */}
+                      <div
+                        className="w-full aspect-[4/3] rounded-xl shadow-inner mb-2 relative overflow-hidden transition-transform group-hover:scale-105"
+                        style={{ backgroundColor: s.hex }}
+                      >
+                        <span className="absolute bottom-1.5 left-1.5 text-[9px] font-mono font-bold bg-black/50 text-white px-1.5 py-0.5 rounded backdrop-blur-sm">
+                          {s.id}
+                        </span>
+                      </div>
+
+                      <h4 className="text-xs font-bold text-white group-hover:text-cyan transition-colors truncate">
+                        {s.name}
+                      </h4>
+                      <span className="text-[10px] uppercase font-mono text-white/50 block">
+                        {s.family}
+                      </span>
+                    </div>
+
+                    <div className="mt-2 pt-2 border-t border-white/10 flex items-center justify-between text-[10px] text-white/60">
+                      <span className="font-mono">{s.hex}</span>
+                      <span className="text-magenta font-bold group-hover:translate-x-0.5 transition-transform">
+                        Select →
+                      </span>
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        )}
 
         {/* ============================================================ */}
         {/* 4. ALL PRODUCTS IN THIS CATEGORY GALLERY */}

@@ -10,6 +10,7 @@ import {
   ColoursPage,
   AdvertisementPage,
   AboutPage,
+  ServicesPage,
   ContactPage,
   SpecificationsPage,
   NotFoundPage,
@@ -19,6 +20,9 @@ export function AppRoutes() {
   return (
     <Routes>
       <Route path="/" element={<HomePage />} />
+      <Route path="/services" element={<ServicesPage />} />
+      <Route path="/service" element={<ServicesPage />} />
+      <Route path="/turnkey" element={<ServicesPage />} />
       <Route path="/products" element={<ProductsPage />} />
       <Route path="/product/:id" element={<ProductDetailPage />} />
       <Route path="/product" element={<ProductsPage />} />

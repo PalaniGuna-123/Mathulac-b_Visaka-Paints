@@ -7,6 +7,7 @@ export * from './DecorPage';
 export * from './ColoursPage';
 export * from './AdvertisementPage';
 export * from './AboutPage';
+export * from './ServicesPage';
 export * from './ProductDetailPage';
 export * from './ContactPage';
 export * from './SpecificationsPage';
