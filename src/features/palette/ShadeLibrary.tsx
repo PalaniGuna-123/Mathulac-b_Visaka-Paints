@@ -96,10 +96,27 @@ export function ShadeLibrary() {
     }
   };
 
+  const [selectorMode, setSelectorMode] = useState<'wheel' | 'grid'>('wheel');
+
+  const wheelFamilies: ColorFamily[] = [
+    'ORANGES',
+    'BLUES',
+    'YELLOW GREENS',
+    'VIOLETS',
+    'REDS',
+    'BLUE GREENS',
+    'BROWNS',
+    'GREYS',
+    'GREENS',
+    'YELLOWS',
+    'WHITES',
+    'PINKS',
+  ];
+
   return (
     <section id="shade-library" className="w-full bg-ink text-white py-16 md:py-20 px-4 md:px-8 relative min-h-screen">
       {/* Header Banner */}
-      <div className="max-w-3xl mx-auto text-center mb-10">
+      <div className="max-w-3xl mx-auto text-center mb-8">
         <div className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-magenta/20 text-magenta text-[11px] font-extrabold uppercase tracking-widest border border-magenta/30 mb-3">
           <Sparkles className="w-3.5 h-3.5" /> Visaka Shade Library
         </div>
@@ -107,7 +124,7 @@ export function ShadeLibrary() {
           Discover Your Colour
         </h1>
         <p className="text-white/70 text-xs sm:text-sm mt-2.5 max-w-xl mx-auto leading-relaxed">
-          Explore our complete collection of shades, crafted for every mood, material and space.
+          Welcome to an endless world of colours. In Visaka Paint, we offer a comprehensive colour palette of 375+ authentic shades for your reference.
         </p>
 
         {/* Search & Filter Toolbar */}
@@ -116,7 +133,7 @@ export function ShadeLibrary() {
             <Search className="w-5 h-5 absolute left-4 top-1/2 -translate-y-1/2 text-white/40" />
             <input
               type="text"
-              placeholder="Search by shade name, code (e.g. MB-101), family, or room..."
+              placeholder="Search by shade name, code (e.g. VP-8021, VP-8701), family, or room..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full pl-12 pr-10 py-3.5 rounded-xl bg-white/10 border border-white/15 text-white placeholder-white/40 text-sm focus:outline-none focus:border-magenta focus:ring-1 focus:ring-magenta transition-all"
@@ -143,43 +160,148 @@ export function ShadeLibrary() {
             Favourites ({favourites.length})
           </button>
         </div>
-      </div>
 
-      {/* Colour Family Swatch Navigation (Catalogue Style) */}
-      <div className="max-w-[1400px] mx-auto mb-12">
-        <div className="flex items-center justify-between mb-4">
-          <span className="text-xs font-extrabold uppercase tracking-widest text-white/50 flex items-center gap-1.5">
-            <Filter className="w-3.5 h-3.5 text-magenta" /> Select Colour Family
-          </span>
-          <span className="text-xs text-white/40">{filteredShades.length} shades displayed</span>
-        </div>
-
-        <div className="grid grid-cols-4 sm:grid-cols-8 lg:grid-cols-16 gap-2">
-          {colorFamilies.map((fam) => {
-            const swatch = familySwatches[fam];
-            const isSelected = selectedFamily === fam;
-            return (
-              <button
-                key={fam}
-                onClick={() => setSelectedFamily(fam)}
-                className={`group relative p-2 rounded-xl border transition-all cursor-pointer flex flex-col items-center gap-1.5 text-center ${
-                  isSelected
-                    ? 'bg-white/15 border-white shadow-lg shadow-magenta/20 ring-2 ring-magenta/60 scale-[1.03]'
-                    : 'bg-white/5 hover:bg-white/10 border-white/10 hover:border-white/30'
-                }`}
-              >
-                <div
-                  className="w-9 h-9 rounded-xl shadow-md group-hover:scale-110 transition-transform"
-                  style={{ background: swatch.bgGradient }}
-                />
-                <span className="text-[10px] font-bold text-white/80 group-hover:text-white leading-tight">
-                  {swatch.name}
-                </span>
-              </button>
-            );
-          })}
+        {/* View Mode Toggle: Interactive Color Wheel vs Swatch Bar */}
+        <div className="flex items-center justify-center gap-2 mt-6">
+          <button
+            onClick={() => setSelectorMode('wheel')}
+            className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-2 border ${
+              selectorMode === 'wheel'
+                ? 'bg-white text-ink border-white shadow-lg'
+                : 'bg-white/5 hover:bg-white/10 text-white/70 border-white/10'
+            }`}
+          >
+            <span className="w-2.5 h-2.5 rounded-full bg-gradient-to-tr from-magenta to-cyan-400" />
+            Interactive Colour Wheel
+          </button>
+          <button
+            onClick={() => setSelectorMode('grid')}
+            className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-2 border ${
+              selectorMode === 'grid'
+                ? 'bg-white text-ink border-white shadow-lg'
+                : 'bg-white/5 hover:bg-white/10 text-white/70 border-white/10'
+            }`}
+          >
+            <SlidersHorizontal className="w-3.5 h-3.5" />
+            Colour Bar Grid
+          </button>
         </div>
       </div>
+
+      {/* ── Circular Mathulac Color Palette Wheel (Signature Feature) ── */}
+      {selectorMode === 'wheel' && (
+        <div className="max-w-4xl mx-auto my-8 p-6 bg-gradient-to-b from-white/[0.07] to-transparent rounded-3xl border border-white/10 backdrop-blur-xl relative overflow-hidden text-center">
+          <div className="mb-6">
+            <h2 className="text-sm uppercase tracking-widest text-magenta font-extrabold flex items-center justify-center gap-2">
+              <Sparkles className="w-4 h-4" /> Mathulac Color Palette Wheel
+            </h2>
+            <p className="text-white/60 text-xs mt-1">Click any color bubble below to see the full range of authentic shades</p>
+          </div>
+
+          <div className="relative w-[310px] h-[310px] sm:w-[420px] sm:h-[420px] md:w-[480px] md:h-[480px] mx-auto flex items-center justify-center my-4 [--orbit-r:105px] sm:[--orbit-r:145px] md:[--orbit-r:175px]">
+            {/* Center Hub */}
+            <div 
+              onClick={() => setSelectedFamily('ALL')}
+              className="w-28 h-28 sm:w-36 sm:h-36 md:w-40 md:h-40 rounded-full bg-ink/90 border-2 border-white/20 shadow-2xl backdrop-blur-md z-10 flex flex-col items-center justify-center p-2 sm:p-3 text-center cursor-pointer hover:border-magenta hover:scale-105 transition-all duration-300 group"
+            >
+              <span className="font-display font-black text-[11px] sm:text-sm bg-gradient-to-r from-magenta via-pink-400 to-cyan-400 bg-clip-text text-transparent group-hover:scale-105 transition-transform">
+                Color Palette
+              </span>
+              <span className="text-[9px] sm:text-xs text-white/70 mt-1 font-bold">
+                {selectedFamily === 'ALL' ? 'All 375+ Shades' : `${selectedFamily}`}
+              </span>
+              <span className="text-[8px] sm:text-[9px] text-white/40 mt-0.5 uppercase tracking-wider">
+                {selectedFamily === 'ALL' ? 'Click bubble to filter' : `${filteredShades.length} shades ready`}
+              </span>
+            </div>
+
+            {/* Circular Orbit Ring */}
+            <div className="absolute inset-4 sm:inset-6 rounded-full border border-dashed border-white/15 pointer-events-none animate-spin-slow opacity-60" />
+
+            {/* 12 Color Bubbles positioned around the circle */}
+            {wheelFamilies.map((fam, idx) => {
+              const swatch = familySwatches[fam];
+              const isSelected = selectedFamily === fam;
+              const angleDeg = (idx * 360) / wheelFamilies.length - 90;
+              const angleRad = (angleDeg * Math.PI) / 180;
+              return (
+                <button
+                  key={fam}
+                  onClick={() => setSelectedFamily(fam)}
+                  className={`absolute w-14 h-14 sm:w-18 sm:h-18 md:w-20 md:h-20 rounded-full shadow-2xl transition-all duration-300 flex flex-col items-center justify-center p-1 text-center cursor-pointer group z-20 ${
+                    isSelected
+                      ? 'scale-115 ring-4 ring-white shadow-[0_0_30px_rgba(230,0,126,0.6)] z-30'
+                      : 'hover:scale-110 hover:shadow-xl opacity-90 hover:opacity-100'
+                  }`}
+                  style={{
+                    background: swatch.bgGradient,
+                    transform: `translate(calc(${Math.cos(angleRad)} * var(--orbit-r, 110px)), calc(${Math.sin(angleRad)} * var(--orbit-r, 110px)))`,
+                  }}
+                  title={`Select ${fam}`}
+                >
+                  <span className="text-[8px] sm:text-[10px] md:text-[11px] font-black text-white drop-shadow-[0_1px_3px_rgba(0,0,0,0.9)] leading-tight tracking-tight uppercase px-1">
+                    {fam}
+                  </span>
+                  <span className="text-[7px] sm:text-[8px] md:text-[9px] font-mono text-white/90 drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)] font-semibold mt-0.5">
+                    25+
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+
+          <div className="mt-4 flex items-center justify-center gap-3">
+            <button
+              onClick={() => setSelectedFamily('ALL')}
+              className={`px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider transition-all cursor-pointer ${
+                selectedFamily === 'ALL'
+                  ? 'bg-magenta text-white shadow-lg shadow-magenta/30'
+                  : 'bg-white/10 hover:bg-white/20 text-white/70'
+              }`}
+            >
+              Show All 375+ Shades
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Colour Family Swatch Bar Navigation */}
+      {selectorMode === 'grid' && (
+        <div className="max-w-[1400px] mx-auto mb-12">
+          <div className="flex items-center justify-between mb-4">
+            <span className="text-xs font-extrabold uppercase tracking-widest text-white/50 flex items-center gap-1.5">
+              <Filter className="w-3.5 h-3.5 text-magenta" /> Select Colour Family
+            </span>
+            <span className="text-xs text-white/40">{filteredShades.length} shades displayed</span>
+          </div>
+
+          <div className="grid grid-cols-4 sm:grid-cols-8 lg:grid-cols-16 gap-2">
+            {colorFamilies.map((fam) => {
+              const swatch = familySwatches[fam];
+              const isSelected = selectedFamily === fam;
+              return (
+                <button
+                  key={fam}
+                  onClick={() => setSelectedFamily(fam)}
+                  className={`group relative p-2 rounded-xl border transition-all cursor-pointer flex flex-col items-center gap-1.5 text-center ${
+                    isSelected
+                      ? 'bg-white/15 border-white shadow-lg shadow-magenta/20 ring-2 ring-magenta/60 scale-[1.03]'
+                      : 'bg-white/5 hover:bg-white/10 border-white/10 hover:border-white/30'
+                  }`}
+                >
+                  <div
+                    className="w-9 h-9 rounded-xl shadow-md group-hover:scale-110 transition-transform"
+                    style={{ background: swatch.bgGradient }}
+                  />
+                  <span className="text-[10px] font-bold text-white/80 group-hover:text-white leading-tight">
+                    {swatch.name}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
 
       {/* Responsive Shade Grid */}
       <div className="max-w-[1400px] mx-auto">
@@ -223,11 +345,11 @@ export function ShadeLibrary() {
 
                     <div className="flex items-start justify-between gap-1">
                       <div>
-                        <h3 className="font-bold text-sm text-white group-hover:text-magenta transition-colors line-clamp-1">
-                          {shadeItem.name}
+                        <h3 className="font-bold text-xs sm:text-sm text-white group-hover:text-magenta transition-colors line-clamp-1">
+                          {shadeItem.name} - {shadeItem.id}
                         </h3>
-                        <span className="text-[11px] text-white/50 uppercase tracking-wider block mt-0.5">
-                          {shadeItem.family}
+                        <span className="text-[10px] sm:text-[11px] text-white/50 uppercase tracking-wider block mt-0.5">
+                          {shadeItem.family} • {shadeItem.hex}
                         </span>
                       </div>
 
