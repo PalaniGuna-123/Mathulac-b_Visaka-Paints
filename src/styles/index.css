@@ -1,4 +1,4 @@
-/* Fonts loaded via <link> in index.html — no CSS @import (blocks rendering) */
+/* Fonts loaded via <link> in index.html â€” no CSS @import (blocks rendering) */
 @import './variables.css';
 @import './animations.css';
 @import './paint-effects.css';
@@ -11,21 +11,33 @@
 @tailwind utilities;
 
 /* ==========================================================================
-   Mathulac Design System — Global Tokens & Variables
+   Mathulac Design System â€” Global Tokens & Variables
    ========================================================================== */
 :root {
   --color-magenta: #E6007E;
+  --color-magenta-rgb: 230, 0, 126;
   --color-hotpink: #FF1493;
+  --color-hotpink-rgb: 255, 20, 147;
   --color-electric: #146BFF;
+  --color-electric-rgb: 20, 107, 255;
   --color-cyan: #00C8FF;
+  --color-cyan-rgb: 0, 200, 255;
   --color-leaf: #67D600;
+  --color-leaf-rgb: 103, 214, 0;
   --color-sun: #FFD400;
+  --color-sun-rgb: 255, 212, 0;
   --color-flame: #FF7A00;
+  --color-flame-rgb: 255, 122, 0;
   --color-ember: #F51B24;
+  --color-ember-rgb: 245, 27, 36;
   --color-violet: #7B2CFF;
+  --color-violet-rgb: 123, 44, 255;
   --color-ink: #0B1020;
+  --color-ink-rgb: 11, 16, 32;
   --color-midnight: #131A31;
+  --color-midnight-rgb: 19, 26, 49;
   --color-cream: #FFF8F1;
+  --color-cream-rgb: 255, 248, 241;
 
   --ink: #0B1020;
   --cream: #FFF8F1;
@@ -33,6 +45,27 @@
   --font-display: 'DM Serif Display', Georgia, serif;
   --font-sans: 'Manrope', 'Inter', system-ui, sans-serif;
   --font-body: 'Inter', system-ui, sans-serif;
+}
+
+/* Form Controls and Autofill Styling */
+select option {
+  background-color: #0B1020;
+  color: #FFF8F1;
+}
+
+input:-webkit-autofill,
+input:-webkit-autofill:hover, 
+input:-webkit-autofill:focus,
+textarea:-webkit-autofill,
+textarea:-webkit-autofill:hover,
+textarea:-webkit-autofill:focus,
+select:-webkit-autofill,
+select:-webkit-autofill:hover,
+select:-webkit-autofill:focus {
+  -webkit-text-fill-color: #FFF8F1 !important;
+  -webkit-box-shadow: 0 0 0px 1000px #131A31 inset !important;
+  box-shadow: 0 0 0px 1000px #131A31 inset !important;
+  transition: background-color 5000s ease-in-out 0s;
 }
 
 * {
@@ -594,11 +627,12 @@ body {
   .paint-drop-1 { right: -8vw; top: 10vh; }
   .paint-drop-2 { right: 8vw; top: 22vh; }
 }
-
 /* ==========================================================================
-   Initial Loader — Premium Paint Theme
+   Mathulac Loader — Clean Editorial Design
    ========================================================================== */
-.loader-overlay {
+
+/* ── Full-screen backdrop ─────────────────────────────────────────────────── */
+.ld-root {
   position: fixed;
   inset: 0;
   z-index: 9999;
@@ -606,182 +640,210 @@ body {
   align-items: center;
   justify-content: center;
   background: #0B1020;
-  transition: opacity 0.6s cubic-bezier(0.4, 0, 0.2, 1),
-              visibility 0.6s;
+  transition: opacity 0.52s cubic-bezier(0.4, 0, 0.2, 1),
+              transform 0.52s cubic-bezier(0.4, 0, 0.2, 1);
+  opacity: 1;
+  transform: scale(1);
 }
 
-.loader-overlay--done {
+.ld-root--exit {
   opacity: 0;
-  visibility: hidden;
+  transform: scale(1.012);
   pointer-events: none;
 }
 
-.loader-content {
+/* Radial edge-vignette */
+.ld-vignette {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    ellipse 90% 85% at 50% 50%,
+    transparent 55%,
+    rgba(0, 0, 0, 0.55) 100%
+  );
+  pointer-events: none;
+}
+
+/* ── Center stage ─────────────────────────────────────────────────────────── */
+.ld-stage {
   position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 28px;
-  width: min(420px, 85vw);
+  width: min(400px, 86vw);
+  gap: 0;
+  text-align: center;
 }
 
-/* Brand */
-.loader-brand {
+/* ── Eyebrow line ─────────────────────────────────────────────────────────── */
+.ld-eyebrow {
+  font-family: 'Manrope', system-ui, sans-serif;
+  font-size: clamp(0.58rem, 1.1vw, 0.66rem);
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(255, 248, 241, 0.22);
+  margin: 0 0 28px;
+}
+
+/* ── Logo ─────────────────────────────────────────────────────────────────── */
+.ld-logo-box {
   display: flex;
   align-items: center;
   justify-content: center;
+  margin-bottom: 24px;
 }
 
-.loader-logo {
-  height: clamp(44px, 8vw, 64px);
+.ld-logo {
+  height: clamp(52px, 10vw, 76px);
   width: auto;
   object-fit: contain;
-  filter: brightness(1.1);
+  filter: drop-shadow(0 6px 20px rgba(0, 0, 0, 0.5));
+  user-select: none;
+  -webkit-user-drag: none;
 }
 
-/* Tagline */
-.loader-tagline {
-  font-family: 'Manrope', 'Inter', system-ui, sans-serif;
-  font-size: clamp(0.7rem, 1.4vw, 0.82rem);
-  font-weight: 500;
-  letter-spacing: 0.22em;
-  text-transform: uppercase;
-  color: rgba(255, 248, 241, 0.45);
-  margin: 0;
-}
-
-/* Percentage */
-.loader-percent {
+/* ── Tagline ──────────────────────────────────────────────────────────────── */
+.ld-tagline {
   font-family: 'DM Serif Display', Georgia, serif;
-  font-size: clamp(1.6rem, 4vw, 2.2rem);
+  font-style: italic;
+  font-size: clamp(0.95rem, 2vw, 1.1rem);
   font-weight: 400;
-  color: #FFF8F1;
-  letter-spacing: -0.02em;
-  line-height: 1;
-  margin: -4px 0 0;
+  color: rgba(255, 248, 241, 0.5);
+  letter-spacing: 0.02em;
+  margin: 0 0 22px;
 }
 
-/* Progress track */
-.loader-track {
+/* ── Thin rule divider ────────────────────────────────────────────────────── */
+.ld-rule {
+  width: 36px;
+  height: 1px;
+  background: rgba(255, 248, 241, 0.14);
+  margin-bottom: 22px;
+}
+
+/* ── Percentage counter ───────────────────────────────────────────────────── */
+.ld-counter {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 3px;
+  margin-bottom: 18px;
+}
+
+.ld-counter-num {
+  font-family: 'DM Serif Display', Georgia, serif;
+  font-weight: 400;
+  font-size: clamp(3.2rem, 9vw, 5rem);
+  line-height: 1;
+  letter-spacing: -0.04em;
+  color: #FFF8F1;
+  font-variant-numeric: tabular-nums;
+  transition: color 0.3s ease;
+}
+
+.ld-counter-pct {
+  font-family: 'Manrope', system-ui, sans-serif;
+  font-weight: 300;
+  font-size: clamp(1.1rem, 2.5vw, 1.4rem);
+  color: rgba(255, 248, 241, 0.38);
+  letter-spacing: -0.01em;
+  margin-bottom: 6px;
+}
+
+/* ── Progress bar ─────────────────────────────────────────────────────────── */
+.ld-bar {
   position: relative;
   width: 100%;
-  height: 8px;
-  border-radius: 4px;
-  overflow: visible;
+  height: 5px;
+  border-radius: 99px;
+  margin-bottom: 22px;
 }
 
-/* Background groove */
-.loader-groove {
+/* Groove — the full-width background track */
+.ld-bar-groove {
   position: absolute;
   inset: 0;
-  border-radius: 4px;
-  background: rgba(255, 255, 255, 0.05);
+  border-radius: 99px;
+  background: rgba(255, 255, 255, 0.08);
 }
 
-/* Paint fill */
-.loader-fill {
+/* Fill — the actual progress indicator */
+.ld-bar-fill {
   position: absolute;
   top: 0;
   left: 0;
-  height: 100%;
-  border-radius: 4px 0 0 4px;
-  overflow: hidden;
-  transition: width 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  bottom: 0;
+  border-radius: 99px;
+  background: linear-gradient(90deg, #0f5fe8 0%, #146BFF 60%, #1a82ff 100%);
+  transition: width 0.25s linear;
   will-change: width;
 }
 
-.loader-fill-svg {
-  position: absolute;
-  bottom: -1px;
-  left: 0;
-  width: 100%;
-  height: 10px;
-  filter: drop-shadow(0 0 3px rgba(20, 107, 255, 0.45));
+/* Completion state */
+.ld-bar-fill--complete {
+  background: linear-gradient(90deg, #0f5fe8 0%, #146BFF 45%, #00C8FF 100%);
 }
 
-/* Glossy highlight on the paint stroke */
-.loader-fill-gloss {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 45%;
-  border-radius: 4px 0 0 4px;
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.25) 0%, rgba(255, 255, 255, 0) 100%);
-  pointer-events: none;
+/* ── Caption / loading dots ───────────────────────────────────────────────── */
+.ld-caption {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  font-family: 'Manrope', system-ui, sans-serif;
+  font-size: clamp(0.6rem, 1.2vw, 0.68rem);
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(255, 248, 241, 0.2);
+  height: 14px;
 }
 
-/* Droplet at leading edge */
-.loader-droplet {
-  position: absolute;
-  top: 50%;
-  width: 8px;
-  height: 8px;
-  border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
-  background: #146BFF;
-  transform: translate(-50%, -50%);
-  box-shadow: 0 0 8px rgba(20, 107, 255, 0.6), 0 0 2px rgba(20, 107, 255, 0.4);
-  animation: droplet-wobble 1.8s ease-in-out infinite;
+.ld-caption-done {
+  color: rgba(255, 248, 241, 0.35);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  font-size: clamp(0.6rem, 1.2vw, 0.68rem);
 }
 
-@keyframes droplet-wobble {
-  0%, 100% { transform: translate(-50%, -50%) scale(1); border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%; }
-  50% { transform: translate(-50%, -50%) scale(1.15, 0.88); border-radius: 48% 52% 55% 45% / 55% 45% 55% 45%; }
+/* Animated loading dots */
+.ld-dots {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
 }
 
-/* Splash at 100% */
-.loader-splash {
-  position: absolute;
-  right: -4px;
-  top: 50%;
-  width: 22px;
-  height: 22px;
+.ld-dots span {
+  display: inline-block;
+  width: 3px;
+  height: 3px;
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(20, 107, 255, 0.9) 0%, rgba(20, 107, 255, 0) 70%);
-  transform: translate(0, -50%) scale(0);
-  animation: splash-pop 0.5s 0.15s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  background: rgba(255, 248, 241, 0.35);
+  animation: ld-dot-blink 1.4s ease-in-out infinite;
 }
 
-@keyframes splash-pop {
-  0% { transform: translate(0, -50%) scale(0); opacity: 1; }
-  60% { transform: translate(0, -50%) scale(1.6); opacity: 0.8; }
-  100% { transform: translate(0, -50%) scale(2); opacity: 0; }
-}
+.ld-dots span:nth-child(2) { animation-delay: 0.2s; }
+.ld-dots span:nth-child(3) { animation-delay: 0.4s; }
 
-/* Floating paint bubbles */
-.loader-bubble {
-  position: absolute;
-  border-radius: 50%;
-  background: radial-gradient(circle at 35% 35%, rgba(255, 255, 255, 0.55), rgba(255, 255, 255, 0.12));
-  box-shadow: inset 0 -1px 2px rgba(255, 255, 255, 0.08), 0 0 4px rgba(255, 255, 255, 0.06);
-  pointer-events: none;
-  z-index: 1;
-  will-change: transform;
-  transition: opacity 0.3s;
-}
-
-.loader-bubble::after {
-  content: '';
-  position: absolute;
-  top: 20%;
-  left: 25%;
-  width: 30%;
-  height: 25%;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.5);
-  filter: blur(0.5px);
-}
-
-/* Hide bubbles on mobile / no-hover */
-@media (hover: none), (max-width: 768px) {
-  .loader-bubble { display: none; }
+@keyframes ld-dot-blink {
+  0%, 80%, 100% { opacity: 0.2; transform: scale(0.85); }
+  40%            { opacity: 1;   transform: scale(1); }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
+  .ld-root,
+  .ld-logo,
+  .ld-eyebrow,
+  .ld-logo-box,
+  .ld-tagline,
+  .ld-rule,
+  .ld-counter,
+  .ld-bar,
+  .ld-caption,
+  .ld-dots span {
+    animation: none !important;
     transition-duration: 0.01ms !important;
-    scroll-behavior: auto !important;
   }
 }
+

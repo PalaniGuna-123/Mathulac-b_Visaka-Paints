@@ -22,6 +22,10 @@ interface StudioBucketProps extends HeroSceneProps {
 const BUCKET_TEXTURES: string[] = [
   '/assets/hero/bucket/muthulac-bucket-closed-CV8ODW7x.webp',
   '/assets/hero/bucket/muthulac-bucket-open-DARpo9Mj.webp',
+  '/assets/hero/bucket/muthulac-bucket-red.jpg',
+  '/assets/hero/bucket/muthulac-bucket-green.jpg',
+  '/assets/hero/bucket/muthulac-bucket-yellow.jpg',
+  '/assets/hero/bucket/muthulac-bucket-purple.jpg',
 ];
 
 const ENVIRONMENT_TEXTURES: string[] = [
@@ -37,15 +41,25 @@ const segment = (progress: number, start: number, end: number) => {
 };
 
 function StudioBucket({ motion, profile, reducedMotion, onReady, layout }: StudioBucketProps) {
-  const bucketRef = useRef<THREE.Group>(null);
+  const bucketGroupRef = useRef<THREE.Group>(null);
+  const heroBucketRef = useRef<THREE.Group>(null);
+  const companionRefs = useRef<(THREE.Group | null)[]>([]);
+
   const closedMaterialRef = useRef<THREE.MeshStandardMaterial>(null);
   const openMaterialRef = useRef<THREE.MeshStandardMaterial>(null);
   const depthMaterialRef = useRef<THREE.MeshPhysicalMaterial>(null);
+
+  const companionMaterialRefs = useRef<(THREE.MeshStandardMaterial | null)[]>([]);
+  const companionDepthRefs = useRef<(THREE.MeshPhysicalMaterial | null)[]>([]);
+
   const keyLightRef = useRef<THREE.SpotLight>(null);
   const fillLightRef = useRef<THREE.PointLight>(null);
   const rimLightRef = useRef<THREE.PointLight>(null);
   const shadowRef = useRef<THREE.Mesh>(null);
-  const [closedTexture, openTexture] = useTexture(BUCKET_TEXTURES) as THREE.Texture[];
+
+  const [closedTexture, openTexture, redTexture, greenTexture, yellowTexture, purpleTexture] = useTexture(
+    BUCKET_TEXTURES,
+  ) as THREE.Texture[];
   const { gl } = useThree();
 
   const shadowTexture = useMemo(() => {
@@ -64,135 +78,230 @@ function StudioBucket({ motion, profile, reducedMotion, onReady, layout }: Studi
     return new THREE.CanvasTexture(canvas);
   }, []);
 
+  // 4 Companion buckets configuration with individual textures: Red, Green, Yellow, Purple
+  const companions = useMemo(() => [
+    {
+      id: 'red',
+      texture: redTexture,
+      depthColor: '#991b1b',
+      offset: [-1.45, -0.16, -0.42] as [number, number, number],
+      scale: 0.86,
+      rotY: 0.05,
+    },
+    {
+      id: 'green',
+      texture: greenTexture,
+      depthColor: '#065f46',
+      offset: [1.45, -0.16, -0.42] as [number, number, number],
+      scale: 0.86,
+      rotY: -0.05,
+    },
+    {
+      id: 'yellow',
+      texture: yellowTexture,
+      depthColor: '#b45309',
+      offset: [-0.85, 0.72, -0.88] as [number, number, number],
+      scale: 0.80,
+      rotY: 0.03,
+    },
+    {
+      id: 'purple',
+      texture: purpleTexture,
+      depthColor: '#6b21a8',
+      offset: [0.85, 0.72, -0.88] as [number, number, number],
+      scale: 0.80,
+      rotY: -0.03,
+    },
+  ], [greenTexture, purpleTexture, redTexture, yellowTexture]);
+
   useLayoutEffect(() => {
     const anisotropy = Math.min(profile === 'desktop' ? 8 : 4, gl.capabilities.getMaxAnisotropy());
-    [closedTexture, openTexture].forEach((texture) => {
-      texture.colorSpace = THREE.SRGBColorSpace;
-      texture.anisotropy = anisotropy;
-      texture.minFilter = THREE.LinearMipmapLinearFilter;
-      texture.needsUpdate = true;
+    [closedTexture, openTexture, redTexture, greenTexture, yellowTexture, purpleTexture].forEach((texture) => {
+      if (texture) {
+        texture.colorSpace = THREE.SRGBColorSpace;
+        texture.anisotropy = anisotropy;
+        texture.minFilter = THREE.LinearMipmapLinearFilter;
+        texture.needsUpdate = true;
+      }
     });
     shadowTexture.needsUpdate = true;
     return () => shadowTexture.dispose();
-  }, [closedTexture, gl, openTexture, profile, shadowTexture]);
+  }, [closedTexture, gl, greenTexture, openTexture, profile, purpleTexture, redTexture, shadowTexture, yellowTexture]);
 
   useEffect(() => onReady(), [onReady]);
 
   useFrame(({ clock }) => {
-    const bucket = bucketRef.current;
-    if (!bucket) return;
+    const group = bucketGroupRef.current;
+    const heroBucket = heroBucketRef.current;
+    if (!group || !heroBucket) return;
 
     const values = motion.current;
     const tiltPhase = segment(values.intro, 0.48, 1);
     const openMix = segment(values.intro, 0.7, 1);
     const exit = values.bucketExit;
     const fade = 1 - segment(exit, 0.12, 0.96);
+    const companionFade = 1 - segment(exit, 0.02, 0.42);
     const idle = reducedMotion ? 0 : Math.sin(clock.elapsedTime * 0.56) * 0.014 * (1 - tiltPhase) * (1 - exit);
 
     if (reducedMotion && values.houseReveal > 0.9) {
-      bucket.position.set(
+      group.position.set(
         profile === 'mobile' ? -0.5 : profile === 'tablet' ? -2.1 : -3.1,
         profile === 'mobile' ? -1.8 : -1.65,
         -3,
       );
-      bucket.rotation.set(0, -0.04, 0);
-      bucket.scale.setScalar(layout.bucketScale * (profile === 'mobile' ? 0.5 : 0.32));
+      group.rotation.set(0, -0.04, 0);
+      group.scale.setScalar(layout.bucketScale * (profile === 'mobile' ? 0.5 : 0.32));
     } else {
-      bucket.position.lerpVectors(layout.bucketStart, layout.bucketEnd, tiltPhase);
-      bucket.position.y += (1 - values.intro) * 0.24 + idle + exit * 0.14;
-      bucket.position.z -= exit * 2.55;
-      bucket.position.x -= exit * (profile === 'mobile' ? 0.04 : 0.18);
-      bucket.rotation.set(
+      // Group position and subtle entrance
+      group.position.lerpVectors(layout.bucketStart, layout.bucketEnd, tiltPhase);
+      group.position.y += (1 - values.intro) * 0.24 + idle + exit * 0.14;
+      group.position.z -= exit * 2.55;
+      group.position.x -= exit * (profile === 'mobile' ? 0.04 : 0.18);
+      group.rotation.set(
         THREE.MathUtils.lerp(layout.bucketStartRotation.x, layout.bucketEndRotation.x, tiltPhase),
         THREE.MathUtils.lerp(layout.bucketStartRotation.y, layout.bucketEndRotation.y, tiltPhase),
         THREE.MathUtils.lerp(layout.bucketStartRotation.z, layout.bucketEndRotation.z, tiltPhase),
       );
       const entranceScale = layout.bucketScale * (0.94 + values.intro * 0.06) * (1 - exit * 0.16);
-      bucket.scale.setScalar(entranceScale);
+      group.scale.setScalar(entranceScale);
     }
 
     const effectiveOpenMix = reducedMotion ? 0 : openMix;
     const effectiveFade = reducedMotion && values.houseReveal > 0.9 ? 0.9 : fade;
-    bucket.visible = effectiveFade > 0.002;
+    group.visible = effectiveFade > 0.002;
+
+    // Central Hero Bucket materials
     if (closedMaterialRef.current && openMaterialRef.current) {
       closedMaterialRef.current.opacity = (1 - effectiveOpenMix) * effectiveFade;
       openMaterialRef.current.opacity = effectiveOpenMix * effectiveFade;
     }
-    if (depthMaterialRef.current) depthMaterialRef.current.opacity = (1 - effectiveOpenMix * 0.7) * effectiveFade;
+    if (depthMaterialRef.current) {
+      depthMaterialRef.current.opacity = (1 - effectiveOpenMix * 0.7) * effectiveFade;
+    }
+
+    // Companion buckets fade smoothly during exit
+    companionMaterialRefs.current.forEach((mat) => {
+      if (mat) mat.opacity = effectiveFade * companionFade;
+    });
+    companionDepthRefs.current.forEach((mat) => {
+      if (mat) mat.opacity = effectiveFade * companionFade;
+    });
 
     if (shadowRef.current) {
       shadowRef.current.visible = effectiveFade > 0.002;
-      shadowRef.current.position.x = bucket.position.x * 0.72;
-      shadowRef.current.position.z = bucket.position.z - 0.18;
-      shadowRef.current.scale.set(1.38 - tiltPhase * 0.1, 0.46 + tiltPhase * 0.07, 1);
+      shadowRef.current.position.x = group.position.x * 0.72;
+      shadowRef.current.position.z = group.position.z - 0.18;
+      shadowRef.current.scale.set(1.65 - tiltPhase * 0.1, 0.58 + tiltPhase * 0.07, 1);
       const shadowMaterial = shadowRef.current.material as THREE.MeshBasicMaterial;
       shadowMaterial.opacity = (0.48 - tiltPhase * 0.14) * values.intro * effectiveFade;
     }
 
-    if (keyLightRef.current) keyLightRef.current.intensity = (52 + values.intro * 44) * (0.68 + effectiveFade * 0.32);
-    if (fillLightRef.current) fillLightRef.current.intensity = 25 * effectiveFade;
-    if (rimLightRef.current) rimLightRef.current.intensity = 38 * effectiveFade;
+    if (keyLightRef.current) keyLightRef.current.intensity = (54 + values.intro * 44) * (0.68 + effectiveFade * 0.32);
+    if (fillLightRef.current) fillLightRef.current.intensity = 26 * effectiveFade;
+    if (rimLightRef.current) rimLightRef.current.intensity = 40 * effectiveFade;
     gl.domElement.dataset.heroMotion = values.master.toFixed(3);
   });
 
   return (
     <>
-      <group ref={bucketRef}>
-        <mesh position={[0, -0.18, -0.42]} scale={[1.06, 1, 0.2]}>
-          <cylinderGeometry args={[1.18, 1.08, 2.45, profile === 'mobile' ? 32 : 52, 1, false]} />
-          <meshPhysicalMaterial
-            ref={depthMaterialRef}
-            color="#092b75"
-            transparent
-            opacity={1}
-            metalness={0.18}
-            roughness={0.3}
-            clearcoat={0.8}
-            clearcoatRoughness={0.2}
-            depthWrite
-          />
-        </mesh>
+      <group ref={bucketGroupRef}>
+        {/* Central Hero Signature Blue Bucket (pours paint in Stage 2) */}
+        <group ref={heroBucketRef} position={[0, 0, 0]}>
+          <mesh position={[0, -0.18, -0.42]} scale={[1.06, 1, 0.2]}>
+            <cylinderGeometry args={[1.18, 1.08, 2.45, profile === 'mobile' ? 32 : 52, 1, false]} />
+            <meshPhysicalMaterial
+              ref={depthMaterialRef}
+              color="#092b75"
+              transparent
+              opacity={1}
+              metalness={0.18}
+              roughness={0.3}
+              clearcoat={0.8}
+              clearcoatRoughness={0.2}
+              depthWrite
+            />
+          </mesh>
 
-        <mesh position={[0, 0, 0.22]} renderOrder={2}>
-          <planeGeometry args={[5.1, 3.4]} />
-          <meshStandardMaterial
-            ref={closedMaterialRef}
-            map={closedTexture}
-            transparent
-            alphaTest={0.025}
-            depthWrite
-            roughness={0.27}
-            metalness={0.04}
-            emissive="#07183f"
-            emissiveMap={closedTexture}
-            emissiveIntensity={0.06}
-          />
-        </mesh>
+          <mesh position={[0, 0, 0.22]} renderOrder={2}>
+            <planeGeometry args={[5.1, 3.4]} />
+            <meshStandardMaterial
+              ref={closedMaterialRef}
+              map={closedTexture}
+              transparent
+              alphaTest={0.025}
+              depthWrite
+              roughness={0.27}
+              metalness={0.04}
+              emissive="#07183f"
+              emissiveMap={closedTexture}
+              emissiveIntensity={0.06}
+            />
+          </mesh>
 
-        <mesh position={[0, 0.01, 0.225]} renderOrder={3}>
-          <planeGeometry args={[5.1, 3.4]} />
-          <meshStandardMaterial
-            ref={openMaterialRef}
-            map={openTexture}
-            transparent
-            opacity={0}
-            alphaTest={0.025}
-            depthWrite
-            roughness={0.22}
-            metalness={0.05}
-            emissive="#07183f"
-            emissiveMap={openTexture}
-            emissiveIntensity={0.07}
-          />
-        </mesh>
+          <mesh position={[0, 0.01, 0.225]} renderOrder={3}>
+            <planeGeometry args={[5.1, 3.4]} />
+            <meshStandardMaterial
+              ref={openMaterialRef}
+              map={openTexture}
+              transparent
+              opacity={0}
+              alphaTest={0.025}
+              depthWrite
+              roughness={0.22}
+              metalness={0.05}
+              emissive="#07183f"
+              emissiveMap={openTexture}
+              emissiveIntensity={0.07}
+            />
+          </mesh>
+        </group>
+
+        {/* 4 Colored Companion Buckets (Red, Green, Yellow, Purple) */}
+        {companions.map((comp, idx) => (
+          <group
+            key={comp.id}
+            ref={(el) => { companionRefs.current[idx] = el; }}
+            position={comp.offset}
+            scale={comp.scale}
+            rotation={[0, comp.rotY, 0]}
+          >
+            <mesh position={[0, -0.18, -0.42]} scale={[1.06, 1, 0.2]}>
+              <cylinderGeometry args={[1.18, 1.08, 2.45, 32, 1, false]} />
+              <meshPhysicalMaterial
+                ref={(el) => { companionDepthRefs.current[idx] = el; }}
+                color={comp.depthColor}
+                transparent
+                opacity={1}
+                metalness={0.2}
+                roughness={0.32}
+                clearcoat={0.75}
+                clearcoatRoughness={0.22}
+                depthWrite
+              />
+            </mesh>
+
+            <mesh position={[0, 0, 0.22]} renderOrder={idx < 2 ? 1 : 0}>
+              <planeGeometry args={[5.1, 3.4]} />
+              <meshStandardMaterial
+                ref={(el) => { companionMaterialRefs.current[idx] = el; }}
+                map={comp.texture}
+                transparent
+                alphaTest={0.025}
+                depthWrite
+                roughness={0.28}
+                metalness={0.04}
+              />
+            </mesh>
+          </group>
+        ))}
       </group>
 
       <mesh ref={shadowRef} position={[0.4, -1.62, -0.18]} rotation={[-Math.PI / 2, 0, 0]} renderOrder={0}>
-        <planeGeometry args={[2.7, 2.7]} />
+        <planeGeometry args={[3.6, 2.4]} />
         <meshBasicMaterial map={shadowTexture} transparent depthWrite={false} opacity={0} />
       </mesh>
 
-      <ambientLight intensity={0.18} color="#adc9ff" />
+      <ambientLight intensity={0.22} color="#adc9ff" />
       <spotLight
         ref={keyLightRef}
         position={[-3.6, 5.5, 5.5]}

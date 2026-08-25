@@ -24,14 +24,14 @@ const makeCurve = (points: THREE.Vector3[], tension = 0.42) => {
 export function createHeroSceneLayout(profile: HeroViewportProfile): HeroSceneLayout {
   const mobile = profile === 'mobile';
   const tablet = profile === 'tablet';
-  const bucketScale = mobile ? 0.42 : tablet ? 0.68 : 0.8;
+  const bucketScale = mobile ? 0.36 : tablet ? 0.52 : 0.60;
   const bucketStart = new THREE.Vector3(
-    mobile ? 0 : tablet ? 0.25 : 0.62,
-    mobile ? -2.08 : -0.14,
+    mobile ? 0 : tablet ? 0.35 : 0.85,
+    mobile ? -2.08 : -0.12,
     0,
   );
   const bucketEnd = new THREE.Vector3(
-    mobile ? -0.08 : tablet ? 0.05 : 0.2,
+    mobile ? -0.05 : tablet ? 0.15 : 0.32,
     mobile ? -1.72 : tablet ? 0.03 : 0.12,
     0.06,
   );

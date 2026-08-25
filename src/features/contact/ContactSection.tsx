@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Phone, ArrowRight, Sparkles, CheckCircle2 } from 'lucide-react';
+import { Phone, ArrowRight, Sparkles, CheckCircle2, ChevronDown } from 'lucide-react';
 import { phoneNumbers } from '../../data';
 import { FloatingPaintBubbles, PaintSplash } from '../../components/paint';
 
@@ -89,7 +89,7 @@ export function ContactSection() {
                   setSent(false);
                   setFormData({ name: '', phone: '', email: '', surface: 'Interior Walls', message: '' });
                 }}
-                className="mt-6 px-6 py-2.5 rounded-xl bg-white/20 text-white text-xs font-bold uppercase tracking-wider hover:bg-white/30"
+                className="mt-6 px-6 py-2.5 rounded-xl bg-white/20 text-white text-xs font-bold uppercase tracking-wider hover:bg-white/30 cursor-pointer"
               >
                 Submit Another Request
               </button>
@@ -98,7 +98,7 @@ export function ContactSection() {
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="grid sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-white/80 text-xs font-bold uppercase tracking-wider mb-1.5">
+                  <label className="block text-white/85 text-xs font-bold uppercase tracking-wider mb-1.5">
                     Your Name *
                   </label>
                   <input
@@ -107,11 +107,11 @@ export function ContactSection() {
                     placeholder="e.g. Ramesh Kumar"
                     value={formData.name}
                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                    className="w-full px-4 py-3 rounded-xl bg-white/10 border border-white/25 text-white placeholder-white/50 focus:outline-none focus:border-white focus:bg-white/20 transition-all text-sm"
+                    className="w-full px-4 py-3 rounded-xl bg-white/15 border border-white/25 text-white placeholder-white/50 focus:outline-none focus:border-white focus:bg-white/25 transition-all text-sm shadow-inner"
                   />
                 </div>
                 <div>
-                  <label className="block text-white/80 text-xs font-bold uppercase tracking-wider mb-1.5">
+                  <label className="block text-white/85 text-xs font-bold uppercase tracking-wider mb-1.5">
                     Phone Number *
                   </label>
                   <input
@@ -120,13 +120,13 @@ export function ContactSection() {
                     placeholder="+91 93631 14313"
                     value={formData.phone}
                     onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                    className="w-full px-4 py-3 rounded-xl bg-white/10 border border-white/25 text-white placeholder-white/50 focus:outline-none focus:border-white focus:bg-white/20 transition-all text-sm"
+                    className="w-full px-4 py-3 rounded-xl bg-white/15 border border-white/25 text-white placeholder-white/50 focus:outline-none focus:border-white focus:bg-white/25 transition-all text-sm shadow-inner"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-white/80 text-xs font-bold uppercase tracking-wider mb-1.5">
+                <label className="block text-white/85 text-xs font-bold uppercase tracking-wider mb-1.5">
                   Email Address
                 </label>
                 <input
@@ -134,30 +134,33 @@ export function ContactSection() {
                   placeholder="name@company.com"
                   value={formData.email}
                   onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                  className="w-full px-4 py-3 rounded-xl bg-white/10 border border-white/25 text-white placeholder-white/50 focus:outline-none focus:border-white focus:bg-white/20 transition-all text-sm"
+                  className="w-full px-4 py-3 rounded-xl bg-white/15 border border-white/25 text-white placeholder-white/50 focus:outline-none focus:border-white focus:bg-white/25 transition-all text-sm shadow-inner"
                 />
               </div>
 
               <div>
-                <label className="block text-white/80 text-xs font-bold uppercase tracking-wider mb-1.5">
+                <label className="block text-white/85 text-xs font-bold uppercase tracking-wider mb-1.5">
                   Surface / Coating System
                 </label>
-                <select
-                  value={formData.surface}
-                  onChange={(e) => setFormData({ ...formData, surface: e.target.value })}
-                  className="w-full px-4 py-3 rounded-xl bg-ink/70 border border-white/25 text-white focus:outline-none focus:border-white transition-all text-sm"
-                >
-                  <option value="Interior Walls" className="bg-ink text-white">Interior Living &amp; Ceiling</option>
-                  <option value="Exterior Walls" className="bg-ink text-white">Exterior Monsoon Weather Coat</option>
-                  <option value="Wood Finishes" className="bg-ink text-white">Wood &amp; Furniture Finishes</option>
-                  <option value="Automotive Refinishing" className="bg-ink text-white">Automotive Refinishing</option>
-                  <option value="Metal & Industrial" className="bg-ink text-white">Metal &amp; Structural Steel</option>
-                  <option value="Decorative Finishes" className="bg-ink text-white">Designer Textures &amp; Stucco</option>
-                </select>
+                <div className="relative">
+                  <select
+                    value={formData.surface}
+                    onChange={(e) => setFormData({ ...formData, surface: e.target.value })}
+                    className="w-full px-4 py-3 rounded-xl bg-white/15 border border-white/25 text-white focus:outline-none focus:border-white focus:bg-white/25 transition-all text-sm appearance-none pr-10 cursor-pointer shadow-inner"
+                  >
+                    <option value="Interior Walls" className="bg-[#0B1020] text-white">Interior Living &amp; Ceiling</option>
+                    <option value="Exterior Walls" className="bg-[#0B1020] text-white">Exterior Monsoon Weather Coat</option>
+                    <option value="Wood Finishes" className="bg-[#0B1020] text-white">Wood &amp; Furniture Finishes</option>
+                    <option value="Automotive Refinishing" className="bg-[#0B1020] text-white">Automotive Refinishing</option>
+                    <option value="Metal & Industrial" className="bg-[#0B1020] text-white">Metal &amp; Structural Steel</option>
+                    <option value="Decorative Finishes" className="bg-[#0B1020] text-white">Designer Textures &amp; Stucco</option>
+                  </select>
+                  <ChevronDown className="absolute right-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-white/80 pointer-events-none" />
+                </div>
               </div>
 
               <div>
-                <label className="block text-white/80 text-xs font-bold uppercase tracking-wider mb-1.5">
+                <label className="block text-white/85 text-xs font-bold uppercase tracking-wider mb-1.5">
                   Project Details *
                 </label>
                 <textarea
@@ -166,13 +169,13 @@ export function ContactSection() {
                   placeholder="Tell us about the area, requirement, or shades you are interested in..."
                   value={formData.message}
                   onChange={(e) => setFormData({ ...formData, message: e.target.value })}
-                  className="w-full px-4 py-3 rounded-xl bg-white/10 border border-white/25 text-white placeholder-white/50 focus:outline-none focus:border-white focus:bg-white/20 transition-all resize-none text-sm"
+                  className="w-full px-4 py-3 rounded-xl bg-white/15 border border-white/25 text-white placeholder-white/50 focus:outline-none focus:border-white focus:bg-white/25 transition-all resize-none text-sm shadow-inner"
                 />
               </div>
 
               <button
                 type="submit"
-                className="paint-button paint-button--blue w-full py-4 rounded-xl bg-white text-ink font-bold flex items-center justify-center gap-2 hover:bg-cream shadow-xl transition-all hover:scale-[1.02]"
+                className="w-full py-4 px-6 rounded-xl bg-gradient-to-r from-magenta via-pink-600 to-violet text-white font-bold text-sm uppercase tracking-wider flex items-center justify-center gap-2 shadow-xl shadow-magenta/25 hover:opacity-95 transition-all hover:scale-[1.01] cursor-pointer"
               >
                 <span>Send Inquiry &amp; Request Callback</span>
                 <ArrowRight className="w-4 h-4" />
