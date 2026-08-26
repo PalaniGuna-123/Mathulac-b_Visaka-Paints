@@ -72,9 +72,10 @@
 }
 
 .cinematic-hero__poster img {
-  width: min(48vw, 640px);
+  width: min(54vw, 860px);
+  aspect-ratio: 16 / 9;
   height: auto;
-  margin-left: 24vw;
+  margin-left: 22vw;
   object-fit: contain;
   filter: drop-shadow(0 38px 54px rgba(0, 0, 0, 0.48));
 }

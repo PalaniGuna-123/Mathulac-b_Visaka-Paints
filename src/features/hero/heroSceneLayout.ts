@@ -24,27 +24,26 @@ const makeCurve = (points: THREE.Vector3[], tension = 0.42) => {
 export function createHeroSceneLayout(profile: HeroViewportProfile): HeroSceneLayout {
   const mobile = profile === 'mobile';
   const tablet = profile === 'tablet';
-  const bucketScale = mobile ? 0.36 : tablet ? 0.52 : 0.60;
+  const bucketScale = mobile ? 0.46 : tablet ? 0.62 : 0.74;
   const bucketStart = new THREE.Vector3(
-    mobile ? 0 : tablet ? 0.35 : 0.85,
-    mobile ? -2.08 : -0.12,
-    0,
+    mobile ? 0 : tablet ? 0.55 : 1.12,
+    mobile ? -1.28 : 0.02,
+    mobile ? 0.0 : 0.15,
   );
   const bucketEnd = new THREE.Vector3(
-    mobile ? -0.05 : tablet ? 0.15 : 0.32,
-    mobile ? -1.72 : tablet ? 0.03 : 0.12,
-    0.06,
+    mobile ? 0 : tablet ? 0.22 : 0.48,
+    mobile ? -0.98 : 0.16,
+    0.28,
   );
-  const bucketStartRotation = new THREE.Euler(-0.025, -0.08, 0.012);
+  const bucketStartRotation = new THREE.Euler(-0.02, -0.04, 0.01);
   const bucketEndRotation = new THREE.Euler(
-    mobile ? 0.02 : 0.04,
-    mobile ? -0.035 : -0.015,
-    mobile ? -0.2 : -0.24,
+    mobile ? 0.04 : 0.06,
+    mobile ? -0.02 : -0.03,
+    mobile ? -0.02 : -0.04,
   );
 
-  // The first curve point is the bucket image's right-hand lip transformed by
-  // the exact final bucket pose, keeping the pour welded to the opening.
-  const paintOrigin = new THREE.Vector3(0.32, 0.62, 0.31)
+  // Connects directly to the bottom cascade of the central pouring paint
+  const paintOrigin = new THREE.Vector3(0.12, -0.65, 0.22)
     .multiplyScalar(bucketScale)
     .applyEuler(bucketEndRotation)
     .add(bucketEnd);
@@ -55,23 +54,21 @@ export function createHeroSceneLayout(profile: HeroViewportProfile): HeroSceneLa
     -7.85,
   );
 
-  // One physical path carries the story. The first half draws a broad S in
-  // three dimensions (including a true behind-bucket pass), then the same
-  // stroke approaches the lens and lands on the first house wall.
+  // Fluid 3D curve connects the 5-buckets pour to the architectural house facade
   const paintCurve = makeCurve([
     paintOrigin,
-    new THREE.Vector3(1.24 * xScale, mobile ? -0.48 : 0.38, 0.5),
-    new THREE.Vector3(1.7 * xScale, mobile ? 0.34 : 1.34, 0.24),
-    new THREE.Vector3(0.48 * xScale, mobile ? 1.05 : 2.08, -0.72),
-    new THREE.Vector3(-1.56 * xScale, mobile ? 0.72 : 1.5, -1.18),
-    new THREE.Vector3(-1.68 * xScale, mobile ? -0.18 : 0.02, -0.5),
-    new THREE.Vector3(-0.62 * xScale, mobile ? -0.94 : -1.3, 0.7),
-    new THREE.Vector3(1.16 * xScale, mobile ? -0.9 : -1.12, 1.46),
-    new THREE.Vector3(1.58 * xScale, mobile ? -0.1 : 0.08, 3.12),
-    new THREE.Vector3(-0.12, mobile ? 0.18 : 0.46, mobile ? 5.0 : 5.35),
-    new THREE.Vector3(-0.52 * xScale, mobile ? 0.38 : 0.55, 2.35),
-    new THREE.Vector3(0.48 * xScale, mobile ? 0.28 : 0.4, -1.2),
-    new THREE.Vector3(-1.55 * xScale, mobile ? 0.04 : 0.12, -4.85),
+    new THREE.Vector3(0.85 * xScale, mobile ? -0.7 : -0.15, 0.6),
+    new THREE.Vector3(1.55 * xScale, mobile ? 0.2 : 0.95, 0.4),
+    new THREE.Vector3(0.65 * xScale, mobile ? 0.9 : 1.85, -0.5),
+    new THREE.Vector3(-1.35 * xScale, mobile ? 0.65 : 1.35, -1.0),
+    new THREE.Vector3(-1.55 * xScale, mobile ? -0.15 : 0.05, -0.45),
+    new THREE.Vector3(-0.55 * xScale, mobile ? -0.85 : -1.15, 0.65),
+    new THREE.Vector3(1.05 * xScale, mobile ? -0.8 : -0.98, 1.35),
+    new THREE.Vector3(1.45 * xScale, mobile ? -0.08 : 0.1, 2.85),
+    new THREE.Vector3(-0.1, mobile ? 0.16 : 0.42, mobile ? 4.8 : 5.1),
+    new THREE.Vector3(-0.48 * xScale, mobile ? 0.35 : 0.5, 2.2),
+    new THREE.Vector3(0.42 * xScale, mobile ? 0.25 : 0.36, -1.1),
+    new THREE.Vector3(-1.45 * xScale, mobile ? 0.05 : 0.1, -4.6),
     new THREE.Vector3(
       housePosition.x - (mobile ? 1.2 : tablet ? 2.15 : 3.05),
       housePosition.y + (mobile ? -0.18 : -0.05),
@@ -81,10 +78,10 @@ export function createHeroSceneLayout(profile: HeroViewportProfile): HeroSceneLa
 
   const cameraCurve = makeCurve([
     new THREE.Vector3(0, mobile ? 0 : 0.08, mobile ? 8.45 : 8.05),
-    new THREE.Vector3(mobile ? 0.04 : 0.2, mobile ? 0 : 0.12, 7.05),
-    new THREE.Vector3(mobile ? 0.12 : 0.38, mobile ? 0.1 : 0.24, 5.55),
-    new THREE.Vector3(mobile ? -0.05 : -0.2, mobile ? 0.22 : 0.38, 4.15),
-    new THREE.Vector3(mobile ? 0.1 : 0.08, mobile ? 0.24 : 0.3, mobile ? 3.15 : 2.72),
+    new THREE.Vector3(mobile ? 0.04 : 0.18, mobile ? 0 : 0.1, 7.05),
+    new THREE.Vector3(mobile ? 0.1 : 0.32, mobile ? 0.08 : 0.2, 5.55),
+    new THREE.Vector3(mobile ? -0.04 : -0.16, mobile ? 0.2 : 0.34, 4.15),
+    new THREE.Vector3(mobile ? 0.08 : 0.06, mobile ? 0.22 : 0.28, mobile ? 3.15 : 2.72),
   ], 0.36);
 
   return {

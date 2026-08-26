@@ -47,6 +47,8 @@ export function useHeroTimeline({ motion, profile, ready, useWebGL, refs }: UseH
     const houseStageThree = story.querySelector<HTMLElement>('[data-hero-house="stage-three"]');
     const houseStageFour = story.querySelector<HTMLElement>('[data-hero-house="stage-four"]');
     const houseStageFive = story.querySelector<HTMLElement>('[data-hero-house="stage-five"]');
+    const bucketPouring = story.querySelector<HTMLElement>('[data-hero-bucket="pouring"]');
+    const bucketSwirl = story.querySelector<HTMLElement>('[data-hero-bucket="swirl"]');
     const paintFlow = story.querySelector<HTMLElement>('[data-hero-paint-flow]');
     const fallbackHouseLayers = [
       houseStageOne,
@@ -93,6 +95,8 @@ export function useHeroTimeline({ motion, profile, ready, useWebGL, refs }: UseH
         gsap.set(progressLine, { [progressProperty]: 1 });
         if (!useWebGL) {
           gsap.set(story, { autoAlpha: 1, scale: 1, xPercent: 0 });
+          if (bucketPouring) gsap.set(bucketPouring, { autoAlpha: 0 });
+          if (bucketSwirl) gsap.set(bucketSwirl, { autoAlpha: 0 });
           gsap.set(houseStageOne, { autoAlpha: 0 });
           gsap.set(houseStageTwo, { autoAlpha: 0 });
           gsap.set(houseStageThree, { autoAlpha: 0 });
@@ -113,6 +117,8 @@ export function useHeroTimeline({ motion, profile, ready, useWebGL, refs }: UseH
         transformOrigin: profile === 'mobile' ? 'left center' : 'top center',
       });
       gsap.set(story, { autoAlpha: 0, scale: 1.18, xPercent: 7 });
+      if (bucketPouring) gsap.set(bucketPouring, { autoAlpha: 0 });
+      if (bucketSwirl) gsap.set(bucketSwirl, { autoAlpha: 0 });
       if (fallbackHouseLayers.length) {
         gsap.set(fallbackHouseLayers, {
           autoAlpha: 0,
@@ -232,12 +238,15 @@ export function useHeroTimeline({ motion, profile, ready, useWebGL, refs }: UseH
       });
 
       if (!useWebGL) {
-        // The fallback uses the same master timeline and only co-registered house assets.
+        // The fallback uses the same master timeline with upright -> pouring -> swirl -> house layers
         heroTimeline
-          .to(poster, { rotate: -11, xPercent: 4, yPercent: 3, duration: 15, ease: 'power2.inOut' }, 10)
-          .to(paintFlow, { autoAlpha: 1, xPercent: 3, yPercent: 0, scale: 1.16, rotate: 0, duration: 15 }, 10)
-          .to(poster, { autoAlpha: 0, scale: 0.84, duration: 10 }, 25)
-          .to(story, { autoAlpha: 1, scale: 1.02, xPercent: 0, duration: 10 }, 35)
+          .to(story, { autoAlpha: 1, scale: 1.02, xPercent: 0, duration: 10 }, 10)
+          .to(bucketPouring, { autoAlpha: 1, duration: 8, ease: 'power2.inOut' }, 10)
+          .to(poster, { autoAlpha: 0, duration: 8, ease: 'power2.inOut' }, 12)
+          .to(bucketSwirl, { autoAlpha: 1, duration: 8, ease: 'power2.inOut' }, 22)
+          .to(bucketPouring, { autoAlpha: 0, duration: 8, ease: 'power2.inOut' }, 24)
+          .to(paintFlow, { autoAlpha: 1, xPercent: 3, yPercent: 0, scale: 1.16, rotate: 0, duration: 15 }, 15)
+          .to(bucketSwirl, { autoAlpha: 0, scale: 0.88, duration: 10 }, 32)
           .to(paintFlow, { xPercent: 42, yPercent: 9, scale: 1.55, autoAlpha: 0.12, duration: 15 }, 25)
           .to(houseStageOne, {
             autoAlpha: 1,

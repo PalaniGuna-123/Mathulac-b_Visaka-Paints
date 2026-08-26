@@ -15,7 +15,9 @@ import { useHeroTimeline } from './useHeroTimeline';
 
 const HeroScene = lazy(() => import('./HeroScene'));
 
-const closedBucketUrl = '/assets/hero/bucket/muthulac-bucket-closed-CV8ODW7x.webp';
+const uprightBucketsUrl = '/assets/hero/bucket/muthulac-5-buckets-upright.jpg';
+const pouringBucketsUrl = '/assets/hero/bucket/muthulac-5-buckets-pouring.jpg';
+const swirlBucketsUrl = '/assets/hero/bucket/muthulac-5-colors-swirl.jpg';
 const houseUnpaintedUrl = '/assets/hero/house/house-00-unpainted.webp';
 const housePaintStageOneUrl = '/assets/hero/house/house-01-base-painted.webp';
 const housePaintStageTwoUrl = '/assets/hero/house/house-02-blue-painted.webp';
@@ -25,7 +27,9 @@ const housePaintStageFiveUrl = '/assets/hero/house/house-05-luxury-final.webp';
 const paintFlowUrl = '/assets/hero/paint/blue-paint-splash.webp';
 
 const heroPreloadAssets = [
-  closedBucketUrl,
+  uprightBucketsUrl,
+  pouringBucketsUrl,
+  swirlBucketsUrl,
   houseUnpaintedUrl,
   housePaintStageOneUrl,
   housePaintStageTwoUrl,
@@ -225,12 +229,12 @@ export function Hero({ scrollTo }: HeroProps) {
         </div>
 
         <div ref={posterRef} className="cinematic-hero__poster" aria-hidden="true">
-          <img src={closedBucketUrl} alt="" width="1280" height="853" />
+          <img src={uprightBucketsUrl} alt="" width="1920" height="1080" />
         </div>
 
         <div className="cinematic-hero__webgl" aria-hidden="true">
           {webglAvailable && (
-            <Suspense fallback={<div className="absolute inset-0" style={{ background: '#0B1020' }} />}>
+            <Suspense fallback={<div className="absolute inset-0" style={{ background: '#060B17' }} />}>
               <HeroScene
                 motion={motion}
                 profile={profile}
@@ -246,6 +250,8 @@ export function Hero({ scrollTo }: HeroProps) {
           {!webglAvailable && (
             <>
               <div className="cinematic-hero__story-glow" />
+              <img data-hero-bucket="pouring" src={pouringBucketsUrl} alt="" width="1920" height="1080" />
+              <img data-hero-bucket="swirl" src={swirlBucketsUrl} alt="" width="1920" height="1080" />
               <img data-hero-house="base" src={houseUnpaintedUrl} alt="" width="1536" height="1024" />
               <img data-hero-house="stage-one" src={housePaintStageOneUrl} alt="" width="1536" height="1024" />
               <img data-hero-house="stage-two" src={housePaintStageTwoUrl} alt="" width="1536" height="1024" />
