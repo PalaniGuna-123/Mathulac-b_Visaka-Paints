@@ -17,6 +17,7 @@ import {
   Layers,
   ArrowRight,
   Star,
+  ChevronDown,
 } from 'lucide-react';
 
 export function AboutLocationMap() {
@@ -284,7 +285,7 @@ export function AboutLocationMap() {
               ) : (
                 <form onSubmit={handleConsultationSubmit} className="mt-6 space-y-4">
                   <div>
-                    <label className="block text-white/70 text-xs font-bold uppercase tracking-wider mb-1">
+                    <label className="block text-white/85 text-xs font-bold uppercase tracking-wider mb-1.5">
                       Full Name *
                     </label>
                     <input
@@ -293,13 +294,13 @@ export function AboutLocationMap() {
                       placeholder="e.g. Ramesh Kumar"
                       value={formData.name}
                       onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                      className="w-full px-4 py-3 rounded-xl bg-white/10 border border-white/15 text-white placeholder-white/40 text-sm focus:outline-none focus:border-magenta transition-all"
+                      className="w-full px-4 py-3 rounded-xl bg-ink/90 border border-white/20 text-white placeholder-white/45 text-sm focus:outline-none focus:border-magenta focus:ring-1 focus:ring-magenta transition-all shadow-inner"
                     />
                   </div>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div>
-                      <label className="block text-white/70 text-xs font-bold uppercase tracking-wider mb-1">
+                      <label className="block text-white/85 text-xs font-bold uppercase tracking-wider mb-1.5">
                         Phone Number *
                       </label>
                       <input
@@ -308,31 +309,34 @@ export function AboutLocationMap() {
                         placeholder="+91 93631 14313"
                         value={formData.phone}
                         onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                        className="w-full px-4 py-3 rounded-xl bg-white/10 border border-white/15 text-white placeholder-white/40 text-sm focus:outline-none focus:border-magenta transition-all"
+                        className="w-full px-4 py-3 rounded-xl bg-ink/90 border border-white/20 text-white placeholder-white/45 text-sm focus:outline-none focus:border-magenta focus:ring-1 focus:ring-magenta transition-all shadow-inner"
                       />
                     </div>
 
                     <div>
-                      <label className="block text-white/70 text-xs font-bold uppercase tracking-wider mb-1">
+                      <label className="block text-white/85 text-xs font-bold uppercase tracking-wider mb-1.5">
                         Surface / Application
                       </label>
-                      <select
-                        value={formData.surface}
-                        onChange={(e) => setFormData({ ...formData, surface: e.target.value })}
-                        className="w-full px-4 py-3 rounded-xl bg-ink border border-white/15 text-white text-sm focus:outline-none focus:border-magenta transition-all"
-                      >
-                        <option value="Interior Walls" className="bg-ink text-white">Interior Living &amp; Ceiling</option>
-                        <option value="Exterior Walls" className="bg-ink text-white">Exterior Weather Coat</option>
-                        <option value="Wood Finishes" className="bg-ink text-white">Wood &amp; PU Polish</option>
-                        <option value="Automotive Refinishing" className="bg-ink text-white">Automotive Coating</option>
-                        <option value="Metal & Industrial" className="bg-ink text-white">Metal &amp; Industrial</option>
-                        <option value="Designer Textures" className="bg-ink text-white">Designer Stucco &amp; Decor</option>
-                      </select>
+                      <div className="relative">
+                        <select
+                          value={formData.surface}
+                          onChange={(e) => setFormData({ ...formData, surface: e.target.value })}
+                          className="w-full px-4 py-3 rounded-xl bg-ink/90 border border-white/20 text-white text-sm focus:outline-none focus:border-magenta focus:ring-1 focus:ring-magenta appearance-none pr-10 cursor-pointer transition-all shadow-inner"
+                        >
+                          <option value="Interior Walls" className="bg-[#0B1020] text-white">Interior Living &amp; Ceiling</option>
+                          <option value="Exterior Walls" className="bg-[#0B1020] text-white">Exterior Weather Coat</option>
+                          <option value="Wood Finishes" className="bg-[#0B1020] text-white">Wood &amp; PU Polish</option>
+                          <option value="Automotive Refinishing" className="bg-[#0B1020] text-white">Automotive Coating</option>
+                          <option value="Metal & Industrial" className="bg-[#0B1020] text-white">Metal &amp; Industrial</option>
+                          <option value="Designer Textures" className="bg-[#0B1020] text-white">Designer Stucco &amp; Decor</option>
+                        </select>
+                        <ChevronDown className="absolute right-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-white/70 pointer-events-none" />
+                      </div>
                     </div>
                   </div>
 
                   <div>
-                    <label className="block text-white/70 text-xs font-bold uppercase tracking-wider mb-1">
+                    <label className="block text-white/85 text-xs font-bold uppercase tracking-wider mb-1.5">
                       Email Address (Optional)
                     </label>
                     <input
@@ -340,12 +344,12 @@ export function AboutLocationMap() {
                       placeholder="name@example.com"
                       value={formData.email}
                       onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                      className="w-full px-4 py-3 rounded-xl bg-white/10 border border-white/15 text-white placeholder-white/40 text-sm focus:outline-none focus:border-magenta transition-all"
+                      className="w-full px-4 py-3 rounded-xl bg-ink/90 border border-white/20 text-white placeholder-white/45 text-sm focus:outline-none focus:border-magenta focus:ring-1 focus:ring-magenta transition-all shadow-inner"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-white/70 text-xs font-bold uppercase tracking-wider mb-1">
+                    <label className="block text-white/85 text-xs font-bold uppercase tracking-wider mb-1.5">
                       Requirement / Space Details
                     </label>
                     <textarea
@@ -353,7 +357,7 @@ export function AboutLocationMap() {
                       placeholder="Describe your residential, commercial, or industrial coating requirement in Coimbatore or across India..."
                       value={formData.message}
                       onChange={(e) => setFormData({ ...formData, message: e.target.value })}
-                      className="w-full px-4 py-3 rounded-xl bg-white/10 border border-white/15 text-white placeholder-white/40 text-sm focus:outline-none focus:border-magenta transition-all resize-none"
+                      className="w-full px-4 py-3 rounded-xl bg-ink/90 border border-white/20 text-white placeholder-white/45 text-sm focus:outline-none focus:border-magenta focus:ring-1 focus:ring-magenta transition-all resize-none shadow-inner"
                     />
                   </div>
 

@@ -19,6 +19,7 @@ import {
   Home,
   Layers,
   ChevronRight,
+  ChevronDown,
   Calculator,
   Check,
   X,
@@ -1097,18 +1098,21 @@ export function ServicesPage() {
                         <label className="block text-xs font-bold uppercase tracking-wider text-white/70 mb-1.5">
                           Property Type
                         </label>
-                        <select
-                          value={formState.propertyType}
-                          onChange={(e) => setFormState({ ...formState, propertyType: e.target.value })}
-                          className="w-full px-4 py-3 rounded-xl bg-ink border border-white/15 text-white text-sm focus:outline-none focus:border-magenta transition-colors"
-                        >
-                          <option value="Luxury Villa">Luxury Independent Villa</option>
-                          <option value="Apartment Flat">Apartment (2BHK / 3BHK)</option>
-                          <option value="Commercial Office">Commercial Office / IT Park</option>
-                          <option value="Building Exterior Makeover">Building Exterior Makeover</option>
-                          <option value="Industrial Factory">Industrial Factory / Warehouse</option>
-                          <option value="Automotive Studio">Automotive / Specialized Studio</option>
-                        </select>
+                        <div className="relative">
+                          <select
+                            value={formState.propertyType}
+                            onChange={(e) => setFormState({ ...formState, propertyType: e.target.value })}
+                            className="w-full px-4 py-3 rounded-xl bg-ink/90 border border-white/15 text-white text-sm focus:outline-none focus:border-magenta appearance-none pr-10 cursor-pointer transition-colors"
+                          >
+                            <option value="Luxury Villa" className="bg-[#0B1020] text-white">Luxury Independent Villa</option>
+                            <option value="Apartment Flat" className="bg-[#0B1020] text-white">Apartment (2BHK / 3BHK)</option>
+                            <option value="Commercial Office" className="bg-[#0B1020] text-white">Commercial Office / IT Park</option>
+                            <option value="Building Exterior Makeover" className="bg-[#0B1020] text-white">Building Exterior Makeover</option>
+                            <option value="Industrial Factory" className="bg-[#0B1020] text-white">Industrial Factory / Warehouse</option>
+                            <option value="Automotive Studio" className="bg-[#0B1020] text-white">Automotive / Specialized Studio</option>
+                          </select>
+                          <ChevronDown className="absolute right-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-white/70 pointer-events-none" />
+                        </div>
                       </div>
                       <div>
                         <label className="block text-xs font-bold uppercase tracking-wider text-white/70 mb-1.5">
@@ -1129,30 +1133,33 @@ export function ServicesPage() {
                       <label className="block text-xs font-bold uppercase tracking-wider text-white/70 mb-1.5">
                         Primary Service Required
                       </label>
-                      <select
-                        value={formState.serviceNeeded}
-                        onChange={(e) => setFormState({ ...formState, serviceNeeded: e.target.value })}
-                        className="w-full px-4 py-3 rounded-xl bg-ink border border-white/15 text-white text-sm focus:outline-none focus:border-magenta transition-colors"
-                      >
-                        <option value="Full Turnkey Painting (Interior & Exterior)">
-                          Full Turnkey Painting (Interior &amp; Exterior)
-                        </option>
-                        <option value="Exterior Weather-Proof Facade Makeover">
-                          Exterior Weather-Proof Facade Makeover
-                        </option>
-                        <option value="Architectural Wood & PU Lacquer">
-                          Architectural Wood &amp; PU Lacquer
-                        </option>
-                        <option value="Commercial Fast-Track Repainting">
-                          Commercial Fast-Track Repainting
-                        </option>
-                        <option value="Waterproofing & Moisture Diagnostic">
-                          Waterproofing &amp; Moisture Diagnostic
-                        </option>
-                        <option value="Mathulac Color Visualizer Consultation">
-                          Mathulac Color Visualizer Consultation
-                        </option>
-                      </select>
+                      <div className="relative">
+                        <select
+                          value={formState.serviceNeeded}
+                          onChange={(e) => setFormState({ ...formState, serviceNeeded: e.target.value })}
+                          className="w-full px-4 py-3 rounded-xl bg-ink/90 border border-white/15 text-white text-sm focus:outline-none focus:border-magenta appearance-none pr-10 cursor-pointer transition-colors"
+                        >
+                          <option value="Full Turnkey Painting (Interior & Exterior)" className="bg-[#0B1020] text-white">
+                            Full Turnkey Painting (Interior &amp; Exterior)
+                          </option>
+                          <option value="Exterior Weather-Proof Facade Makeover" className="bg-[#0B1020] text-white">
+                            Exterior Weather-Proof Facade Makeover
+                          </option>
+                          <option value="Architectural Wood & PU Lacquer" className="bg-[#0B1020] text-white">
+                            Architectural Wood &amp; PU Lacquer
+                          </option>
+                          <option value="Commercial Fast-Track Repainting" className="bg-[#0B1020] text-white">
+                            Commercial Fast-Track Repainting
+                          </option>
+                          <option value="Waterproofing & Moisture Diagnostic" className="bg-[#0B1020] text-white">
+                            Waterproofing &amp; Moisture Diagnostic
+                          </option>
+                          <option value="Mathulac Color Visualizer Consultation" className="bg-[#0B1020] text-white">
+                            Mathulac Color Visualizer Consultation
+                          </option>
+                        </select>
+                        <ChevronDown className="absolute right-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-white/70 pointer-events-none" />
+                      </div>
                     </div>
 
                     <div>

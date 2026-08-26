@@ -9,31 +9,185 @@
     <title>Mathulac — Color Changes Everything | Visaka Paints & Chemicals India</title>
     <meta name="description" content="Mathulac by Visaka Paints & Chemicals India. Premium interior, exterior, wood, automotive, and decorative coatings. Color comes to life." />
     <meta name="theme-color" content="#0B1020" />
-    <!-- Prevent white flash: inline critical CSS renders before any external stylesheet or JS -->
-    <style>
-      html, body { background: #0B1020; margin: 0; padding: 0; }
-      #root:empty { min-height: 100vh; }
-      #initial-loader { position: fixed; inset: 0; z-index: 9998; display: flex; align-items: center; justify-content: center; background: #0B1020; flex-direction: column; gap: 28px; }
-      #initial-loader img { height: clamp(44px, 8vw, 64px); width: auto; object-fit: contain; filter: brightness(1.1); }
-      #initial-loader .il-text { font-family: 'Manrope', system-ui, sans-serif; font-size: clamp(0.7rem, 1.4vw, 0.82rem); font-weight: 500; letter-spacing: 0.22em; text-transform: uppercase; color: rgba(255, 248, 241, 0.45); margin: 0; }
-      #initial-loader .il-track { width: min(420px, 85vw); height: 8px; border-radius: 4px; background: rgba(255, 255, 255, 0.05); overflow: hidden; position: relative; }
-      #initial-loader .il-fill { height: 100%; border-radius: 4px; background: linear-gradient(90deg, #1a7aff, #146BFF); width: 40%; animation: il-slide 2s ease-in-out infinite; position: relative; }
-      #initial-loader .il-gloss { position: absolute; top: 0; left: 0; right: 0; height: 45%; border-radius: 4px; background: linear-gradient(180deg, rgba(255,255,255,0.25) 0%, rgba(255,255,255,0) 100%); }
-      @keyframes il-slide { 0% { transform: translateX(-120%); } 100% { transform: translateX(350%); } }
-      #initial-loader.is-done { opacity: 0; transition: opacity 0.5s cubic-bezier(0.4,0,0.2,1); pointer-events: none; }
-    </style>
-    <!-- Google Fonts Preconnect -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Inter:wght@300;400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <style>
+      html, body { background: #0B1020; margin: 0; padding: 0; }
+      #root:empty { min-height: 100vh; }
+      .ld-root {
+        position: fixed; inset: 0; z-index: 9999;
+        display: flex; align-items: center; justify-content: center;
+        background: #0B1020;
+        transition: opacity 0.5s cubic-bezier(0.4, 0, 0.2, 1), transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        opacity: 1; transform: scale(1);
+      }
+      .ld-root--exit { opacity: 0; transform: scale(1.012); pointer-events: none; }
+      .ld-vignette {
+        position: absolute; inset: 0;
+        background: radial-gradient(ellipse 90% 85% at 50% 50%, transparent 55%, rgba(0, 0, 0, 0.55) 100%);
+        pointer-events: none;
+      }
+      .ld-stage {
+        position: relative; display: flex; flex-direction: column; align-items: center;
+        width: min(400px, 86vw); gap: 0; text-align: center;
+      }
+      .ld-eyebrow {
+        font-family: 'Manrope', system-ui, sans-serif;
+        font-size: clamp(0.58rem, 1.1vw, 0.66rem); font-weight: 600; letter-spacing: 0.18em;
+        text-transform: uppercase; color: rgba(255, 248, 241, 0.22); margin: 0 0 28px;
+      }
+      .ld-logo-box {
+        display: flex; align-items: center; justify-content: center; margin-bottom: 24px;
+      }
+      .ld-logo {
+        height: clamp(52px, 10vw, 76px); width: auto; object-fit: contain;
+        filter: drop-shadow(0 6px 20px rgba(0, 0, 0, 0.5));
+      }
+      .ld-tagline {
+        font-family: 'DM Serif Display', Georgia, serif; font-style: italic;
+        font-size: clamp(0.95rem, 2vw, 1.1rem); font-weight: 400;
+        color: rgba(255, 248, 241, 0.5); letter-spacing: 0.02em; margin: 0 0 22px;
+      }
+      .ld-rule {
+        width: 36px; height: 1px; background: rgba(255, 248, 241, 0.14); margin-bottom: 22px;
+      }
+      .ld-counter {
+        display: flex; align-items: baseline; justify-content: center; gap: 3px; margin-bottom: 18px;
+      }
+      .ld-counter-num {
+        font-family: 'DM Serif Display', Georgia, serif; font-weight: 400;
+        font-size: clamp(3.2rem, 9vw, 5rem); line-height: 1; letter-spacing: -0.04em;
+        color: #FFF8F1; font-variant-numeric: tabular-nums;
+      }
+      .ld-counter-pct {
+        font-family: 'Manrope', system-ui, sans-serif; font-weight: 300;
+        font-size: clamp(1.1rem, 2.5vw, 1.4rem); color: rgba(255, 248, 241, 0.38);
+        letter-spacing: -0.01em; margin-bottom: 6px;
+      }
+      .ld-bar {
+        position: relative; width: 100%; height: 5px; border-radius: 99px; margin-bottom: 22px;
+      }
+      .ld-bar-groove {
+        position: absolute; inset: 0; border-radius: 99px; background: rgba(255, 255, 255, 0.08);
+      }
+      .ld-bar-fill {
+        position: absolute; top: 0; left: 0; bottom: 0; border-radius: 99px;
+        background: linear-gradient(90deg, #0f5fe8 0%, #146BFF 60%, #1a82ff 100%);
+        transition: width 0.08s linear;
+      }
+      .ld-caption {
+        display: flex; align-items: center; justify-content: center; gap: 5px;
+        font-family: 'Manrope', system-ui, sans-serif; font-size: clamp(0.6rem, 1.2vw, 0.68rem);
+        font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase;
+        color: rgba(255, 248, 241, 0.2); height: 14px;
+      }
+      .ld-caption-done {
+        color: rgba(255, 248, 241, 0.35); letter-spacing: 0.12em; text-transform: uppercase;
+        font-size: clamp(0.6rem, 1.2vw, 0.68rem);
+      }
+      .ld-dots { display: inline-flex; align-items: center; gap: 3px; }
+      .ld-dots span {
+        display: inline-block; width: 3px; height: 3px; border-radius: 50%;
+        background: rgba(255, 248, 241, 0.35); animation: ld-dot-blink 1.4s ease-in-out infinite;
+      }
+      .ld-dots span:nth-child(2) { animation-delay: 0.2s; }
+      .ld-dots span:nth-child(3) { animation-delay: 0.4s; }
+      @keyframes ld-dot-blink {
+        0%, 80%, 100% { opacity: 0.2; transform: scale(0.85); }
+        40% { opacity: 1; transform: scale(1); }
+      }
+    </style>
   </head>
   <body class="bg-ink text-cream selection:bg-magenta selection:text-white font-sans antialiased overflow-x-hidden">
-    <!-- Branded loader: renders in the very first paint frame, before any JS loads -->
-    <div id="initial-loader" aria-label="Loading Mathulac">
-      <img src="/assets/brand/mathulac-logo-nav.webp" alt="Mathulac" draggable="false" />
-      <p class="il-text">Preparing Your Colours</p>
-      <div class="il-track"><div class="il-fill"><div class="il-gloss"></div></div></div>
+    <!-- Single authoritative loader that guards the page until React is 100% mounted -->
+    <div id="initial-loader" class="ld-root" aria-label="Loading Mathulac">
+      <div class="ld-vignette" aria-hidden="true"></div>
+      <div class="ld-stage">
+        <p class="ld-eyebrow">Visaka Paints &amp; Chemicals India&nbsp;&nbsp;·&nbsp;&nbsp;ISO 9001 Certified</p>
+        <div class="ld-logo-box">
+          <img src="/assets/brand/mathulac-logo-nav.webp" alt="Mathulac" class="ld-logo" draggable="false" />
+        </div>
+        <p class="ld-tagline">Preparing your colours</p>
+        <div class="ld-rule" aria-hidden="true"></div>
+        <div class="ld-counter" aria-hidden="true">
+          <span id="init-ld-num" class="ld-counter-num">0</span>
+          <span class="ld-counter-pct">%</span>
+        </div>
+        <div class="ld-bar">
+          <div class="ld-bar-groove"></div>
+          <div id="init-ld-fill" class="ld-bar-fill" style="width: 0%;"></div>
+        </div>
+        <div id="init-ld-caption" class="ld-caption">
+          <span>Loading</span>
+          <span class="ld-dots" aria-hidden="true"><span></span><span></span><span></span></span>
+        </div>
+      </div>
     </div>
+    <script>
+      (function() {
+        var num = document.getElementById('init-ld-num');
+        var fill = document.getElementById('init-ld-fill');
+        var cap = document.getElementById('init-ld-caption');
+        var root = document.getElementById('initial-loader');
+
+        var current = 0;
+        var appReady = false;
+        var completed = false;
+
+        function updateDisplay(val) {
+          var p = Math.min(100, Math.max(0, Math.floor(val)));
+          if (num) num.textContent = p;
+          if (fill) fill.style.width = p + '%';
+        }
+
+        // Progress smoothly up to 92% while React loads, then finish to 100% on appReady
+        var lastTime = performance.now();
+        function loop(now) {
+          if (completed) return;
+          var dt = Math.min(50, now - lastTime);
+          lastTime = now;
+
+          var target = appReady ? 100 : 92;
+
+          if (current < target) {
+            var diff = target - current;
+            var rate = appReady ? 0.08 : 0.035;
+            var step = Math.max(0.4, diff * rate * (dt / 16));
+            current = Math.min(target, current + step);
+            updateDisplay(current);
+          }
+
+          if (appReady && current >= 100) {
+            completed = true;
+            updateDisplay(100);
+            if (cap) cap.innerHTML = '<span class="ld-caption-done">Colour is ready</span>';
+
+            setTimeout(function() {
+              if (root) root.classList.add('ld-root--exit');
+              setTimeout(function() {
+                if (root && root.parentNode) root.parentNode.removeChild(root);
+              }, 520);
+            }, 400);
+            return;
+          }
+
+          requestAnimationFrame(loop);
+        }
+
+        requestAnimationFrame(loop);
+
+        // React signals when its DOM tree is mounted and painted
+        window.__signalAppReady = function() {
+          appReady = true;
+        };
+
+        // Fallback safety cap
+        setTimeout(function() {
+          appReady = true;
+        }, 3500);
+      })();
+    </script>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>

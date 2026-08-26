@@ -20,8 +20,9 @@ interface StudioBucketProps extends HeroSceneProps {
 }
 
 const BUCKET_TEXTURES: string[] = [
-  '/assets/hero/bucket/muthulac-bucket-closed-CV8ODW7x.webp',
-  '/assets/hero/bucket/muthulac-bucket-open-DARpo9Mj.webp',
+  '/assets/hero/bucket/muthulac-5-buckets-upright.jpg',
+  '/assets/hero/bucket/muthulac-5-buckets-pouring.jpg',
+  '/assets/hero/bucket/muthulac-5-colors-swirl.jpg',
 ];
 
 const ENVIRONMENT_TEXTURES: string[] = [
@@ -36,174 +37,306 @@ const segment = (progress: number, start: number, end: number) => {
   return value * value * (3 - 2 * value);
 };
 
+interface CompiledBucketShader {
+  uniforms: Record<string, THREE.IUniform>;
+}
+
+// 5-Color Palette Particle Specs matching the 5 Muthulac buckets
+const SPLASH_DROPS = [
+  { color: '#ffc400', emissive: '#b45309', pos: [-2.1, -1.35, 0.18], scale: 0.08, phase: 0.1 },
+  { color: '#ff2a4b', emissive: '#991b1b', pos: [-1.05, -1.55, 0.28], scale: 0.09, phase: 0.8 },
+  { color: '#0084ff', emissive: '#004db3', pos: [0.08, -1.68, 0.35], scale: 0.12, phase: 1.4 },
+  { color: '#00e676', emissive: '#065f46', pos: [1.15, -1.52, 0.26], scale: 0.09, phase: 2.1 },
+  { color: '#d500f9', emissive: '#6b21a8', pos: [2.15, -1.32, 0.16], scale: 0.08, phase: 2.7 },
+  { color: '#0084ff', emissive: '#004db3', pos: [-0.35, -1.45, 0.22], scale: 0.06, phase: 3.3 },
+  { color: '#ff2a4b', emissive: '#991b1b', pos: [-1.45, -1.25, 0.15], scale: 0.05, phase: 4.0 },
+  { color: '#00e676', emissive: '#065f46', pos: [0.65, -1.48, 0.24], scale: 0.06, phase: 4.8 },
+];
+
 function StudioBucket({ motion, profile, reducedMotion, onReady, layout }: StudioBucketProps) {
-  const bucketRef = useRef<THREE.Group>(null);
-  const closedMaterialRef = useRef<THREE.MeshStandardMaterial>(null);
-  const openMaterialRef = useRef<THREE.MeshStandardMaterial>(null);
-  const depthMaterialRef = useRef<THREE.MeshPhysicalMaterial>(null);
-  const keyLightRef = useRef<THREE.SpotLight>(null);
-  const fillLightRef = useRef<THREE.PointLight>(null);
-  const rimLightRef = useRef<THREE.PointLight>(null);
+  const bucketGroupRef = useRef<THREE.Group>(null);
+  const meshRef = useRef<THREE.Mesh>(null);
+  const materialRef = useRef<THREE.MeshPhysicalMaterial>(null);
+  const shaderRef = useRef<CompiledBucketShader | null>(null);
+  const splashGroupRef = useRef<THREE.Group>(null);
   const shadowRef = useRef<THREE.Mesh>(null);
-  const [closedTexture, openTexture] = useTexture(BUCKET_TEXTURES) as THREE.Texture[];
+
+  const [uprightTexture, pouringTexture, swirlTexture] = useTexture(BUCKET_TEXTURES) as THREE.Texture[];
   const { gl } = useThree();
 
   const shadowTexture = useMemo(() => {
     const canvas = document.createElement('canvas');
-    canvas.width = 192;
-    canvas.height = 192;
+    canvas.width = 256;
+    canvas.height = 256;
     const context = canvas.getContext('2d');
     if (context) {
-      const gradient = context.createRadialGradient(96, 96, 8, 96, 96, 96);
-      gradient.addColorStop(0, 'rgba(0,0,0,0.72)');
-      gradient.addColorStop(0.4, 'rgba(0,0,0,0.42)');
+      const gradient = context.createRadialGradient(128, 128, 12, 128, 128, 128);
+      gradient.addColorStop(0, 'rgba(0,0,0,0.85)');
+      gradient.addColorStop(0.45, 'rgba(0,0,0,0.45)');
       gradient.addColorStop(1, 'rgba(0,0,0,0)');
       context.fillStyle = gradient;
-      context.fillRect(0, 0, 192, 192);
+      context.fillRect(0, 0, 256, 256);
     }
     return new THREE.CanvasTexture(canvas);
   }, []);
 
   useLayoutEffect(() => {
     const anisotropy = Math.min(profile === 'desktop' ? 8 : 4, gl.capabilities.getMaxAnisotropy());
-    [closedTexture, openTexture].forEach((texture) => {
-      texture.colorSpace = THREE.SRGBColorSpace;
-      texture.anisotropy = anisotropy;
-      texture.minFilter = THREE.LinearMipmapLinearFilter;
-      texture.needsUpdate = true;
+    [uprightTexture, pouringTexture, swirlTexture].forEach((texture) => {
+      if (texture) {
+        texture.colorSpace = THREE.SRGBColorSpace;
+        texture.anisotropy = anisotropy;
+        texture.generateMipmaps = true;
+        texture.minFilter = THREE.LinearMipmapLinearFilter;
+        texture.magFilter = THREE.LinearFilter;
+        texture.needsUpdate = true;
+      }
     });
     shadowTexture.needsUpdate = true;
     return () => shadowTexture.dispose();
-  }, [closedTexture, gl, openTexture, profile, shadowTexture]);
+  }, [gl, pouringTexture, profile, shadowTexture, swirlTexture, uprightTexture]);
 
   useEffect(() => onReady(), [onReady]);
 
+  useLayoutEffect(() => {
+    const material = materialRef.current;
+    if (!material) return;
+
+    material.onBeforeCompile = (shader) => {
+      shader.uniforms.uUprightTexture = { value: uprightTexture };
+      shader.uniforms.uPouringTexture = { value: pouringTexture };
+      shader.uniforms.uSwirlTexture = { value: swirlTexture };
+      shader.uniforms.uPourProgress = { value: 0 };
+      shader.uniforms.uSwirlProgress = { value: 0 };
+      shader.uniforms.uFade = { value: 1 };
+      shader.uniforms.uTime = { value: 0 };
+
+      shader.vertexShader = shader.vertexShader
+        .replace(
+          '#include <common>',
+          `#include <common>
+          uniform float uPourProgress;
+          uniform float uSwirlProgress;
+          uniform float uTime;
+          varying vec2 vBucketUv;`,
+        )
+        .replace(
+          '#include <begin_vertex>',
+          `#include <begin_vertex>
+          vBucketUv = uv;
+          // Subtle cylindrical curve across the 5-buckets arc
+          float curveX = (1.0 - pow(uv.x * 2.0 - 1.0, 2.0)) * 0.16;
+          transformed.z += curveX * (1.0 - uPourProgress * 0.4);
+
+          // Dynamic liquid turbulence on the pouring stream region (bottom half)
+          if (uv.y < 0.48) {
+            float streamWave = sin(uv.x * 28.0 + uTime * 4.2) * cos(uv.y * 18.0 - uTime * 3.5);
+            transformed.z += streamWave * 0.022 * uPourProgress;
+          }`,
+        );
+
+      shader.fragmentShader = shader.fragmentShader
+        .replace(
+          '#include <common>',
+          `#include <common>
+          uniform sampler2D uUprightTexture;
+          uniform sampler2D uPouringTexture;
+          uniform sampler2D uSwirlTexture;
+          uniform float uPourProgress;
+          uniform float uSwirlProgress;
+          uniform float uFade;
+          uniform float uTime;
+          varying vec2 vBucketUv;
+
+          float getLuma(vec3 c) {
+            return dot(c, vec3(0.299, 0.587, 0.114));
+          }`,
+        )
+        .replace(
+          '#include <map_fragment>',
+          `vec4 upright = texture2D(uUprightTexture, vBucketUv);
+          vec4 pouring = texture2D(uPouringTexture, vBucketUv);
+          vec4 swirl = texture2D(uSwirlTexture, vBucketUv);
+
+          // Fluid organic morph: pouring streams cascade downward as user scrolls
+          float streamWave = sin(vBucketUv.x * 12.0 + uTime * 2.0) * 0.06;
+          float pourMask = smoothstep(0.0, 1.0, clamp((uPourProgress - (1.0 - vBucketUv.y) * 0.35 + streamWave) / 0.65, 0.0, 1.0));
+
+          // Blend Upright -> Pouring
+          vec4 blended = mix(upright, pouring, pourMask);
+
+          // Blend Pouring -> Swirl vortex
+          blended = mix(blended, swirl, uSwirlProgress);
+
+          // Studio Deep-Dark Luminance Integration:
+          // Smoothly blends dark navy studio background into Three.js scene fog/background (#060b17)
+          float luma = getLuma(blended.rgb);
+          float alpha = smoothstep(0.012, 0.065, luma);
+
+          // Specular boost on vibrant paint streams
+          float isPaintStream = (1.0 - smoothstep(0.05, 0.55, vBucketUv.y)) * pourMask;
+          vec3 enhancedRgb = blended.rgb;
+          if (isPaintStream > 0.01) {
+            enhancedRgb *= (1.0 + isPaintStream * 0.14);
+          }
+
+          diffuseColor = vec4(enhancedRgb, alpha * uFade);`,
+        )
+        .replace(
+          '#include <roughnessmap_fragment>',
+          `#include <roughnessmap_fragment>
+          roughnessFactor = mix(0.35, 0.12, uPourProgress * (1.0 - vBucketUv.y));`,
+        )
+        .replace(
+          '#include <lights_physical_fragment>',
+          `#include <lights_physical_fragment>
+          material.clearcoat = mix(0.4, 0.92, uPourProgress);
+          material.clearcoatRoughness = mix(0.24, 0.06, uPourProgress);`,
+        )
+        .replace(
+          '#include <emissivemap_fragment>',
+          `#include <emissivemap_fragment>
+          // Subtle radiant bloom on pouring paint streams
+          totalEmissiveRadiance += diffuseColor.rgb * (0.04 + uPourProgress * 0.06);`,
+        );
+
+      shaderRef.current = shader;
+    };
+
+    material.customProgramCacheKey = () => 'muthulac-5-buckets-cinematic-stage-v2';
+    material.needsUpdate = true;
+
+    return () => {
+      shaderRef.current = null;
+    };
+  }, [pouringTexture, swirlTexture, uprightTexture]);
+
   useFrame(({ clock }) => {
-    const bucket = bucketRef.current;
-    if (!bucket) return;
+    const group = bucketGroupRef.current;
+    if (!group) return;
 
     const values = motion.current;
-    const tiltPhase = segment(values.intro, 0.48, 1);
-    const openMix = segment(values.intro, 0.7, 1);
+    // Controlled forward tilt & morph timing
+    const tiltProgress = segment(values.intro, 0.05, 0.88);
+    const pourProgress = segment(values.intro, 0.22, 0.95);
+    const swirlProgress = segment(values.paintProgress, 0.18, 0.65);
     const exit = values.bucketExit;
-    const fade = 1 - segment(exit, 0.12, 0.96);
-    const idle = reducedMotion ? 0 : Math.sin(clock.elapsedTime * 0.56) * 0.014 * (1 - tiltPhase) * (1 - exit);
+    const fade = 1 - segment(exit, 0.08, 0.95);
+    const idle = reducedMotion ? 0 : Math.sin(clock.elapsedTime * 0.52) * 0.012 * (1 - tiltProgress) * (1 - exit);
 
     if (reducedMotion && values.houseReveal > 0.9) {
-      bucket.position.set(
+      group.position.set(
         profile === 'mobile' ? -0.5 : profile === 'tablet' ? -2.1 : -3.1,
         profile === 'mobile' ? -1.8 : -1.65,
         -3,
       );
-      bucket.rotation.set(0, -0.04, 0);
-      bucket.scale.setScalar(layout.bucketScale * (profile === 'mobile' ? 0.5 : 0.32));
+      group.rotation.set(0, -0.04, 0);
+      group.scale.setScalar(layout.bucketScale * (profile === 'mobile' ? 0.5 : 0.32));
     } else {
-      bucket.position.lerpVectors(layout.bucketStart, layout.bucketEnd, tiltPhase);
-      bucket.position.y += (1 - values.intro) * 0.24 + idle + exit * 0.14;
-      bucket.position.z -= exit * 2.55;
-      bucket.position.x -= exit * (profile === 'mobile' ? 0.04 : 0.18);
-      bucket.rotation.set(
-        THREE.MathUtils.lerp(layout.bucketStartRotation.x, layout.bucketEndRotation.x, tiltPhase),
-        THREE.MathUtils.lerp(layout.bucketStartRotation.y, layout.bucketEndRotation.y, tiltPhase),
-        THREE.MathUtils.lerp(layout.bucketStartRotation.z, layout.bucketEndRotation.z, tiltPhase),
+      // 5-Bucket Unified 3D Stage Position
+      group.position.lerpVectors(layout.bucketStart, layout.bucketEnd, tiltProgress);
+      group.position.y += (1 - values.intro) * 0.16 + idle + exit * 0.12;
+      group.position.z -= exit * 2.85;
+      group.position.x -= exit * (profile === 'mobile' ? 0.06 : 0.28);
+      group.rotation.set(
+        THREE.MathUtils.lerp(layout.bucketStartRotation.x, layout.bucketEndRotation.x, tiltProgress),
+        THREE.MathUtils.lerp(layout.bucketStartRotation.y, layout.bucketEndRotation.y + (swirlProgress * 0.08), tiltProgress),
+        THREE.MathUtils.lerp(layout.bucketStartRotation.z, layout.bucketEndRotation.z, tiltProgress),
       );
-      const entranceScale = layout.bucketScale * (0.94 + values.intro * 0.06) * (1 - exit * 0.16);
-      bucket.scale.setScalar(entranceScale);
+      const entranceScale = layout.bucketScale * (0.95 + values.intro * 0.05) * (1 - exit * 0.22);
+      group.scale.setScalar(entranceScale);
     }
 
-    const effectiveOpenMix = reducedMotion ? 0 : openMix;
     const effectiveFade = reducedMotion && values.houseReveal > 0.9 ? 0.9 : fade;
-    bucket.visible = effectiveFade > 0.002;
-    if (closedMaterialRef.current && openMaterialRef.current) {
-      closedMaterialRef.current.opacity = (1 - effectiveOpenMix) * effectiveFade;
-      openMaterialRef.current.opacity = effectiveOpenMix * effectiveFade;
+    group.visible = effectiveFade > 0.002;
+
+    const shader = shaderRef.current;
+    if (shader) {
+      shader.uniforms.uPourProgress.value = pourProgress;
+      shader.uniforms.uSwirlProgress.value = swirlProgress;
+      shader.uniforms.uFade.value = effectiveFade;
+      shader.uniforms.uTime.value = clock.elapsedTime;
     }
-    if (depthMaterialRef.current) depthMaterialRef.current.opacity = (1 - effectiveOpenMix * 0.7) * effectiveFade;
+
+    // Dynamic 3D paint splash droplets at the bottom of the streams
+    if (splashGroupRef.current) {
+      const splashActive = pourProgress > 0.12 && effectiveFade > 0.05;
+      splashGroupRef.current.visible = splashActive;
+      if (splashActive) {
+        splashGroupRef.current.children.forEach((child, i) => {
+          const spec = SPLASH_DROPS[i];
+          if (child instanceof THREE.Mesh && spec) {
+            const time = clock.elapsedTime * 2.2 + spec.phase;
+            const bounce = Math.abs(Math.sin(time));
+            child.position.y = spec.pos[1] + bounce * 0.22 * pourProgress;
+            child.position.x = spec.pos[0] + Math.cos(time * 0.8) * 0.04;
+            const dropScale = spec.scale * pourProgress * (0.8 + bounce * 0.35) * effectiveFade;
+            child.scale.setScalar(dropScale);
+          }
+        });
+      }
+    }
 
     if (shadowRef.current) {
       shadowRef.current.visible = effectiveFade > 0.002;
-      shadowRef.current.position.x = bucket.position.x * 0.72;
-      shadowRef.current.position.z = bucket.position.z - 0.18;
-      shadowRef.current.scale.set(1.38 - tiltPhase * 0.1, 0.46 + tiltPhase * 0.07, 1);
+      shadowRef.current.position.x = group.position.x * 0.76;
+      shadowRef.current.position.z = group.position.z - 0.25;
+      shadowRef.current.scale.set(3.4 - tiltProgress * 0.2, 1.4 + tiltProgress * 0.15, 1);
       const shadowMaterial = shadowRef.current.material as THREE.MeshBasicMaterial;
-      shadowMaterial.opacity = (0.48 - tiltPhase * 0.14) * values.intro * effectiveFade;
+      shadowMaterial.opacity = (0.55 - tiltProgress * 0.12) * values.intro * effectiveFade;
     }
 
-    if (keyLightRef.current) keyLightRef.current.intensity = (52 + values.intro * 44) * (0.68 + effectiveFade * 0.32);
-    if (fillLightRef.current) fillLightRef.current.intensity = 25 * effectiveFade;
-    if (rimLightRef.current) rimLightRef.current.intensity = 38 * effectiveFade;
     gl.domElement.dataset.heroMotion = values.master.toFixed(3);
   });
 
+  // 16:9 Studio Canvas Dimensions (1920x1080 Aspect Ratio)
+  const planeWidth = profile === 'mobile' ? 6.8 : profile === 'tablet' ? 7.6 : 8.4;
+  const planeHeight = planeWidth / 1.7778;
+
   return (
     <>
-      <group ref={bucketRef}>
-        <mesh position={[0, -0.18, -0.42]} scale={[1.06, 1, 0.2]}>
-          <cylinderGeometry args={[1.18, 1.08, 2.45, profile === 'mobile' ? 32 : 52, 1, false]} />
+      <group ref={bucketGroupRef}>
+        {/* Unified 5-Buckets Photographic Stage Mesh */}
+        <mesh ref={meshRef} position={[0, 0, 0.1]} renderOrder={2}>
+          <planeGeometry args={[planeWidth, planeHeight, 48, 32]} />
           <meshPhysicalMaterial
-            ref={depthMaterialRef}
-            color="#092b75"
+            ref={materialRef}
+            map={uprightTexture}
             transparent
             opacity={1}
-            metalness={0.18}
-            roughness={0.3}
-            clearcoat={0.8}
-            clearcoatRoughness={0.2}
-            depthWrite
+            roughness={0.28}
+            metalness={0.06}
+            clearcoat={0.7}
+            clearcoatRoughness={0.15}
+            depthWrite={false}
           />
         </mesh>
 
-        <mesh position={[0, 0, 0.22]} renderOrder={2}>
-          <planeGeometry args={[5.1, 3.4]} />
-          <meshStandardMaterial
-            ref={closedMaterialRef}
-            map={closedTexture}
-            transparent
-            alphaTest={0.025}
-            depthWrite
-            roughness={0.27}
-            metalness={0.04}
-            emissive="#07183f"
-            emissiveMap={closedTexture}
-            emissiveIntensity={0.06}
-          />
-        </mesh>
-
-        <mesh position={[0, 0.01, 0.225]} renderOrder={3}>
-          <planeGeometry args={[5.1, 3.4]} />
-          <meshStandardMaterial
-            ref={openMaterialRef}
-            map={openTexture}
-            transparent
-            opacity={0}
-            alphaTest={0.025}
-            depthWrite
-            roughness={0.22}
-            metalness={0.05}
-            emissive="#07183f"
-            emissiveMap={openTexture}
-            emissiveIntensity={0.07}
-          />
-        </mesh>
+        {/* Dynamic 3D Cascade Droplets & Micro-Splashes at Stream Base */}
+        <group ref={splashGroupRef} position={[0, 0, 0.15]} visible={false}>
+          {SPLASH_DROPS.map((spec, i) => (
+            <mesh key={i} position={spec.pos as [number, number, number]} renderOrder={3}>
+              <sphereGeometry args={[1, 14, 14]} />
+              <meshPhysicalMaterial
+                color={spec.color}
+                emissive={spec.emissive}
+                emissiveIntensity={0.45}
+                roughness={0.08}
+                metalness={0.04}
+                clearcoat={1.0}
+                clearcoatRoughness={0.04}
+                transparent
+                opacity={0.92}
+              />
+            </mesh>
+          ))}
+        </group>
       </group>
 
-      <mesh ref={shadowRef} position={[0.4, -1.62, -0.18]} rotation={[-Math.PI / 2, 0, 0]} renderOrder={0}>
-        <planeGeometry args={[2.7, 2.7]} />
+      <mesh ref={shadowRef} position={[0.4, -1.82, -0.22]} rotation={[-Math.PI / 2, 0, 0]} renderOrder={0}>
+        <planeGeometry args={[4.6, 2.8]} />
         <meshBasicMaterial map={shadowTexture} transparent depthWrite={false} opacity={0} />
       </mesh>
-
-      <ambientLight intensity={0.18} color="#adc9ff" />
-      <spotLight
-        ref={keyLightRef}
-        position={[-3.6, 5.5, 5.5]}
-        angle={0.48}
-        penumbra={0.92}
-        decay={1.7}
-        distance={18}
-        color="#f5f8ff"
-      />
-      <pointLight ref={fillLightRef} position={[-4.2, 0.2, 2.6]} color="#55bfff" distance={11} decay={2} />
-      <pointLight ref={rimLightRef} position={[4.4, 2.1, -1.6]} color="#82a8ff" distance={13} decay={2} />
     </>
   );
 }
