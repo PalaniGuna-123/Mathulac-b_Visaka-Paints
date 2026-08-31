@@ -5,6 +5,7 @@
 @import './studio.css';
 @import './cinematic-hero.css';
 @import './homepage-visualizer.css';
+@import './mobile-responsive.css';
 
 @tailwind base;
 @tailwind components;

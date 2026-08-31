@@ -53,9 +53,9 @@
 }
 
 .cinematic-hero__halo--blue {
-  inset: 18% 5% 12% 47%;
+  inset: 22% 2% 4% 42%;
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(0, 119, 255, 0.2), transparent 66%);
+  background: radial-gradient(circle, rgba(0, 119, 255, 0.24), transparent 66%);
 }
 
 .cinematic-hero__halo--magenta {
@@ -72,10 +72,11 @@
 }
 
 .cinematic-hero__poster img {
-  width: min(54vw, 860px);
+  width: min(56vw, 920px);
   aspect-ratio: 16 / 9;
   height: auto;
-  margin-left: 22vw;
+  margin-left: 24vw;
+  margin-top: 3vh;
   object-fit: contain;
   filter: drop-shadow(0 38px 54px rgba(0, 0, 0, 0.48));
 }
@@ -550,8 +551,8 @@
   }
 
   .cinematic-hero__poster img {
-    width: min(50vw, 610px);
-    margin-left: 31vw;
+    width: min(48vw, 600px);
+    margin-left: 34vw;
   }
 }
 
@@ -619,12 +620,21 @@
   }
 
   .cinematic-hero__poster {
-    align-items: end;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    inset: 0;
   }
 
   .cinematic-hero__poster img {
-    width: min(82vw, 520px);
-    margin: 0 0 5vh;
+    width: min(96vw, 540px);
+    aspect-ratio: 16 / 9;
+    height: auto;
+    margin: 0 auto;
+    margin-top: 14vh;
+    object-fit: contain;
+    transform: scale(1.12);
+    filter: drop-shadow(0 28px 48px rgba(0, 0, 0, 0.6));
   }
 
   .cinematic-hero__progress {

@@ -11,15 +11,16 @@ declare global {
 }
 
 export default function App() {
-  // Signal to the loader that React has mounted and rendered its DOM tree
   useEffect(() => {
-    // Wait for the browser to perform its first layout paint frame
-    const raf = requestAnimationFrame(() => {
-      if (typeof window !== 'undefined' && window.__signalAppReady) {
-        window.__signalAppReady();
-      }
-    });
-    return () => cancelAnimationFrame(raf);
+    // If not on home page, signal ready on next frame
+    if (window.location.pathname !== '/') {
+      const raf = requestAnimationFrame(() => {
+        if (typeof window !== 'undefined' && window.__signalAppReady) {
+          window.__signalAppReady();
+        }
+      });
+      return () => cancelAnimationFrame(raf);
+    }
   }, []);
 
   return (

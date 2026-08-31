@@ -1,5 +1,4 @@
 import {
-  lazy,
   Suspense,
   useCallback,
   useEffect,
@@ -12,8 +11,7 @@ import { cinematicHero } from '../../data/brand';
 import { FloatingPaintBubbles, PaintSplash } from '../../components/paint';
 import { createHeroMotionState, getHeroViewportProfile } from './heroMotion';
 import { useHeroTimeline } from './useHeroTimeline';
-
-const HeroScene = lazy(() => import('./HeroScene'));
+import HeroScene from './HeroScene';
 
 const uprightBucketsUrl = '/assets/hero/bucket/muthulac-5-buckets-upright.jpg';
 const pouringBucketsUrl = '/assets/hero/bucket/muthulac-5-buckets-pouring.jpg';
@@ -171,7 +169,12 @@ export function Hero({ scrollTo }: HeroProps) {
     refs: timelineRefs,
   });
 
-  const handleSceneReady = useCallback(() => setSceneReady(true), []);
+  const handleSceneReady = useCallback(() => {
+    setSceneReady(true);
+    if (typeof window !== 'undefined' && window.__signalAppReady) {
+      window.__signalAppReady();
+    }
+  }, []);
 
   const handleCtaClick = () => {
     if (scrollTo) {

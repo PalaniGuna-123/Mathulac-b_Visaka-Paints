@@ -235,15 +235,15 @@ function StudioBucket({ motion, profile, reducedMotion, onReady, layout }: Studi
     } else {
       // 5-Bucket Unified 3D Stage Position
       group.position.lerpVectors(layout.bucketStart, layout.bucketEnd, tiltProgress);
-      group.position.y += (1 - values.intro) * 0.16 + idle + exit * 0.12;
+      group.position.y += (1 - values.intro) * 0.04 + idle + exit * 0.12;
       group.position.z -= exit * 2.85;
-      group.position.x -= exit * (profile === 'mobile' ? 0.06 : 0.28);
+      group.position.x -= exit * (profile === 'mobile' ? 0.06 : 0);
       group.rotation.set(
         THREE.MathUtils.lerp(layout.bucketStartRotation.x, layout.bucketEndRotation.x, tiltProgress),
         THREE.MathUtils.lerp(layout.bucketStartRotation.y, layout.bucketEndRotation.y + (swirlProgress * 0.08), tiltProgress),
         THREE.MathUtils.lerp(layout.bucketStartRotation.z, layout.bucketEndRotation.z, tiltProgress),
       );
-      const entranceScale = layout.bucketScale * (0.95 + values.intro * 0.05) * (1 - exit * 0.22);
+      const entranceScale = layout.bucketScale * (0.96 + values.intro * 0.04) * (1 - exit * 0.22);
       group.scale.setScalar(entranceScale);
     }
 
@@ -279,18 +279,17 @@ function StudioBucket({ motion, profile, reducedMotion, onReady, layout }: Studi
 
     if (shadowRef.current) {
       shadowRef.current.visible = effectiveFade > 0.002;
-      shadowRef.current.position.x = group.position.x * 0.76;
-      shadowRef.current.position.z = group.position.z - 0.25;
-      shadowRef.current.scale.set(3.4 - tiltProgress * 0.2, 1.4 + tiltProgress * 0.15, 1);
+      shadowRef.current.position.set(group.position.x, group.position.y - 1.55, group.position.z - 0.25);
+      shadowRef.current.scale.set(4.8 - tiltProgress * 0.3, 1.8 + tiltProgress * 0.2, 1);
       const shadowMaterial = shadowRef.current.material as THREE.MeshBasicMaterial;
-      shadowMaterial.opacity = (0.55 - tiltProgress * 0.12) * values.intro * effectiveFade;
+      shadowMaterial.opacity = (0.62 - tiltProgress * 0.12) * (0.65 + values.intro * 0.35) * effectiveFade;
     }
 
     gl.domElement.dataset.heroMotion = values.master.toFixed(3);
   });
 
   // 16:9 Studio Canvas Dimensions (1920x1080 Aspect Ratio)
-  const planeWidth = profile === 'mobile' ? 6.8 : profile === 'tablet' ? 7.6 : 8.4;
+  const planeWidth = profile === 'mobile' ? 7.2 : profile === 'tablet' ? 8.2 : 9.2;
   const planeHeight = planeWidth / 1.7778;
 
   return (
@@ -354,8 +353,12 @@ function SceneDirector({ motion, profile, layout, reducedMotion }: SceneDirector
   const streamLookAt = useMemo(() => new THREE.Vector3(), []);
   const lookAt = useMemo(() => new THREE.Vector3(), []);
   const initialLookAt = useMemo(
-    () => new THREE.Vector3(layout.bucketStart.x * 0.35, profile === 'mobile' ? -0.42 : -0.04, 0),
+    () => new THREE.Vector3(layout.bucketStart.x * 0.28, profile === 'mobile' ? -0.18 : -0.04, 0),
     [layout.bucketStart.x, profile],
+  );
+  const centeredLookAt = useMemo(
+    () => new THREE.Vector3(0, layout.bucketEnd.y, 0),
+    [layout.bucketEnd.y],
   );
   const darkBackground = useMemo(() => new THREE.Color('#060b17'), []);
   const daylightBackground = useMemo(() => new THREE.Color('#b9d3df'), []);
@@ -387,7 +390,7 @@ function SceneDirector({ motion, profile, layout, reducedMotion }: SceneDirector
       cameraPosition.y += values.houseLuxury * (profile === 'mobile' ? 0.08 : 0.16);
       cameraPosition.x += Math.sin(clock.elapsedTime * 0.24) * 0.014 * values.finalHold;
     } else {
-      cameraPosition.z += profile === 'mobile' ? 1.55 : 1.75;
+      cameraPosition.z += profile === 'mobile' ? 1.75 : 1.75;
       cameraPosition.y += 0.15;
     }
     camera.position.copy(cameraPosition);
@@ -397,7 +400,8 @@ function SceneDirector({ motion, profile, layout, reducedMotion }: SceneDirector
     const streamFocus = segment(values.paintProgress, 0.04, 0.4)
       * (1 - segment(values.transition, 0.34, 0.82))
       * streamFollowAmount;
-    lookAt.copy(initialLookAt).lerp(streamLookAt, streamFocus);
+    lookAt.copy(initialLookAt).lerp(centeredLookAt, segment(values.intro, 0.05, 0.88));
+    lookAt.lerp(streamLookAt, streamFocus);
     lookAt.lerp(layout.houseLookAt, reducedMotion ? 1 : segment(values.transition, 0.34, 0.95));
     if (!reducedMotion) {
       const accentFocus = values.houseAccent * (1 - values.houseDetails);
@@ -615,10 +619,10 @@ export default function HeroScene(props: HeroSceneProps) {
       frameloop={props.active ? 'always' : 'never'}
       dpr={dpr}
       camera={{
-        fov: props.profile === 'mobile' ? 33 : 29,
+        fov: props.profile === 'mobile' ? 32 : 29,
         near: 0.1,
         far: 42,
-        position: [0, 0.08, props.profile === 'mobile' ? 8.45 : 8.05],
+        position: [0, props.profile === 'mobile' ? 0.04 : 0.08, props.profile === 'mobile' ? 8.65 : props.profile === 'tablet' ? 8.2 : 8.05],
       }}
       gl={{
         alpha: false,

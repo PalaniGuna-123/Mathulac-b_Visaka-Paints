@@ -26,9 +26,16 @@ export function SmoothScrollProvider({ children }: { children: ReactNode }) {
     });
 
     lenisRef.current = lenis;
-    const handleScroll = () => ScrollTrigger.update();
+
+    // Original raf call — restores the scroll feel the user preferred.
     const tick = (time: number) => lenis.raf(time * 1000);
+
+    // Keep ScrollTrigger in sync whenever Lenis scrolls.
+    const handleScroll = () => ScrollTrigger.update();
+
+    // Re-measure all ScrollTrigger positions after a Lenis resize.
     const handleRefresh = () => lenis.resize();
+
     let refreshFrame = 0;
     let disposed = false;
     const queueRefresh = () => {
@@ -45,6 +52,8 @@ export function SmoothScrollProvider({ children }: { children: ReactNode }) {
     ScrollTrigger.addEventListener('refresh', handleRefresh);
     window.addEventListener('load', queueRefresh);
 
+    // Also refresh when all fonts are loaded — prevents layout-shift
+    // from affecting ScrollTrigger measurements.
     void document.fonts?.ready.then(queueRefresh);
     queueRefresh();
 
