@@ -152,8 +152,10 @@
 
           if (current < target) {
             var diff = target - current;
-            var rate = appReady ? 0.08 : 0.035;
-            var step = Math.max(0.4, diff * rate * (dt / 16));
+            // Slow initial ramp so React has time to mount before we hit 92%.
+            // Fast finish ramp once appReady is signalled.
+            var rate = appReady ? 0.08 : 0.018;
+            var step = Math.max(0.3, diff * rate * (dt / 16));
             current = Math.min(target, current + step);
             updateDisplay(current);
           }
@@ -182,10 +184,11 @@
           appReady = true;
         };
 
-        // Fallback safety cap
+        // Fallback safety cap — 6s gives React + WebGL textures enough time
+        // to mount and call __signalAppReady on real connections.
         setTimeout(function() {
           appReady = true;
-        }, 3500);
+        }, 6000);
       })();
     </script>
     <div id="root"></div>

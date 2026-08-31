@@ -24,22 +24,26 @@ const makeCurve = (points: THREE.Vector3[], tension = 0.42) => {
 export function createHeroSceneLayout(profile: HeroViewportProfile): HeroSceneLayout {
   const mobile = profile === 'mobile';
   const tablet = profile === 'tablet';
-  const bucketScale = mobile ? 0.46 : tablet ? 0.62 : 0.74;
+  const bucketScale = mobile ? 0.50 : tablet ? 0.68 : 0.80;
   const bucketStart = new THREE.Vector3(
-    mobile ? 0 : tablet ? 0.55 : 1.12,
-    mobile ? -1.28 : 0.02,
+    mobile ? 0 : tablet ? 0.78 : 1.25,
+    mobile ? -0.55 : tablet ? -0.14 : -0.22,
     mobile ? 0.0 : 0.15,
   );
   const bucketEnd = new THREE.Vector3(
-    mobile ? 0 : tablet ? 0.22 : 0.48,
-    mobile ? -0.98 : 0.16,
+    0,
+    mobile ? -0.52 : -0.10,
     0.28,
   );
-  const bucketStartRotation = new THREE.Euler(-0.02, -0.04, 0.01);
+  const bucketStartRotation = new THREE.Euler(
+    mobile ? -0.02 : -0.01,
+    mobile ? -0.04 : -0.04,
+    mobile ? 0.01 : 0.01,
+  );
   const bucketEndRotation = new THREE.Euler(
-    mobile ? 0.04 : 0.06,
-    mobile ? -0.02 : -0.03,
-    mobile ? -0.02 : -0.04,
+    mobile ? 0.04 : 0.05,
+    0,
+    0,
   );
 
   // Connects directly to the bottom cascade of the central pouring paint
@@ -77,11 +81,11 @@ export function createHeroSceneLayout(profile: HeroViewportProfile): HeroSceneLa
   ], 0.38);
 
   const cameraCurve = makeCurve([
-    new THREE.Vector3(0, mobile ? 0 : 0.08, mobile ? 8.45 : 8.05),
-    new THREE.Vector3(mobile ? 0.04 : 0.18, mobile ? 0 : 0.1, 7.05),
-    new THREE.Vector3(mobile ? 0.1 : 0.32, mobile ? 0.08 : 0.2, 5.55),
-    new THREE.Vector3(mobile ? -0.04 : -0.16, mobile ? 0.2 : 0.34, 4.15),
-    new THREE.Vector3(mobile ? 0.08 : 0.06, mobile ? 0.22 : 0.28, mobile ? 3.15 : 2.72),
+    new THREE.Vector3(0, mobile ? 0.04 : 0.08, mobile ? 8.65 : 8.05),
+    new THREE.Vector3(mobile ? 0.04 : 0.18, mobile ? 0.02 : 0.1, 7.15),
+    new THREE.Vector3(mobile ? 0.1 : 0.32, mobile ? 0.1 : 0.2, 5.65),
+    new THREE.Vector3(mobile ? -0.04 : -0.16, mobile ? 0.22 : 0.34, 4.25),
+    new THREE.Vector3(mobile ? 0.08 : 0.06, mobile ? 0.24 : 0.28, mobile ? 3.25 : 2.72),
   ], 0.36);
 
   return {

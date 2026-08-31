@@ -39,7 +39,7 @@ export function useHeroTimeline({ motion, profile, ready, useWebGL, refs }: UseH
     if (!root || !stage || !backdrop || !story || !chapters || !finalReveal || !content || !progressLine) return;
 
     const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    const scrollDistance = profile === 'mobile' ? 6.6 : profile === 'tablet' ? 7.6 : 9.2;
+    const scrollDistance = profile === 'mobile' ? 5.8 : profile === 'tablet' ? 7.6 : 9.2;
     const motionState = motion.current;
     const progressProperty = profile === 'mobile' ? 'scaleX' : 'scaleY';
     const houseStageOne = story.querySelector<HTMLElement>('[data-hero-house="stage-one"]');
@@ -143,7 +143,7 @@ export function useHeroTimeline({ motion, profile, ready, useWebGL, refs }: UseH
           end: () => `+=${Math.round(window.innerHeight * scrollDistance)}`,
           pin: stage,
           pinSpacing: true,
-          scrub: profile === 'mobile' ? 0.45 : 0.8,
+          scrub: profile === 'mobile' ? 0.32 : 0.8,
           anticipatePin: 1,
           invalidateOnRefresh: true,
           refreshPriority: 30,

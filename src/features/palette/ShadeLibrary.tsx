@@ -198,25 +198,25 @@ export function ShadeLibrary() {
             <p className="text-white/60 text-xs mt-1">Click any color bubble below to see the full range of authentic shades</p>
           </div>
 
-          <div className="relative w-[310px] h-[310px] sm:w-[420px] sm:h-[420px] md:w-[480px] md:h-[480px] mx-auto flex items-center justify-center my-4 [--orbit-r:105px] sm:[--orbit-r:145px] md:[--orbit-r:175px]">
+          <div className="relative w-[280px] h-[280px] sm:w-[400px] sm:h-[400px] md:w-[480px] md:h-[480px] mx-auto flex items-center justify-center my-4 [--orbit-r:95px] sm:[--orbit-r:140px] md:[--orbit-r:175px]">
             {/* Center Hub */}
             <div 
               onClick={() => setSelectedFamily('ALL')}
-              className="w-28 h-28 sm:w-36 sm:h-36 md:w-40 md:h-40 rounded-full bg-ink/90 border-2 border-white/20 shadow-2xl backdrop-blur-md z-10 flex flex-col items-center justify-center p-2 sm:p-3 text-center cursor-pointer hover:border-magenta hover:scale-105 transition-all duration-300 group"
+              className="w-24 h-24 sm:w-34 sm:h-34 md:w-40 md:h-40 rounded-full bg-ink/90 border-2 border-white/20 shadow-2xl backdrop-blur-md z-10 flex flex-col items-center justify-center p-1.5 sm:p-3 text-center cursor-pointer hover:border-magenta hover:scale-105 transition-all duration-300 group"
             >
-              <span className="font-display font-black text-[11px] sm:text-sm bg-gradient-to-r from-magenta via-pink-400 to-cyan-400 bg-clip-text text-transparent group-hover:scale-105 transition-transform">
+              <span className="font-display font-black text-[10px] sm:text-sm bg-gradient-to-r from-magenta via-pink-400 to-cyan-400 bg-clip-text text-transparent group-hover:scale-105 transition-transform leading-tight">
                 Color Palette
               </span>
-              <span className="text-[9px] sm:text-xs text-white/70 mt-1 font-bold">
-                {selectedFamily === 'ALL' ? 'All 375+ Shades' : `${selectedFamily}`}
+              <span className="text-[8px] sm:text-xs text-white/70 mt-0.5 sm:mt-1 font-bold truncate max-w-[85px] sm:max-w-none">
+                {selectedFamily === 'ALL' ? '375+ Shades' : `${selectedFamily}`}
               </span>
-              <span className="text-[8px] sm:text-[9px] text-white/40 mt-0.5 uppercase tracking-wider">
-                {selectedFamily === 'ALL' ? 'Click bubble to filter' : `${filteredShades.length} shades ready`}
+              <span className="text-[7px] sm:text-[9px] text-white/40 mt-0.5 uppercase tracking-wider">
+                {selectedFamily === 'ALL' ? 'Tap to filter' : `${filteredShades.length} shades`}
               </span>
             </div>
 
             {/* Circular Orbit Ring */}
-            <div className="absolute inset-4 sm:inset-6 rounded-full border border-dashed border-white/15 pointer-events-none animate-spin-slow opacity-60" />
+            <div className="absolute inset-2 sm:inset-4 md:inset-6 rounded-full border border-dashed border-white/15 pointer-events-none animate-spin-slow opacity-60" />
 
             {/* 12 Color Bubbles positioned around the circle */}
             {wheelFamilies.map((fam, idx) => {
@@ -228,21 +228,21 @@ export function ShadeLibrary() {
                 <button
                   key={fam}
                   onClick={() => setSelectedFamily(fam)}
-                  className={`absolute w-14 h-14 sm:w-18 sm:h-18 md:w-20 md:h-20 rounded-full shadow-2xl transition-all duration-300 flex flex-col items-center justify-center p-1 text-center cursor-pointer group z-20 ${
+                  className={`absolute w-12 h-12 sm:w-16 sm:h-16 md:w-20 md:h-20 rounded-full shadow-2xl transition-all duration-300 flex flex-col items-center justify-center p-0.5 sm:p-1 text-center cursor-pointer group z-20 ${
                     isSelected
-                      ? 'scale-115 ring-4 ring-white shadow-[0_0_30px_rgba(230,0,126,0.6)] z-30'
+                      ? 'scale-115 ring-2 sm:ring-4 ring-white shadow-[0_0_30px_rgba(230,0,126,0.6)] z-30'
                       : 'hover:scale-110 hover:shadow-xl opacity-90 hover:opacity-100'
                   }`}
                   style={{
                     background: swatch.bgGradient,
-                    transform: `translate(calc(${Math.cos(angleRad)} * var(--orbit-r, 110px)), calc(${Math.sin(angleRad)} * var(--orbit-r, 110px)))`,
+                    transform: `translate(calc(${Math.cos(angleRad)} * var(--orbit-r, 95px)), calc(${Math.sin(angleRad)} * var(--orbit-r, 95px)))`,
                   }}
                   title={`Select ${fam}`}
                 >
-                  <span className="text-[8px] sm:text-[10px] md:text-[11px] font-black text-white drop-shadow-[0_1px_3px_rgba(0,0,0,0.9)] leading-tight tracking-tight uppercase px-1">
+                  <span className="text-[7px] sm:text-[9px] md:text-[11px] font-black text-white drop-shadow-[0_1px_3px_rgba(0,0,0,0.9)] leading-tight tracking-tight uppercase px-0.5">
                     {fam}
                   </span>
-                  <span className="text-[7px] sm:text-[8px] md:text-[9px] font-mono text-white/90 drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)] font-semibold mt-0.5">
+                  <span className="text-[6px] sm:text-[8px] md:text-[9px] font-mono text-white/90 drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)] font-semibold mt-0.5">
                     25+
                   </span>
                 </button>
@@ -320,7 +320,7 @@ export function ShadeLibrary() {
             </button>
           </div>
         ) : (
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2.5 sm:gap-4">
             {filteredShades.map((shadeItem) => {
               const isFav = favourites.includes(shadeItem.id);
               return (
@@ -330,37 +330,37 @@ export function ShadeLibrary() {
                     setActiveShadeModal(shadeItem);
                     setCopiedHex(false);
                   }}
-                  className="group relative bg-surface-card border border-white/10 hover:border-magenta/50 rounded-xl p-3.5 transition-all duration-300 hover:-translate-y-1.5 hover:shadow-xl hover:shadow-magenta/10 cursor-pointer flex flex-col justify-between"
+                  className="group relative bg-surface-card border border-white/10 hover:border-magenta/50 rounded-xl p-2.5 sm:p-3.5 transition-all duration-300 hover:-translate-y-1.5 hover:shadow-xl hover:shadow-magenta/10 cursor-pointer flex flex-col justify-between"
                 >
                   <div>
                     {/* Organic Swatch */}
                     <div
-                      className="w-full aspect-square rounded-xl shadow-inner mb-3 relative overflow-hidden transition-transform duration-300 group-hover:scale-105"
+                      className="w-full aspect-square rounded-xl shadow-inner mb-2 sm:mb-3 relative overflow-hidden transition-transform duration-300 group-hover:scale-105"
                       style={{ backgroundColor: shadeItem.hex }}
                     >
-                      <span className="absolute bottom-2 left-2 text-[10px] font-mono font-bold bg-black/40 text-white px-2 py-0.5 rounded-md backdrop-blur-sm">
+                      <span className="absolute bottom-1.5 left-1.5 text-[9px] sm:text-[10px] font-mono font-bold bg-black/40 text-white px-1.5 py-0.5 rounded backdrop-blur-sm">
                         {shadeItem.id}
                       </span>
                     </div>
 
                     <div className="flex items-start justify-between gap-1">
-                      <div>
-                        <h3 className="font-bold text-xs sm:text-sm text-white group-hover:text-magenta transition-colors line-clamp-1">
-                          {shadeItem.name} - {shadeItem.id}
+                      <div className="min-w-0 flex-1">
+                        <h3 className="font-bold text-[11px] sm:text-xs md:text-sm text-white group-hover:text-magenta transition-colors truncate">
+                          {shadeItem.name}
                         </h3>
-                        <span className="text-[10px] sm:text-[11px] text-white/50 uppercase tracking-wider block mt-0.5">
+                        <span className="text-[9px] sm:text-[10px] md:text-[11px] text-white/50 uppercase tracking-wider block mt-0.5 truncate">
                           {shadeItem.family} • {shadeItem.hex}
                         </span>
                       </div>
 
                       <button
                         onClick={(e) => toggleFavourite(shadeItem.id, e)}
-                        className={`p-1.5 rounded-full transition-colors cursor-pointer ${
+                        className={`p-1 sm:p-1.5 rounded-full transition-colors cursor-pointer flex-shrink-0 ${
                           isFav ? 'text-magenta bg-magenta/20' : 'text-white/40 hover:text-white hover:bg-white/10'
                         }`}
                         aria-label={isFav ? 'Remove from favourites' : 'Add to favourites'}
                       >
-                        <Heart className="w-4 h-4" fill={isFav ? 'currentColor' : 'none'} />
+                        <Heart className="w-3.5 h-3.5 sm:w-4 sm:h-4" fill={isFav ? 'currentColor' : 'none'} />
                       </button>
                     </div>
                   </div>
@@ -371,12 +371,12 @@ export function ShadeLibrary() {
                       e.stopPropagation();
                       handleVisualize(shadeItem);
                     }}
-                    className="mt-3 pt-2 border-t border-white/10 flex items-center justify-between text-xs font-bold text-magenta opacity-90 group-hover:opacity-100 hover:text-white transition-colors cursor-pointer"
+                    className="mt-2.5 pt-2 border-t border-white/10 flex items-center justify-between text-[10px] sm:text-xs font-bold text-magenta opacity-90 group-hover:opacity-100 hover:text-white transition-colors cursor-pointer"
                   >
                     <span className="inline-flex items-center gap-1 group-hover:translate-x-1 transition-transform">
-                      Visualize <ArrowRight className="w-3.5 h-3.5" />
+                      Visualize <ArrowRight className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
                     </span>
-                    <Eye className="w-4 h-4 text-white/40" />
+                    <Eye className="w-3.5 h-3.5 text-white/40" />
                   </div>
                 </div>
               );
@@ -392,39 +392,39 @@ export function ShadeLibrary() {
           onClick={() => setActiveShadeModal(null)}
         >
           <div
-            className="relative w-full max-w-2xl bg-midnight border border-white/20 rounded-xl overflow-hidden shadow-2xl animate-menu-drop text-white"
+            className="relative w-full max-w-2xl bg-midnight border border-white/20 rounded-xl overflow-hidden shadow-2xl animate-menu-drop text-white max-h-[90vh] overflow-y-auto"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Swatch Header Box */}
-            <div className="h-64 relative flex items-end p-6" style={{ backgroundColor: activeShadeModal.hex }}>
+            <div className="h-44 sm:h-60 relative flex items-end p-4 sm:p-6" style={{ backgroundColor: activeShadeModal.hex }}>
               <button
                 onClick={() => setActiveShadeModal(null)}
-                className="absolute top-4 right-4 w-9 h-9 rounded-full bg-black/50 text-white flex items-center justify-center hover:bg-black/70 transition-colors cursor-pointer"
+                className="absolute top-3 right-3 w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-black/50 text-white flex items-center justify-center hover:bg-black/70 transition-colors cursor-pointer"
                 aria-label="Close"
               >
-                <X className="w-5 h-5" />
+                <X className="w-4 h-4 sm:w-5 sm:h-5" />
               </button>
 
-              <div className="bg-black/60 backdrop-blur-md px-4 py-2 rounded-xl text-white border border-white/15">
-                <span className="text-[10px] font-extrabold uppercase tracking-widest text-magenta block">
+              <div className="bg-black/60 backdrop-blur-md px-3 py-1.5 sm:px-4 sm:py-2 rounded-xl text-white border border-white/15">
+                <span className="text-[9px] sm:text-[10px] font-extrabold uppercase tracking-widest text-magenta block">
                   {activeShadeModal.family} Collection
                 </span>
-                <span className="font-mono font-bold text-sm">{activeShadeModal.id}</span>
+                <span className="font-mono font-bold text-xs sm:text-sm">{activeShadeModal.id}</span>
               </div>
             </div>
 
             {/* Content Body */}
-            <div className="p-6 md:p-8 space-y-5">
-              <div className="flex items-start justify-between gap-4">
+            <div className="p-4 sm:p-6 md:p-8 space-y-4 sm:space-y-5">
+              <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3 sm:gap-4">
                 <div>
-                  <h2 className="font-display text-2xl sm:text-3xl text-white">{activeShadeModal.name}</h2>
-                  <p className="text-white/70 text-sm mt-1">{activeShadeModal.description}</p>
+                  <h2 className="font-display text-xl sm:text-2xl md:text-3xl text-white">{activeShadeModal.name}</h2>
+                  <p className="text-white/70 text-xs sm:text-sm mt-1">{activeShadeModal.description}</p>
                 </div>
 
                 <div className="flex items-center gap-2">
                   <button
                     onClick={() => toggleFavourite(activeShadeModal.id)}
-                    className={`p-3 rounded-xl border transition-all cursor-pointer ${
+                    className={`p-2.5 sm:p-3 rounded-xl border transition-all cursor-pointer ${
                       favourites.includes(activeShadeModal.id)
                         ? 'bg-magenta/20 text-magenta border-magenta'
                         : 'bg-white/5 text-white/70 border-white/15 hover:bg-white/10'
@@ -436,17 +436,17 @@ export function ShadeLibrary() {
                     }
                   >
                     <Heart
-                      className="w-5 h-5"
+                      className="w-4 h-4 sm:w-5 sm:h-5"
                       fill={favourites.includes(activeShadeModal.id) ? 'currentColor' : 'none'}
                     />
                   </button>
 
                   <button
                     onClick={() => copyHexToClipboard(activeShadeModal.hex)}
-                    className="p-3 rounded-xl bg-white/5 border border-white/15 text-white hover:bg-white/10 transition-colors flex items-center gap-2 text-xs font-bold cursor-pointer"
+                    className="p-2.5 sm:p-3 rounded-xl bg-white/5 border border-white/15 text-white hover:bg-white/10 transition-colors flex items-center gap-1.5 text-xs font-bold cursor-pointer"
                   >
-                    {copiedHex ? <Check className="w-4 h-4 text-leaf" /> : <Copy className="w-4 h-4" />}
-                    {copiedHex ? 'Copied' : 'Copy HEX'}
+                    {copiedHex ? <Check className="w-3.5 h-3.5 text-leaf" /> : <Copy className="w-3.5 h-3.5" />}
+                    <span>{copiedHex ? 'Copied' : 'Copy HEX'}</span>
                   </button>
                 </div>
               </div>

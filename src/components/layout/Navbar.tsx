@@ -43,7 +43,11 @@ export function Navbar({ scrolled: externalScrolled }: NavbarProps) {
 
   const handleNavClick = (path: string, anchor?: string) => {
     setMenuOpen(false);
-    if (location.pathname === '/' && anchor) {
+    // Only scroll to anchor when the item targets the CURRENT page.
+    // Items without an anchor (About, Services) always navigate to their page.
+    const currentPath = location.pathname.replace(/\/$/, '') || '/';
+    const targetPath = path.replace(/\/$/, '') || '/';
+    if (anchor && currentPath === targetPath) {
       const el = document.getElementById(anchor);
       if (el) {
         el.scrollIntoView({ behavior: 'smooth' });
