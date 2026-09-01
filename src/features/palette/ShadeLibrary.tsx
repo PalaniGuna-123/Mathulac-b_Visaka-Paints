@@ -150,11 +150,10 @@ export function ShadeLibrary() {
 
           <button
             onClick={() => setShowFavouritesOnly(!showFavouritesOnly)}
-            className={`w-full sm:w-auto px-5 py-3.5 rounded-xl text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2 border transition-all cursor-pointer ${
-              showFavouritesOnly
+            className={`w-full sm:w-auto px-5 py-3.5 rounded-xl text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2 border transition-all cursor-pointer ${showFavouritesOnly
                 ? 'bg-magenta text-white border-magenta shadow-lg shadow-magenta/30'
                 : 'bg-white/5 hover:bg-white/10 text-white/80 border-white/15'
-            }`}
+              }`}
           >
             <Heart className="w-4 h-4" fill={showFavouritesOnly ? 'currentColor' : 'none'} />
             Favourites ({favourites.length})
@@ -165,22 +164,20 @@ export function ShadeLibrary() {
         <div className="flex items-center justify-center gap-2 mt-6">
           <button
             onClick={() => setSelectorMode('wheel')}
-            className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-2 border ${
-              selectorMode === 'wheel'
+            className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-2 border ${selectorMode === 'wheel'
                 ? 'bg-white text-ink border-white shadow-lg'
                 : 'bg-white/5 hover:bg-white/10 text-white/70 border-white/10'
-            }`}
+              }`}
           >
             <span className="w-2.5 h-2.5 rounded-full bg-gradient-to-tr from-magenta to-cyan-400" />
             Interactive Colour Wheel
           </button>
           <button
             onClick={() => setSelectorMode('grid')}
-            className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-2 border ${
-              selectorMode === 'grid'
+            className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-2 border ${selectorMode === 'grid'
                 ? 'bg-white text-ink border-white shadow-lg'
                 : 'bg-white/5 hover:bg-white/10 text-white/70 border-white/10'
-            }`}
+              }`}
           >
             <SlidersHorizontal className="w-3.5 h-3.5" />
             Colour Bar Grid
@@ -200,7 +197,7 @@ export function ShadeLibrary() {
 
           <div className="relative w-[280px] h-[280px] sm:w-[400px] sm:h-[400px] md:w-[480px] md:h-[480px] mx-auto flex items-center justify-center my-4 [--orbit-r:95px] sm:[--orbit-r:140px] md:[--orbit-r:175px]">
             {/* Center Hub */}
-            <div 
+            <div
               onClick={() => setSelectedFamily('ALL')}
               className="w-24 h-24 sm:w-34 sm:h-34 md:w-40 md:h-40 rounded-full bg-ink/90 border-2 border-white/20 shadow-2xl backdrop-blur-md z-10 flex flex-col items-center justify-center p-1.5 sm:p-3 text-center cursor-pointer hover:border-magenta hover:scale-105 transition-all duration-300 group"
             >
@@ -228,11 +225,10 @@ export function ShadeLibrary() {
                 <button
                   key={fam}
                   onClick={() => setSelectedFamily(fam)}
-                  className={`absolute w-12 h-12 sm:w-16 sm:h-16 md:w-20 md:h-20 rounded-full shadow-2xl transition-all duration-300 flex flex-col items-center justify-center p-0.5 sm:p-1 text-center cursor-pointer group z-20 ${
-                    isSelected
+                  className={`absolute w-12 h-12 sm:w-16 sm:h-16 md:w-20 md:h-20 rounded-full shadow-2xl transition-all duration-300 flex flex-col items-center justify-center p-0.5 sm:p-1 text-center cursor-pointer group z-20 ${isSelected
                       ? 'scale-115 ring-2 sm:ring-4 ring-white shadow-[0_0_30px_rgba(230,0,126,0.6)] z-30'
                       : 'hover:scale-110 hover:shadow-xl opacity-90 hover:opacity-100'
-                  }`}
+                    }`}
                   style={{
                     background: swatch.bgGradient,
                     transform: `translate(calc(${Math.cos(angleRad)} * var(--orbit-r, 95px)), calc(${Math.sin(angleRad)} * var(--orbit-r, 95px)))`,
@@ -253,11 +249,10 @@ export function ShadeLibrary() {
           <div className="mt-4 flex items-center justify-center gap-3">
             <button
               onClick={() => setSelectedFamily('ALL')}
-              className={`px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider transition-all cursor-pointer ${
-                selectedFamily === 'ALL'
+              className={`px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider transition-all cursor-pointer ${selectedFamily === 'ALL'
                   ? 'bg-magenta text-white shadow-lg shadow-magenta/30'
                   : 'bg-white/10 hover:bg-white/20 text-white/70'
-              }`}
+                }`}
             >
               Show All 375+ Shades
             </button>
@@ -283,11 +278,10 @@ export function ShadeLibrary() {
                 <button
                   key={fam}
                   onClick={() => setSelectedFamily(fam)}
-                  className={`group relative p-2 rounded-xl border transition-all cursor-pointer flex flex-col items-center gap-1.5 text-center ${
-                    isSelected
+                  className={`group relative p-2 rounded-xl border transition-all cursor-pointer flex flex-col items-center gap-1.5 text-center ${isSelected
                       ? 'bg-white/15 border-white shadow-lg shadow-magenta/20 ring-2 ring-magenta/60 scale-[1.03]'
                       : 'bg-white/5 hover:bg-white/10 border-white/10 hover:border-white/30'
-                  }`}
+                    }`}
                 >
                   <div
                     className="w-9 h-9 rounded-xl shadow-md group-hover:scale-110 transition-transform"
@@ -355,9 +349,8 @@ export function ShadeLibrary() {
 
                       <button
                         onClick={(e) => toggleFavourite(shadeItem.id, e)}
-                        className={`p-1 sm:p-1.5 rounded-full transition-colors cursor-pointer flex-shrink-0 ${
-                          isFav ? 'text-magenta bg-magenta/20' : 'text-white/40 hover:text-white hover:bg-white/10'
-                        }`}
+                        className={`p-1 sm:p-1.5 rounded-full transition-colors cursor-pointer flex-shrink-0 ${isFav ? 'text-magenta bg-magenta/20' : 'text-white/40 hover:text-white hover:bg-white/10'
+                          }`}
                         aria-label={isFav ? 'Remove from favourites' : 'Add to favourites'}
                       >
                         <Heart className="w-3.5 h-3.5 sm:w-4 sm:h-4" fill={isFav ? 'currentColor' : 'none'} />
@@ -424,11 +417,10 @@ export function ShadeLibrary() {
                 <div className="flex items-center gap-2">
                   <button
                     onClick={() => toggleFavourite(activeShadeModal.id)}
-                    className={`p-2.5 sm:p-3 rounded-xl border transition-all cursor-pointer ${
-                      favourites.includes(activeShadeModal.id)
+                    className={`p-2.5 sm:p-3 rounded-xl border transition-all cursor-pointer ${favourites.includes(activeShadeModal.id)
                         ? 'bg-magenta/20 text-magenta border-magenta'
                         : 'bg-white/5 text-white/70 border-white/15 hover:bg-white/10'
-                    }`}
+                      }`}
                     aria-label={
                       favourites.includes(activeShadeModal.id)
                         ? 'Remove from favourites'
@@ -462,9 +454,8 @@ export function ShadeLibrary() {
                       <button
                         key={m}
                         onClick={() => setModalLighting(m)}
-                        className={`py-1 px-1 rounded-lg text-[10px] font-bold border cursor-pointer ${
-                          modalLighting === m ? 'bg-magenta text-white border-magenta' : 'bg-white/5 text-white/60 border-white/10'
-                        }`}
+                        className={`py-1 px-1 rounded-lg text-[10px] font-bold border cursor-pointer ${modalLighting === m ? 'bg-magenta text-white border-magenta' : 'bg-white/5 text-white/60 border-white/10'
+                          }`}
                       >
                         {m}
                       </button>
@@ -481,9 +472,8 @@ export function ShadeLibrary() {
                       <button
                         key={f}
                         onClick={() => setModalFinish(f)}
-                        className={`py-1 px-1 rounded-lg text-[10px] font-bold border cursor-pointer ${
-                          modalFinish === f ? 'bg-magenta text-white border-magenta' : 'bg-white/5 text-white/60 border-white/10'
-                        }`}
+                        className={`py-1 px-1 rounded-lg text-[10px] font-bold border cursor-pointer ${modalFinish === f ? 'bg-magenta text-white border-magenta' : 'bg-white/5 text-white/60 border-white/10'
+                          }`}
                       >
                         {f}
                       </button>

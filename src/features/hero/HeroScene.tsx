@@ -169,9 +169,9 @@ function StudioBucket({ motion, profile, reducedMotion, onReady, layout }: Studi
           blended = mix(blended, swirl, uSwirlProgress);
 
           // Studio Deep-Dark Luminance Integration:
-          // Smoothly blends dark navy studio background into Three.js scene fog/background (#060b17)
+          // Keep buckets fully solid & vibrant, cleanly separating from the dark canvas
           float luma = getLuma(blended.rgb);
-          float alpha = smoothstep(0.012, 0.065, luma);
+          float alpha = smoothstep(0.002, 0.02, luma);
 
           // Specular boost on vibrant paint streams
           float isPaintStream = (1.0 - smoothstep(0.05, 0.55, vBucketUv.y)) * pourMask;
@@ -185,7 +185,7 @@ function StudioBucket({ motion, profile, reducedMotion, onReady, layout }: Studi
         .replace(
           '#include <roughnessmap_fragment>',
           `#include <roughnessmap_fragment>
-          roughnessFactor = mix(0.35, 0.12, uPourProgress * (1.0 - vBucketUv.y));`,
+          roughnessFactor = mix(0.18, 0.08, uPourProgress * (1.0 - vBucketUv.y));`,
         )
         .replace(
           '#include <lights_physical_fragment>',
@@ -196,8 +196,8 @@ function StudioBucket({ motion, profile, reducedMotion, onReady, layout }: Studi
         .replace(
           '#include <emissivemap_fragment>',
           `#include <emissivemap_fragment>
-          // Subtle radiant bloom on pouring paint streams
-          totalEmissiveRadiance += diffuseColor.rgb * (0.04 + uPourProgress * 0.06);`,
+          // Radiant clarity so bucket image details & colors shine through vibrantly without black shadows
+          totalEmissiveRadiance += diffuseColor.rgb * (0.85 + uPourProgress * 0.15);`,
         );
 
       shaderRef.current = shader;
@@ -597,6 +597,10 @@ function SceneContents(props: HeroSceneProps) {
       <CinematicEnvironment motion={props.motion} profile={props.profile} layout={layout} />
 
       <ArchitecturalLighting motion={props.motion} />
+      <ambientLight intensity={1.5} />
+      <directionalLight position={[0, 2.5, 8]} intensity={1.8} color="#ffffff" />
+      <directionalLight position={[-4, 2, 6]} intensity={1.0} color="#eef6ff" />
+      <directionalLight position={[4, 2, 6]} intensity={1.0} color="#fff4e8" />
       <Environment resolution={props.profile === 'desktop' ? 96 : 64}>
         <Lightformer form="rect" intensity={3.2} color="#dce9ff" position={[-4, 4, 4]} scale={[5, 3, 1]} />
         <Lightformer form="rect" intensity={1.55} color="#ffd9b6" position={[4, 2, -2]} rotation={[0, -0.7, 0]} scale={[3, 5, 1]} />
