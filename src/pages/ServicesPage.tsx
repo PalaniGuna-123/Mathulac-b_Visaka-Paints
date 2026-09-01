@@ -170,19 +170,6 @@ export function ServicesPage() {
               <span className="text-white drop-shadow-md">Services</span>
             </h1>
 
-            {/* Brand Emblem Pill */}
-            <div className="inline-flex items-center gap-3 px-4 py-2 rounded-2xl bg-white/[0.04] border border-white/10 backdrop-blur-md mb-6">
-              <img
-                src={mathulacLogo}
-                alt="Visaka Mathulac Paints"
-                className="h-7 sm:h-8 w-auto object-contain"
-              />
-              <span className="h-4 w-[1px] bg-white/20" />
-              <span className="text-xs sm:text-sm font-display italic text-[#ffd5e8]">
-                “Exceeds Expectation”
-              </span>
-            </div>
-
             <p className="text-white/80 text-sm sm:text-base md:text-lg max-w-3xl mx-auto leading-relaxed">
               Complete turnkey painting and architectural coating solutions. From surface moisture diagnostics and
               shade visualization to expert application by verified master painters — transforming your property into a

@@ -239,7 +239,7 @@ export function Hero({ scrollTo }: HeroProps) {
           </button>
 
           {/* Muthulac 5-Buckets Visual Presentation */}
-          <div className="relative w-full mt-6 rounded-2xl overflow-hidden shadow-2xl border border-white/15 bg-gradient-to-b from-white/5 to-black/40 p-2">
+          <div className="relative w-full mt-6 rounded-2xl overflow-hidden shadow-2xl border border-white/15 bg-white/5 p-2">
             <img
               src={uprightBucketsUrl}
               alt="Muthulac 5 Color Paint Buckets"
