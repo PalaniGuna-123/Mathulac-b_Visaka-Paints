@@ -27,17 +27,14 @@
 
 .cinematic-hero__backdrop {
   z-index: 0;
-  background:
-    radial-gradient(circle at 68% 44%, rgba(30, 77, 165, 0.28), transparent 31%),
-    radial-gradient(circle at 20% 75%, rgba(80, 10, 78, 0.2), transparent 34%),
-    linear-gradient(127deg, #050914 0%, #081120 48%, #050814 100%);
+  background: #060b17;
 }
 
 .cinematic-hero__backdrop::before {
   content: '';
   position: absolute;
   inset: 0;
-  opacity: 0.2;
+  opacity: 0.12;
   background-image:
     linear-gradient(rgba(255, 255, 255, 0.025) 1px, transparent 1px),
     linear-gradient(90deg, rgba(255, 255, 255, 0.025) 1px, transparent 1px);
@@ -46,22 +43,7 @@
 }
 
 .cinematic-hero__halo {
-  z-index: 1;
-  pointer-events: none;
-  filter: blur(72px);
-  will-change: transform;
-}
-
-.cinematic-hero__halo--blue {
-  inset: 22% 2% 4% 42%;
-  border-radius: 50%;
-  background: radial-gradient(circle, rgba(0, 119, 255, 0.24), transparent 66%);
-}
-
-.cinematic-hero__halo--magenta {
-  inset: 34% 42% 5% 4%;
-  border-radius: 50%;
-  background: radial-gradient(circle, rgba(230, 0, 126, 0.09), transparent 68%);
+  display: none;
 }
 
 .cinematic-hero__poster {
@@ -99,9 +81,7 @@
   position: absolute;
   inset: 0;
   z-index: 8;
-  background:
-    linear-gradient(90deg, rgba(3, 8, 18, 0.45), transparent 28%, transparent 72%, rgba(3, 8, 18, 0.26)),
-    linear-gradient(0deg, rgba(3, 8, 18, 0.34), transparent 30%, rgba(3, 8, 18, 0.18));
+  pointer-events: none;
 }
 
 .cinematic-hero__story-glow {
@@ -782,3 +762,25 @@
     animation: none;
   }
 }
+
+/* Mobile-specific hero styles */
+.cinematic-hero-mobile {
+  min-height: auto;
+  contain: paint;
+}
+
+.cinematic-hero-mobile .cinematic-hero__cta {
+  background: #ffffff;
+  color: #050a14;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+}
+
+.cinematic-hero-mobile .cinematic-hero__cta:hover {
+  background: #e6007e;
+  color: #ffffff;
+}
+
+.mobile-house-transformation {
+  touch-action: pan-y;
+}
+

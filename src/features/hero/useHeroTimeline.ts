@@ -68,6 +68,11 @@ export function useHeroTimeline({ motion, profile, ready, useWebGL, refs }: UseH
     const accelerateSplash = root.querySelector<HTMLElement>('.cinematic-hero__splash--accelerate');
 
     const ctx = gsap.context(() => {
+      if (profile === 'mobile') {
+        // Mobile hero is purely static with interactive cards; no pinned scroll timeline needed
+        return;
+      }
+
       if (reducedMotion) {
         Object.assign(motionState, {
           master: 1,

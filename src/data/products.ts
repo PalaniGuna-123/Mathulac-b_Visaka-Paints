@@ -564,7 +564,7 @@ export const surfaces: Surface[] = [
     name: 'Wood Coatings',
     description: 'Protection and finish that preserve natural beauty.',
     accent: '#D97706',
-    image: 'https://images.pexels.com/photos/4705928/pexels-photo-4705928.jpeg?auto=compress&cs=tinysrgb&w=1920',
+    image: 'https://images.unsplash.com/photo-1538688525198-9b88f6f53126?auto=format&fit=crop&w=1920&q=85',
   },
   {
     id: 'steel',

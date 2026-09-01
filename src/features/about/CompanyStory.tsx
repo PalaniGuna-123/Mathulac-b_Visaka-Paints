@@ -1,5 +1,4 @@
 import { companyFacts, timeline } from '../../data';
-import brandImg from '../../assets/brand/brand.webp';
 import { Award, Sparkles } from 'lucide-react';
 
 export function CompanyStory() {
@@ -31,16 +30,20 @@ export function CompanyStory() {
               ))}
             </div>
 
-            <div className="relative mt-8 rounded-xl overflow-hidden shadow-2xl border border-white/10 group">
+            <div className="relative mt-8 rounded-2xl overflow-hidden shadow-2xl border border-white/15 group aspect-[16/10]">
               <img
-                src={brandImg}
-                alt="Visaka Paints & Chemicals India Coimbatore"
+                src="https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&w=1600&q=85"
+                alt="Visaka Paints & Chemicals India Manufacturing Facility & Research Lab"
                 loading="lazy"
-                className="w-full object-cover transition-transform duration-700 group-hover:scale-105"
+                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-ink/90 via-transparent to-transparent" />
-              <div className="absolute bottom-4 left-4 right-4 text-white text-xs font-semibold">
-                Manufacturing facility &amp; Research Lab • Coimbatore, Tamil Nadu
+              <div className="absolute inset-0 bg-gradient-to-t from-ink/95 via-ink/30 to-transparent" />
+              <div className="absolute bottom-4 left-4 right-4 flex items-center justify-between text-white text-xs font-semibold">
+                <span className="flex items-center gap-1.5">
+                  <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                  Manufacturing Facility &amp; Research Lab
+                </span>
+                <span className="text-white/70 text-[11px] font-medium">Coimbatore, Tamil Nadu</span>
               </div>
             </div>
           </div>

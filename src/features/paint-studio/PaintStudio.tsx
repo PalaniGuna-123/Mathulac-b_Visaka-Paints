@@ -323,7 +323,7 @@ export function PaintStudio({ scrollTo, initialShadeId }: PaintStudioProps) {
   };
 
   return (
-    <section id="studio" className="studio-shell relative py-16 md:py-24 px-4 md:px-8 overflow-hidden">
+    <section id="studio" className="hidden md:block studio-shell relative py-16 md:py-24 px-4 md:px-8 overflow-hidden">
       {/* Animated Liquid Paint Background */}
       <div className="liquid-paint-bg">
         <div className="liquid-paint-blob liquid-paint-blob-1" />
@@ -375,12 +375,12 @@ export function PaintStudio({ scrollTo, initialShadeId }: PaintStudioProps) {
       </div>
 
       {/* MAIN VISUALIZER WORKSPACE */}
-      <div id="main-visualizer" className="max-w-[1400px] mx-auto mt-14 studio-grid">
+      <div id="main-visualizer" className="max-w-[1400px] mx-auto mt-8 sm:mt-14 studio-grid">
         {/* Left Column: Photorealistic Canvas Room & 25+ Scene Selector */}
-        <div className="space-y-5">
-          <div className="studio-visual-card">
+        <div className="space-y-4 sm:space-y-5">
+          <div className="studio-visual-card p-3 sm:p-4 bg-[#0e1426]/90 border border-white/15 rounded-2xl backdrop-blur-xl shadow-2xl">
             {/* Photorealistic Canvas Frame */}
-            <div className="studio-room relative aspect-[16/10] rounded-xl overflow-hidden shadow-2xl">
+            <div className="studio-room relative aspect-[16/10] rounded-xl overflow-hidden shadow-2xl border border-white/15 bg-[#080d1a]">
               <canvas ref={canvasRef} className="w-full h-full object-cover" />
               <span
                 ref={shadeWashRef}
@@ -400,24 +400,24 @@ export function PaintStudio({ scrollTo, initialShadeId }: PaintStudioProps) {
               {isUploading && (
                 <div className="absolute inset-0 bg-black/60 backdrop-blur-sm z-20 flex items-center justify-center text-white gap-3">
                   <Loader2 className="w-6 h-6 animate-spin text-magenta" />
-                  <span className="text-sm font-bold">Analyzing surface contours...</span>
+                  <span className="text-xs sm:text-sm font-bold">Analyzing surface contours...</span>
                 </div>
               )}
 
               {/* Room Top Toolbar */}
-              <div className="studio-room-toolbar">
-                <span className="flex items-center">
-                  <span className="studio-live-dot" />
-                  {userImage ? 'Custom Photo (Live Painted)' : activeScene.name}
+              <div className="studio-room-toolbar absolute top-2 sm:top-3 left-2 sm:left-3 right-2 sm:right-3 z-10 flex items-center justify-between gap-1.5 text-white">
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-black/70 backdrop-blur-md border border-white/20 text-[10px] sm:text-xs font-bold uppercase tracking-wider shadow">
+                  <span className="w-2 h-2 rounded-full bg-[#67d600] animate-pulse" />
+                  {userImage ? 'Custom Photo' : activeScene.name}
                 </span>
-                <div className="flex items-center gap-1.5 sm:gap-2">
+                <div className="flex items-center gap-1 sm:gap-2">
                   {userImage && (
-                    <div className="flex items-center bg-black/60 p-0.5 rounded-full backdrop-blur-md border border-white/20">
+                    <div className="flex items-center bg-black/70 p-0.5 rounded-full backdrop-blur-md border border-white/20">
                       <button
                         onClick={() => setCoverageMode('smart')}
                         className={`px-2 py-0.5 rounded-full text-[9px] sm:text-[10px] font-bold uppercase tracking-wider transition-all cursor-pointer ${
                           coverageMode === 'smart'
-                            ? 'bg-[#d43b7a] text-white shadow'
+                            ? 'bg-magenta text-white shadow'
                             : 'text-white/70 hover:text-white'
                         }`}
                         title="Smart wall segmentation"
@@ -428,7 +428,7 @@ export function PaintStudio({ scrollTo, initialShadeId }: PaintStudioProps) {
                         onClick={() => setCoverageMode('full')}
                         className={`px-2 py-0.5 rounded-full text-[9px] sm:text-[10px] font-bold uppercase tracking-wider transition-all cursor-pointer ${
                           coverageMode === 'full'
-                            ? 'bg-[#d43b7a] text-white shadow'
+                            ? 'bg-magenta text-white shadow'
                             : 'text-white/70 hover:text-white'
                         }`}
                         title="Paint entire surface / facade"
@@ -437,51 +437,51 @@ export function PaintStudio({ scrollTo, initialShadeId }: PaintStudioProps) {
                       </button>
                     </div>
                   )}
-                  <span className="bg-black/50 px-2.5 sm:px-3 py-1 rounded-full backdrop-blur-md border border-white/10 text-[10px] sm:text-xs">
+                  <span className="bg-black/70 px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-full backdrop-blur-md border border-white/15 text-[9px] sm:text-xs font-bold uppercase tracking-wider">
                     {finish}
                   </span>
-                  <span className="bg-black/50 px-2.5 sm:px-3 py-1 rounded-full backdrop-blur-md border border-white/10 text-[10px] sm:text-xs">
+                  <span className="bg-black/70 px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-full backdrop-blur-md border border-white/15 text-[9px] sm:text-xs font-bold uppercase tracking-wider">
                     {lighting}
                   </span>
                 </div>
               </div>
 
               {/* Room Bottom Swatch Tag */}
-              <div className="studio-room-caption">
-                <span>{shade.id}</span>
-                <strong>{shade.name}</strong>
-                <small>{shade.family} Collection • {shade.hex}</small>
+              <div className="studio-room-caption absolute bottom-2 sm:bottom-3 left-2 sm:left-3 z-10 px-2.5 py-1.5 sm:px-3 sm:py-2 rounded-xl bg-black/75 backdrop-blur-md border border-white/20 text-white min-w-[110px] shadow-lg">
+                <span className="text-[9px] uppercase tracking-widest text-cyan font-bold block leading-tight">{shade.id}</span>
+                <strong className="font-display text-sm sm:text-base text-white font-bold block leading-tight mt-0.5">{shade.name}</strong>
+                <small className="text-[8px] sm:text-[9px] text-white/70 block uppercase tracking-wider mt-0.5">{shade.family} • {shade.hex}</small>
               </div>
 
               {userImage && (
                 <button
                   onClick={resetUserUpload}
-                  className="absolute top-4 right-4 bg-black/60 hover:bg-black/80 text-white p-2 rounded-full backdrop-blur-md transition-colors z-10 cursor-pointer"
+                  className="absolute top-2 right-2 sm:top-3 sm:right-3 bg-black/70 hover:bg-black/90 text-white p-1.5 sm:p-2 rounded-full backdrop-blur-md transition-colors z-10 cursor-pointer border border-white/20"
                   title="Reset to default scenes"
                 >
-                  <RotateCcw className="w-4 h-4" />
+                  <RotateCcw className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                 </button>
               )}
             </div>
 
             {/* CATEGORY-BASED SCENE NAVIGATION & 25+ SCENE CARDS */}
-            <div className="mt-5 space-y-3">
+            <div className="mt-4 space-y-2.5">
               <div className="flex items-center justify-between">
-                <span className="text-xs font-extrabold uppercase tracking-widest text-[#252033] flex items-center gap-1.5">
-                  <Filter className="w-3.5 h-3.5 text-[#d43b7a]" /> Select Visualization Scene ({filteredScenes.length})
+                <span className="text-xs font-extrabold uppercase tracking-widest text-white flex items-center gap-1.5">
+                  <Filter className="w-3.5 h-3.5 text-magenta" /> Select Scene ({filteredScenes.length})
                 </span>
-                <span className="text-xs text-black/50">{activeScene.name} Selected</span>
+                <span className="text-xs text-white/60">{activeScene.name} Selected</span>
               </div>
 
               {/* Category Filter Pills */}
-              <div className="flex gap-2 overflow-x-auto no-scrollbar pb-1">
+              <div className="flex gap-1.5 overflow-x-auto no-scrollbar pb-1">
                 {sceneCategoryTabs.map((tab) => (
                   <button
                     key={tab.id}
                     onClick={() => setSelectedSceneTab(tab.id)}
-                    className={`px-3.5 py-1.5 rounded-full text-[11px] font-bold uppercase tracking-wider transition-all whitespace-nowrap cursor-pointer ${selectedSceneTab === tab.id
-                        ? 'bg-[#272037] text-white shadow-md'
-                        : 'bg-white/70 text-[#5c5364] hover:bg-white hover:text-[#272037] border border-black/5'
+                    className={`px-3 py-1.5 rounded-full text-[10px] sm:text-[11px] font-bold uppercase tracking-wider transition-all whitespace-nowrap cursor-pointer ${selectedSceneTab === tab.id
+                        ? 'bg-magenta text-white shadow-md shadow-magenta/30 border border-magenta'
+                        : 'bg-white/10 text-white/80 hover:bg-white/20 hover:text-white border border-white/15'
                       }`}
                   >
                     {tab.label}
@@ -490,7 +490,7 @@ export function PaintStudio({ scrollTo, initialShadeId }: PaintStudioProps) {
               </div>
 
               {/* Scene Cards Grid */}
-              <div ref={scenesGridRef} className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-6 gap-2.5 max-h-64 overflow-y-auto no-scrollbar p-1">
+              <div ref={scenesGridRef} className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-6 gap-2 max-h-52 overflow-y-auto no-scrollbar p-0.5">
                 {filteredScenes.map((scene) => {
                   const isSelected = !userImage && activeScene.id === scene.id;
                   return (
@@ -500,17 +500,17 @@ export function PaintStudio({ scrollTo, initialShadeId }: PaintStudioProps) {
                         setUserImage(null);
                         setActiveScene(scene);
                       }}
-                      className={`scene-card group relative aspect-[4/3] rounded-xl overflow-hidden border-2 text-left transition-all cursor-pointer ${isSelected ? 'border-[#d43b7a] shadow-lg scale-[1.02]' : 'border-transparent hover:scale-105'
+                      className={`scene-card group relative aspect-[4/3] rounded-xl overflow-hidden border-2 text-left transition-all cursor-pointer ${isSelected ? 'border-magenta shadow-lg shadow-magenta/30 scale-[1.02]' : 'border-white/10 hover:border-white/30'
                         }`}
                     >
                       <img src={scene.image} alt={scene.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300" />
                       <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
-                      <span className="absolute bottom-1.5 left-1.5 right-1.5 text-[10px] font-bold text-white leading-tight drop-shadow-md">
+                      <span className="absolute bottom-1 left-1 right-1 text-[9px] sm:text-[10px] font-bold text-white leading-tight drop-shadow-md truncate">
                         {scene.name}
                       </span>
                       {isSelected && (
-                        <span className="absolute top-1.5 right-1.5 bg-[#d43b7a] text-white p-0.5 rounded-full shadow">
-                          <CheckCircle2 className="w-3 h-3" />
+                        <span className="absolute top-1 right-1 bg-magenta text-white p-0.5 rounded-full shadow">
+                          <CheckCircle2 className="w-2.5 h-2.5" />
                         </span>
                       )}
                     </button>
@@ -519,9 +519,9 @@ export function PaintStudio({ scrollTo, initialShadeId }: PaintStudioProps) {
               </div>
             </div>
 
-            {/* Photo Upload Trigger & Drag-and-Drop */}
-            <div className="mt-4 flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3 pt-3 border-t border-black/10">
-              <div className="flex-1">
+            {/* Photo Upload Trigger */}
+            <div className="mt-3.5 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2.5 pt-3 border-t border-white/10">
+              <div className="flex-1 hidden md:block">
                 <div
                   onDragOver={(e) => {
                     e.preventDefault();
@@ -529,18 +529,18 @@ export function PaintStudio({ scrollTo, initialShadeId }: PaintStudioProps) {
                   }}
                   onDragLeave={() => setUploadDragOver(false)}
                   onDrop={handleDrop}
-                  className={`upload-drop-zone ${uploadDragOver ? 'is-dragging' : ''}`}
+                  className={`upload-drop-zone p-2.5 rounded-xl border-2 border-dashed border-white/20 bg-white/5 text-center transition-all ${uploadDragOver ? 'border-magenta bg-magenta/10' : ''}`}
                 >
-                  <div className="flex items-center justify-center gap-3 text-xs text-[#6d6471]">
-                    <ImageIcon className="w-4 h-4 text-[#d43b7a]" />
+                  <div className="flex items-center justify-center gap-2 text-xs text-white/70">
+                    <ImageIcon className="w-4 h-4 text-magenta" />
                     <span>
-                      <strong>Drag & drop your room/surface photo here</strong> (JPG, PNG, WEBP)
+                      <strong>Drag & drop room photo here</strong> (JPG, PNG, WEBP)
                     </span>
                   </div>
                 </div>
               </div>
 
-              <div className="flex-shrink-0">
+              <div className="w-full md:w-auto flex-shrink-0">
                 <input
                   ref={fileInputRef}
                   type="file"
@@ -550,17 +550,17 @@ export function PaintStudio({ scrollTo, initialShadeId }: PaintStudioProps) {
                 />
                 <button
                   onClick={() => fileInputRef.current?.click()}
-                  className="w-full md:w-auto px-5 py-3 rounded-xl bg-gradient-to-r from-magenta to-violet text-white font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 shadow-lg hover:opacity-95 transition-opacity cursor-pointer"
+                  className="w-full px-4 py-2.5 rounded-xl bg-gradient-to-r from-magenta to-violet text-white font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 shadow-lg hover:opacity-95 transition-opacity cursor-pointer"
                 >
-                  <Upload className="w-4 h-4" /> + Upload Custom Photo
+                  <Upload className="w-3.5 h-3.5" /> + Upload Custom Room Photo
                 </button>
               </div>
             </div>
 
             {/* AI Segmentation Status Info */}
             {segmentInfo && (
-              <div className="mt-3 p-3 rounded-xl bg-magenta/10 border border-magenta/20 text-xs text-[#252033] flex items-center gap-2">
-                <Info className="w-4 h-4 text-[#d43b7a] flex-shrink-0" />
+              <div className="mt-2.5 p-2.5 rounded-xl bg-magenta/15 border border-magenta/30 text-xs text-white/90 flex items-center gap-2">
+                <Info className="w-4 h-4 text-cyan flex-shrink-0" />
                 <span>{segmentInfo}</span>
               </div>
             )}
@@ -568,114 +568,134 @@ export function PaintStudio({ scrollTo, initialShadeId }: PaintStudioProps) {
         </div>
 
         {/* Right Column: Shade Explorer & Active Shade Controls */}
-        <div className="space-y-6">
+        <div className="space-y-4 sm:space-y-5">
           {/* Quick Palette Explorer */}
-          <div className="studio-explorer">
-            <div className="studio-explorer-header">
+          <div className="studio-explorer p-3.5 sm:p-4 bg-[#0e1426]/90 border border-white/15 rounded-2xl backdrop-blur-xl shadow-2xl">
+            <div className="flex items-end justify-between gap-2 mb-1">
               <div>
-                <span className="studio-overline">Browse Visaka Catalog</span>
-                <h3>Shade Explorer</h3>
+                <span className="text-[10px] font-extrabold uppercase tracking-widest text-cyan block">Browse Visaka Catalog</span>
+                <h3 className="font-display text-lg sm:text-xl text-white font-bold mt-0.5">Shade Explorer</h3>
               </div>
               <button
                 onClick={() => setShowFavourites(true)}
-                className="studio-favourites-link cursor-pointer"
+                className="inline-flex items-center gap-1.5 text-xs font-bold text-magenta hover:text-white transition-colors cursor-pointer"
               >
-                <Heart className="w-4 h-4" /> Favourites ({favourites.length})
+                <Heart className="w-3.5 h-3.5" /> Favourites ({favourites.length})
               </button>
             </div>
 
             {/* Search Input */}
-            <div className="studio-search">
-              <Search className="w-4 h-4 text-black/40" />
+            <div className="flex items-center gap-2 bg-white/10 border border-white/15 rounded-xl mt-2.5 px-3 py-2 text-white focus-within:border-magenta focus-within:ring-1 focus-within:ring-magenta transition-all">
+              <Search className="w-4 h-4 text-white/40 flex-shrink-0" />
               <input
                 type="text"
                 placeholder="Search shades by name, code or tone..."
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
+                className="w-full bg-transparent text-white placeholder-white/40 text-xs outline-none"
               />
               {query && (
-                <button onClick={() => setQuery('')} aria-label="Clear search" className="cursor-pointer">
-                  <X className="w-4 h-4 text-black/40" />
+                <button onClick={() => setQuery('')} aria-label="Clear search" className="text-white/40 hover:text-white cursor-pointer flex-shrink-0">
+                  <X className="w-3.5 h-3.5" />
                 </button>
               )}
             </div>
 
             {/* Family Category Pills */}
-            <div className="studio-family-tabs no-scrollbar">
+            <div className="flex gap-1.5 overflow-x-auto no-scrollbar py-2.5">
               {colorFamilies.map((fam) => (
                 <button
                   key={fam}
                   onClick={() => setFamily(fam)}
-                  className={family === fam ? 'is-active cursor-pointer' : 'cursor-pointer'}
+                  className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider whitespace-nowrap transition-all cursor-pointer ${
+                    family === fam
+                      ? 'bg-magenta text-white shadow-md shadow-magenta/30 border border-magenta'
+                      : 'bg-white/10 text-white/70 hover:bg-white/20 hover:text-white border border-white/10'
+                  }`}
                 >
                   {familySwatches[fam]?.name || fam}
                 </button>
               ))}
             </div>
-            <span className="text-[10px] text-black/40 font-medium">{filteredShades.length} shades</span>
+            <div className="text-[10px] text-white/40 font-medium mb-1.5">{filteredShades.length} shades displayed</div>
 
             {/* Mini Swatches Grid */}
-            <div ref={paletteRef} className="studio-palette">
+            <div ref={paletteRef} className="grid grid-cols-2 sm:grid-cols-3 gap-1.5 max-h-52 sm:max-h-60 overflow-y-auto no-scrollbar p-0.5">
               {filteredShades.map((item) => (
                 <button
                   key={item.id}
                   data-shade-id={item.id}
                   onClick={() => selectShade(item)}
-                  className={`studio-palette-card cursor-pointer ${item.id === shade.id ? 'is-selected' : ''}`}
+                  className={`flex items-center gap-2 p-1.5 sm:p-2 rounded-xl border transition-all cursor-pointer text-left ${
+                    item.id === shade.id
+                      ? 'bg-magenta/25 border-magenta ring-1 ring-magenta shadow-md'
+                      : 'bg-white/5 hover:bg-white/10 border-white/10 hover:border-white/20'
+                  }`}
                 >
-                  <div className="studio-card-swatch" style={{ backgroundColor: item.hex }} />
-                  <div className="studio-card-copy">
-                    <strong>{item.name}</strong>
-                    <small>{item.id}</small>
+                  <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg flex-shrink-0 shadow border border-white/20" style={{ backgroundColor: item.hex }} />
+                  <div className="min-w-0 flex-1">
+                    <strong className="text-[11px] sm:text-xs font-bold text-white block truncate leading-tight">{item.name}</strong>
+                    <small className="text-[9px] text-white/50 block truncate mt-0.5">{item.id}</small>
                   </div>
                 </button>
               ))}
             </div>
 
-            <div className="mt-4 text-center">
+            <div className="mt-2.5 text-center">
               <button
                 onClick={handleExploreShades}
-                className="text-xs font-extrabold uppercase tracking-widest text-[#d43b7a] hover:underline inline-flex items-center gap-1 cursor-pointer"
+                className="text-[11px] font-extrabold uppercase tracking-widest text-magenta hover:text-white inline-flex items-center gap-1 cursor-pointer transition-colors"
               >
-                OPEN FULL 1,000+ SHADE LIBRARY <ArrowRight className="w-3.5 h-3.5" />
+                OPEN FULL 1,000+ SHADE LIBRARY <ArrowRight className="w-3 h-3" />
               </button>
             </div>
           </div>
 
           {/* Active Selected Swatch Controls & Details */}
-          <div className="studio-controls">
+          <div className="studio-controls p-3.5 sm:p-5 bg-[#0e1426]/90 border border-white/15 rounded-2xl backdrop-blur-xl shadow-2xl space-y-3.5">
             {/* Active Selected Swatch Card */}
-            <div className="studio-selection-card">
-              <div className="studio-swatch-large swatch-chip-organic" style={{ backgroundColor: shade.hex }}>
-                <span>{shade.id}</span>
+            <div className="flex items-center gap-3 pb-3 border-b border-white/12">
+              <div
+                className="w-13 h-13 sm:w-14 sm:h-14 rounded-xl flex-shrink-0 shadow-xl border border-white/25 flex items-end p-1.5 text-[9px] font-mono font-bold text-white drop-shadow-md"
+                style={{ backgroundColor: shade.hex }}
+              >
+                {shade.id}
               </div>
-              <div>
-                <span className="studio-overline">{shade.family} Collection</span>
-                <h3>{shade.name}</h3>
-                <p>{shade.code} • Recommended: {shade.space}</p>
+              <div className="min-w-0 flex-1">
+                <span className="text-[10px] font-extrabold uppercase tracking-widest text-cyan block">{shade.family} Collection</span>
+                <h3 className="font-display text-lg sm:text-xl text-white font-bold truncate mt-0.5">{shade.name}</h3>
+                <p className="text-[11px] sm:text-xs text-white/60 truncate mt-0.5">{shade.code} • Recommended: {shade.space}</p>
               </div>
               <button
                 onClick={() => toggleFavourite(shade.id)}
-                className={`studio-heart cursor-pointer ${isFavourite ? 'is-favourite' : ''}`}
+                className={`w-9 h-9 sm:w-10 sm:h-10 rounded-full border transition-all flex items-center justify-center cursor-pointer flex-shrink-0 ${
+                  isFavourite
+                    ? 'bg-magenta/25 text-magenta border-magenta shadow-md shadow-magenta/20'
+                    : 'bg-white/10 text-white/60 border-white/15 hover:text-white hover:bg-white/15'
+                }`}
                 aria-label={isFavourite ? 'Remove from favourites' : 'Add to favourites'}
               >
-                <Heart className="w-5 h-5" fill={isFavourite ? 'currentColor' : 'none'} />
+                <Heart className="w-4 h-4 sm:w-5 sm:h-5" fill={isFavourite ? 'currentColor' : 'none'} />
               </button>
             </div>
 
-            <p className="studio-shade-description">{shade.description}</p>
+            <p className="text-xs text-white/80 leading-relaxed">{shade.description}</p>
 
             {/* Lighting Simulation Options */}
-            <div className="studio-control-group">
-              <span className="studio-overline flex items-center gap-1.5">
+            <div className="pt-2 border-t border-white/10">
+              <span className="text-[10px] font-extrabold uppercase tracking-widest text-white/60 flex items-center gap-1.5 mb-2">
                 <Sun className="w-3.5 h-3.5 text-[#ff7a00]" /> Ambient Lighting Simulation
               </span>
-              <div className="studio-option-grid">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5 sm:gap-2">
                 {lightingOptions.map((opt) => (
                   <button
                     key={opt}
                     onClick={() => setLighting(opt)}
-                    className={lighting === opt ? 'is-active cursor-pointer' : 'cursor-pointer'}
+                    className={`py-2 px-2 rounded-xl text-xs font-bold transition-all border text-center cursor-pointer flex items-center justify-center ${
+                      lighting === opt
+                        ? 'bg-gradient-to-r from-magenta to-violet text-white border-magenta shadow-md shadow-magenta/30 scale-[1.02]'
+                        : 'bg-white/5 hover:bg-white/10 text-white/80 border-white/15'
+                    }`}
                   >
                     {opt}
                   </button>
@@ -684,16 +704,20 @@ export function PaintStudio({ scrollTo, initialShadeId }: PaintStudioProps) {
             </div>
 
             {/* Surface Finish Sheen Options */}
-            <div className="studio-control-group">
-              <span className="studio-overline flex items-center gap-1.5">
-                <SlidersHorizontal className="w-3.5 h-3.5 text-[#00c8ff]" /> Surface Sheen & Finish
+            <div className="pt-2 border-t border-white/10">
+              <span className="text-[10px] font-extrabold uppercase tracking-widest text-white/60 flex items-center gap-1.5 mb-2">
+                <SlidersHorizontal className="w-3.5 h-3.5 text-cyan" /> Surface Sheen & Finish
               </span>
-              <div className="studio-finish-tabs">
+              <div className="grid grid-cols-4 gap-1.5 sm:gap-2">
                 {finishes.map((f) => (
                   <button
                     key={f}
                     onClick={() => setFinish(f)}
-                    className={finish === f ? 'is-active cursor-pointer' : 'cursor-pointer'}
+                    className={`py-2 px-1 rounded-xl text-[11px] sm:text-xs font-bold transition-all border text-center cursor-pointer flex items-center justify-center ${
+                      finish === f
+                        ? 'bg-gradient-to-r from-magenta to-violet text-white border-magenta shadow-md shadow-magenta/30 scale-[1.02]'
+                        : 'bg-white/5 hover:bg-white/10 text-white/80 border-white/15'
+                    }`}
                   >
                     {f}
                   </button>
@@ -702,78 +726,78 @@ export function PaintStudio({ scrollTo, initialShadeId }: PaintStudioProps) {
             </div>
 
             {/* Palette Builder — Complementary Colour Engine */}
-            <div className="studio-control-group">
-              <span className="studio-overline flex items-center gap-1.5">
-                <Palette className="w-3.5 h-3.5 text-[#e6007e]" /> Build Your Palette (Color Harmony)
+            <div className="pt-2 border-t border-white/10">
+              <span className="text-[10px] font-extrabold uppercase tracking-widest text-white/60 flex items-center gap-1.5 mb-2">
+                <Palette className="w-3.5 h-3.5 text-magenta" /> Build Your Palette (Color Harmony)
               </span>
-              <div className="palette-builder-grid">
+              <div className="grid grid-cols-5 gap-1 sm:gap-2">
                 <button
                   onClick={() => selectShade(complementaryPalette.complementary)}
-                  className="palette-builder-chip cursor-pointer"
+                  className="flex flex-col items-center gap-1 p-1.5 sm:p-2 rounded-xl bg-white/5 hover:bg-white/10 border border-white/12 hover:border-magenta transition-all cursor-pointer group"
                   title={`Complementary: ${complementaryPalette.complementary.name}`}
                 >
-                  <div className="palette-builder-swatch" style={{ backgroundColor: complementaryPalette.complementary.hex }} />
-                  <span>Comp</span>
+                  <div className="w-7 h-7 sm:w-9 sm:h-9 rounded-lg shadow-md border border-white/20 group-hover:scale-105 transition-transform" style={{ backgroundColor: complementaryPalette.complementary.hex }} />
+                  <span className="text-[8px] sm:text-[9px] font-bold text-white/80 uppercase truncate max-w-full">Comp</span>
                 </button>
                 <button
                   onClick={() => selectShade(complementaryPalette.similar)}
-                  className="palette-builder-chip cursor-pointer"
+                  className="flex flex-col items-center gap-1 p-1.5 sm:p-2 rounded-xl bg-white/5 hover:bg-white/10 border border-white/12 hover:border-magenta transition-all cursor-pointer group"
                   title={`Similar: ${complementaryPalette.similar.name}`}
                 >
-                  <div className="palette-builder-swatch" style={{ backgroundColor: complementaryPalette.similar.hex }} />
-                  <span>Similar</span>
+                  <div className="w-7 h-7 sm:w-9 sm:h-9 rounded-lg shadow-md border border-white/20 group-hover:scale-105 transition-transform" style={{ backgroundColor: complementaryPalette.similar.hex }} />
+                  <span className="text-[8px] sm:text-[9px] font-bold text-white/80 uppercase truncate max-w-full">Similar</span>
                 </button>
                 <button
                   onClick={() => selectShade(complementaryPalette.lighter)}
-                  className="palette-builder-chip cursor-pointer"
+                  className="flex flex-col items-center gap-1 p-1.5 sm:p-2 rounded-xl bg-white/5 hover:bg-white/10 border border-white/12 hover:border-magenta transition-all cursor-pointer group"
                   title={`Lighter: ${complementaryPalette.lighter.name}`}
                 >
-                  <div className="palette-builder-swatch" style={{ backgroundColor: complementaryPalette.lighter.hex }} />
-                  <span>Lighter</span>
+                  <div className="w-7 h-7 sm:w-9 sm:h-9 rounded-lg shadow-md border border-white/20 group-hover:scale-105 transition-transform" style={{ backgroundColor: complementaryPalette.lighter.hex }} />
+                  <span className="text-[8px] sm:text-[9px] font-bold text-white/80 uppercase truncate max-w-full">Lighter</span>
                 </button>
                 <button
                   onClick={() => selectShade(complementaryPalette.darker)}
-                  className="palette-builder-chip cursor-pointer"
+                  className="flex flex-col items-center gap-1 p-1.5 sm:p-2 rounded-xl bg-white/5 hover:bg-white/10 border border-white/12 hover:border-magenta transition-all cursor-pointer group"
                   title={`Darker: ${complementaryPalette.darker.name}`}
                 >
-                  <div className="palette-builder-swatch" style={{ backgroundColor: complementaryPalette.darker.hex }} />
-                  <span>Darker</span>
+                  <div className="w-7 h-7 sm:w-9 sm:h-9 rounded-lg shadow-md border border-white/20 group-hover:scale-105 transition-transform" style={{ backgroundColor: complementaryPalette.darker.hex }} />
+                  <span className="text-[8px] sm:text-[9px] font-bold text-white/80 uppercase truncate max-w-full">Darker</span>
                 </button>
                 <button
                   onClick={() => selectShade(complementaryPalette.accent)}
-                  className="palette-builder-chip cursor-pointer"
+                  className="flex flex-col items-center gap-1 p-1.5 sm:p-2 rounded-xl bg-white/5 hover:bg-white/10 border border-white/12 hover:border-magenta transition-all cursor-pointer group"
                   title={`Accent: ${complementaryPalette.accent.name}`}
                 >
-                  <div className="palette-builder-swatch" style={{ backgroundColor: complementaryPalette.accent.hex }} />
-                  <span>Accent</span>
+                  <div className="w-7 h-7 sm:w-9 sm:h-9 rounded-lg shadow-md border border-white/20 group-hover:scale-105 transition-transform" style={{ backgroundColor: complementaryPalette.accent.hex }} />
+                  <span className="text-[8px] sm:text-[9px] font-bold text-white/80 uppercase truncate max-w-full">Accent</span>
                 </button>
               </div>
             </div>
 
             {/* Specifications Info */}
-            <div className="studio-info">
-              <div>
-                <span>HEX CODE</span>
-                <strong>{shade.hex}</strong>
+            <div className="grid grid-cols-2 gap-2 pt-2 border-t border-white/10">
+              <div className="p-2 sm:p-2.5 rounded-xl bg-white/5 border border-white/10">
+                <span className="text-[9px] font-extrabold uppercase tracking-widest text-white/40 block">HEX CODE</span>
+                <strong className="font-mono text-xs sm:text-sm font-bold text-white mt-0.5 block">{shade.hex}</strong>
               </div>
-              <div>
-                <span>BEST ROOM</span>
-                <strong>{shade.space}</strong>
+              <div className="p-2 sm:p-2.5 rounded-xl bg-white/5 border border-white/10">
+                <span className="text-[9px] font-extrabold uppercase tracking-widest text-white/40 block">BEST ROOM</span>
+                <strong className="text-xs sm:text-sm font-bold text-white truncate mt-0.5 block">{shade.space || 'All Living Spaces'}</strong>
               </div>
             </div>
 
             {/* CTA Buttons */}
-            <div className="studio-action-row mt-3">
+            <div className="flex items-center gap-2 pt-2">
               <Link
                 to="/contact"
                 onClick={handleContactClick}
-                className="studio-primary flex-1"
+                className="flex-1 py-3 sm:py-3.5 rounded-xl bg-gradient-to-r from-magenta to-violet text-white font-extrabold text-xs sm:text-sm uppercase tracking-wider shadow-lg hover:opacity-95 transition-all text-center flex items-center justify-center gap-2"
               >
-                Sample This Shade <ArrowRight className="w-4 h-4" />
+                Sample This Shade <ArrowRight className="w-3.5 h-3.5" />
               </Link>
               <button
                 onClick={shareShade}
-                className="studio-icon-button cursor-pointer"
+                className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl bg-white/10 hover:bg-white/20 border border-white/15 text-white flex items-center justify-center cursor-pointer transition-all flex-shrink-0"
                 aria-label="Share shade details"
                 title="Share shade"
               >

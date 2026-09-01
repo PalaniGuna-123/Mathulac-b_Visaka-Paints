@@ -56,7 +56,7 @@ const SPLASH_DROPS = [
 function StudioBucket({ motion, profile, reducedMotion, onReady, layout }: StudioBucketProps) {
   const bucketGroupRef = useRef<THREE.Group>(null);
   const meshRef = useRef<THREE.Mesh>(null);
-  const materialRef = useRef<THREE.MeshPhysicalMaterial>(null);
+  const materialRef = useRef<THREE.MeshBasicMaterial>(null);
   const shaderRef = useRef<CompiledBucketShader | null>(null);
   const splashGroupRef = useRef<THREE.Group>(null);
   const shadowRef = useRef<THREE.Mesh>(null);
@@ -162,42 +162,12 @@ function StudioBucket({ motion, profile, reducedMotion, onReady, layout }: Studi
           float streamWave = sin(vBucketUv.x * 12.0 + uTime * 2.0) * 0.06;
           float pourMask = smoothstep(0.0, 1.0, clamp((uPourProgress - (1.0 - vBucketUv.y) * 0.35 + streamWave) / 0.65, 0.0, 1.0));
 
-          // Blend Upright -> Pouring
+          // Blend Upright -> Pouring -> Swirl
           vec4 blended = mix(upright, pouring, pourMask);
-
-          // Blend Pouring -> Swirl vortex
           blended = mix(blended, swirl, uSwirlProgress);
 
-          // Studio Deep-Dark Luminance Integration:
-          // Smoothly blends dark navy studio background into Three.js scene fog/background (#060b17)
-          float luma = getLuma(blended.rgb);
-          float alpha = smoothstep(0.012, 0.065, luma);
-
-          // Specular boost on vibrant paint streams
-          float isPaintStream = (1.0 - smoothstep(0.05, 0.55, vBucketUv.y)) * pourMask;
-          vec3 enhancedRgb = blended.rgb;
-          if (isPaintStream > 0.01) {
-            enhancedRgb *= (1.0 + isPaintStream * 0.14);
-          }
-
-          diffuseColor = vec4(enhancedRgb, alpha * uFade);`,
-        )
-        .replace(
-          '#include <roughnessmap_fragment>',
-          `#include <roughnessmap_fragment>
-          roughnessFactor = mix(0.35, 0.12, uPourProgress * (1.0 - vBucketUv.y));`,
-        )
-        .replace(
-          '#include <lights_physical_fragment>',
-          `#include <lights_physical_fragment>
-          material.clearcoat = mix(0.4, 0.92, uPourProgress);
-          material.clearcoatRoughness = mix(0.24, 0.06, uPourProgress);`,
-        )
-        .replace(
-          '#include <emissivemap_fragment>',
-          `#include <emissivemap_fragment>
-          // Subtle radiant bloom on pouring paint streams
-          totalEmissiveRadiance += diffuseColor.rgb * (0.04 + uPourProgress * 0.06);`,
+          // Render clean original image seamlessly without blotchy cutout borders or flashes
+          diffuseColor = vec4(blended.rgb, uFade);`,
         );
 
       shaderRef.current = shader;
@@ -298,15 +268,10 @@ function StudioBucket({ motion, profile, reducedMotion, onReady, layout }: Studi
         {/* Unified 5-Buckets Photographic Stage Mesh */}
         <mesh ref={meshRef} position={[0, 0, 0.1]} renderOrder={2}>
           <planeGeometry args={[planeWidth, planeHeight, 48, 32]} />
-          <meshPhysicalMaterial
+          <meshBasicMaterial
             ref={materialRef}
             map={uprightTexture}
             transparent
-            opacity={1}
-            roughness={0.28}
-            metalness={0.06}
-            clearcoat={0.7}
-            clearcoatRoughness={0.15}
             depthWrite={false}
           />
         </mesh>
@@ -598,9 +563,9 @@ function SceneContents(props: HeroSceneProps) {
 
       <ArchitecturalLighting motion={props.motion} />
       <Environment resolution={props.profile === 'desktop' ? 96 : 64}>
-        <Lightformer form="rect" intensity={3.2} color="#dce9ff" position={[-4, 4, 4]} scale={[5, 3, 1]} />
-        <Lightformer form="rect" intensity={1.55} color="#ffd9b6" position={[4, 2, -2]} rotation={[0, -0.7, 0]} scale={[3, 5, 1]} />
-        <Lightformer form="ring" intensity={0.9} color="#b9e8f2" position={[0, 5, -3]} scale={3} />
+        <Lightformer form="rect" intensity={1.5} color="#dce9ff" position={[-4, 4, 4]} scale={[5, 3, 1]} />
+        <Lightformer form="rect" intensity={1.0} color="#ffd9b6" position={[4, 2, -2]} rotation={[0, -0.7, 0]} scale={[3, 5, 1]} />
+        <Lightformer form="ring" intensity={0.6} color="#b9e8f2" position={[0, 5, -3]} scale={3} />
       </Environment>
     </>
   );

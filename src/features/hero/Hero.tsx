@@ -6,12 +6,14 @@ import {
   useRef,
   useState,
 } from 'react';
-import { ArrowDown, ArrowRight } from 'lucide-react';
+import { ArrowDown, ArrowRight, Sparkles } from 'lucide-react';
+import { useNavigate } from '../../routes/Router';
 import { cinematicHero } from '../../data/brand';
 import { FloatingPaintBubbles, PaintSplash } from '../../components/paint';
 import { createHeroMotionState, getHeroViewportProfile } from './heroMotion';
 import { useHeroTimeline } from './useHeroTimeline';
 import HeroScene from './HeroScene';
+import { MobileHouseTransformation } from './MobileHouseTransformation';
 
 const uprightBucketsUrl = '/assets/hero/bucket/muthulac-5-buckets-upright.jpg';
 const pouringBucketsUrl = '/assets/hero/bucket/muthulac-5-buckets-pouring.jpg';
@@ -90,6 +92,7 @@ function canUseWebGL() {
 }
 
 export function Hero({ scrollTo }: HeroProps) {
+  const navigate = useNavigate();
   const rootRef = useRef<HTMLElement>(null);
   const stageRef = useRef<HTMLDivElement>(null);
   const backdropRef = useRef<HTMLDivElement>(null);
@@ -177,20 +180,89 @@ export function Hero({ scrollTo }: HeroProps) {
   }, []);
 
   const handleCtaClick = () => {
-    if (scrollTo) {
-      scrollTo('studio');
-      return;
-    }
-    document.getElementById('studio')?.scrollIntoView({ behavior: 'smooth' });
+    navigate('/colours');
   };
 
   const handleFinalCtaClick = (id: 'palette' | 'products') => {
+    if (id === 'palette') {
+      navigate('/colours');
+      return;
+    }
+    if (id === 'products') {
+      navigate('/products');
+      return;
+    }
     if (scrollTo) {
       scrollTo(id);
       return;
     }
     document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
   };
+
+  // Dedicated clean, high-performance layout for Mobile devices
+  if (profile === 'mobile') {
+    return (
+      <section
+        id="top"
+        ref={rootRef}
+        className="cinematic-hero-mobile relative w-full pt-20 pb-10 px-4 bg-[#050A14] text-white overflow-hidden"
+        aria-labelledby="hero-heading"
+      >
+        {/* Ambient Halo Background */}
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-lg h-96 bg-gradient-to-b from-[#0968c9]/20 via-[#e6007e]/10 to-transparent blur-3xl pointer-events-none" />
+
+        <div className="relative z-10 max-w-xl mx-auto flex flex-col items-center text-center">
+          {/* Brand Eyebrow Badge */}
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/10 border border-white/15 text-white/90 text-[11px] font-bold tracking-widest uppercase mb-3">
+            <Sparkles className="w-3 h-3 text-cyan" /> {cinematicHero.eyebrow}
+          </div>
+
+          {/* Main Headline */}
+          <h1 id="hero-heading" className="font-display text-3xl sm:text-4xl font-extrabold text-white leading-tight tracking-tight">
+            {cinematicHero.headline} <em className="text-transparent bg-clip-text bg-gradient-to-r from-[#00c8ff] via-[#e6007e] to-[#ffd400] not-italic">{cinematicHero.headlineAccent}</em>
+          </h1>
+
+          {/* Supporting Copy */}
+          <p className="text-white/70 text-xs sm:text-sm mt-3 max-w-md leading-relaxed">
+            {cinematicHero.supportingText}
+          </p>
+
+          {/* Explore Our Colours CTA Button */}
+          <button
+            type="button"
+            className="paint-button cinematic-hero__cta mt-5 inline-flex items-center gap-2 px-6 py-3 rounded-full bg-white text-ink font-extrabold text-xs uppercase tracking-wider shadow-xl transition-all hover:bg-magenta hover:text-white"
+            onClick={handleCtaClick}
+            data-cursor="explore"
+          >
+            {cinematicHero.cta}
+            <ArrowRight className="w-3.5 h-3.5" aria-hidden="true" />
+          </button>
+
+          {/* Muthulac 5-Buckets Visual Presentation */}
+          <div className="relative w-full mt-6 rounded-2xl overflow-hidden shadow-2xl border border-white/15 bg-white/5 p-2">
+            <img
+              src={uprightBucketsUrl}
+              alt="Muthulac 5 Color Paint Buckets"
+              className="w-full h-auto object-contain rounded-xl drop-shadow-[0_15px_30px_rgba(0,0,0,0.8)]"
+              loading="eager"
+            />
+            <div className="flex items-center justify-center gap-2 mt-2 text-[10px] font-bold text-white/60 uppercase tracking-wider">
+              <span>5 Formulations</span>
+              <span>•</span>
+              <span>Interior & Exterior</span>
+              <span>•</span>
+              <span>ISO 9001</span>
+            </div>
+          </div>
+
+          {/* Unpainted to Painted House Interactive Transformation */}
+          <div className="w-full mt-4">
+            <MobileHouseTransformation />
+          </div>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section

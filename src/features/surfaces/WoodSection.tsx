@@ -3,10 +3,10 @@ import { Link } from '../../routes/Router';
 
 export function WoodSection() {
   const woodImages = [
-    'https://images.pexels.com/photos/4705928/pexels-photo-4705928.jpeg?auto=compress&cs=tinysrgb&w=1200',
-    'https://images.pexels.com/photos/911820/pexels-photo-911820.jpeg?auto=compress&cs=tinysrgb&w=1200',
-    'https://images.pexels.com/photos/10900708/pexels-photo-10900708.jpeg?auto=compress&cs=tinysrgb&w=1200',
-    'https://images.pexels.com/photos/37550783/pexels-photo-37550783.jpeg?auto=compress&cs=tinysrgb&w=1200',
+    'https://images.unsplash.com/photo-1538688525198-9b88f6f53126?auto=format&fit=crop&w=1200&q=85',
+    'https://images.unsplash.com/photo-1595428774223-ef52624120d2?auto=format&fit=crop&w=1200&q=85',
+    'https://images.unsplash.com/photo-1556909212-d5b604d0c90d?auto=format&fit=crop&w=1200&q=85',
+    'https://images.unsplash.com/photo-1615066390971-03e4e1c36ddf?auto=format&fit=crop&w=1200&q=85',
   ];
 
   return (
