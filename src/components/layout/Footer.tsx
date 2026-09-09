@@ -2,7 +2,7 @@ import { Instagram, Facebook, Linkedin, Phone, MapPin, ArrowUpRight } from 'luci
 import { navItems, phoneNumbers } from '../../data';
 import { categories } from '../../data/products';
 import { Link } from '../../routes/Router';
-import mathulacLogo from '../../assets/logo/logo.webp';
+import mathulacLogo from '../../assets/logo/visaka-chemicals-white-logo.png';
 
 export function Footer() {
   return (
@@ -16,8 +16,8 @@ export function Footer() {
             <div className="footer-paint-signoff mb-4" data-paint-heading>
               <img
                 src={mathulacLogo}
-                alt="Visaka Mathulac Paints & Chemicals India"
-                className="h-12 w-auto object-contain rounded-md"
+                alt="Visaka Paints & Chemicals India"
+                className="h-11 w-auto object-contain brightness-105"
               />
               <span className="footer-paint-signoff__stroke" aria-hidden="true" />
               <i aria-hidden="true" />

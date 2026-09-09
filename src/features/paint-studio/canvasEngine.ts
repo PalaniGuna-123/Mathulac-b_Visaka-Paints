@@ -4,11 +4,24 @@ export type LightingMode = 'Daylight' | 'Warm Light' | 'Evening' | 'Natural';
 export type FinishMode = 'Matte' | 'Silk' | 'Satin' | 'Gloss';
 export type CoverageMode = 'smart' | 'full';
 
+export interface PaintedZone {
+  id: string;
+  name: string;
+  polygon?: string;
+  points?: Array<[number, number]>;
+  hex?: string; // If defined, this particular shape is painted; if not, natural unpainted image shows
+  finish?: FinishMode;
+  shadeId?: string;
+  shadeName?: string;
+  isCustom?: boolean;
+}
+
 export interface RenderRoomOptions {
   image: HTMLImageElement;
-  maskPolygon?: string; // SVG-style polygon string e.g. "polygon(0 0, 100% 0, 100% 70%, 0 70%)"
+  maskPolygon?: string; // Legacy single mask polygon string
   customMaskCanvas?: HTMLCanvasElement | null;
-  hex: string;
+  zones?: PaintedZone[]; // Multi-zone / shape support
+  hex?: string;
   finish: FinishMode;
   lighting: LightingMode;
   coverageMode?: CoverageMode;
@@ -100,62 +113,51 @@ export function parsePolygonPoints(polygonStr: string): Array<[number, number]> 
 }
 
 /**
- * Renders realistic painted room to target HTMLCanvasElement preserving wall shadows,
- * highlights, ambient lighting, and finish textures.
- *
- * Supports both preset scenes (with polygon masks) and user-uploaded custom photos
- * (with alpha segmentation mask canvases).
+ * Converts array of normalized point pairs [[x, y], ...] to CSS polygon string
  */
-export function renderPaintedRoomCanvas(
-  targetCanvas: HTMLCanvasElement,
-  options: RenderRoomOptions
-) {
-  const {
-    image,
-    maskPolygon,
-    customMaskCanvas,
-    hex,
-    finish,
-    lighting,
-    coverageMode = 'smart',
-    paintOpacity = 1.0,
-  } = options;
+export function pointsToPolygonString(points: Array<[number, number]>): string {
+  if (!points || points.length === 0) return 'polygon(0 0, 100% 0, 100% 100%, 0 100%)';
+  return `polygon(${points.map(([x, y]) => `${(x * 100).toFixed(2)}% ${(y * 100).toFixed(2)}%`).join(', ')})`;
+}
 
-  const ctx = targetCanvas.getContext('2d');
-  if (!ctx || !image) return;
-
-  if (!image.complete || image.naturalWidth === 0) {
-    if (!image.complete) {
-      image.onload = () => renderPaintedRoomCanvas(targetCanvas, options);
-    }
-    return;
+/**
+ * Checks if a 2D normalized point [x, y] is inside a polygon using ray casting algorithm
+ */
+export function isPointInsidePolygon(point: [number, number], vs: Array<[number, number]>): boolean {
+  if (!vs || vs.length < 3) return false;
+  const x = point[0];
+  const y = point[1];
+  let inside = false;
+  for (let i = 0, j = vs.length - 1; i < vs.length; j = i++) {
+    const xi = vs[i][0];
+    const yi = vs[i][1];
+    const xj = vs[j][0];
+    const yj = vs[j][1];
+    const intersect = yi > y !== yj > y && x < ((xj - xi) * (y - yi)) / (yj - yi) + xi;
+    if (intersect) inside = !inside;
   }
+  return inside;
+}
 
-  const width = image.naturalWidth || targetCanvas.width || 1600;
-  const height = image.naturalHeight || targetCanvas.height || 1000;
-
-  if (targetCanvas.width !== width || targetCanvas.height !== height) {
-    targetCanvas.width = width;
-    targetCanvas.height = height;
-  }
-
-  // 1. Draw base unpainted room image onto target canvas
-  ctx.save();
-  ctx.clearRect(0, 0, width, height);
-  ctx.drawImage(image, 0, 0, width, height);
-  ctx.restore();
-
-  // 2. Build offscreen painted layer containing the true photorealistic coat
+/**
+ * Builds offscreen canvas with photorealistic paint simulation for a specific hex & finish
+ */
+export function createPaintedLayer(
+  image: HTMLImageElement,
+  hex: string,
+  finish: FinishMode,
+  width: number,
+  height: number
+): HTMLCanvasElement | null {
   const paintCanvas = document.createElement('canvas');
   paintCanvas.width = width;
   paintCanvas.height = height;
   const paintCtx = paintCanvas.getContext('2d');
-  if (!paintCtx) return;
+  if (!paintCtx) return null;
 
-  // Draw room image into paint layer as base
+  // Base room image
   paintCtx.drawImage(image, 0, 0, width, height);
 
-  // Multi-pass realistic wall painting compositing:
   // Layer A: Multiply pass to lock shadows, crevice depth & microtexture
   paintCtx.save();
   paintCtx.globalCompositeOperation = 'multiply';
@@ -210,48 +212,128 @@ export function renderPaintedRoomCanvas(
   }
   paintCtx.restore();
 
-  // 3. Apply Masking to composite the painted layer only on walls/surfaces
-  if (customMaskCanvas && coverageMode !== 'full') {
-    // Custom user photo with alpha segmentation mask
-    paintCtx.save();
-    paintCtx.globalCompositeOperation = 'destination-in';
-    paintCtx.globalAlpha = 1.0;
-    paintCtx.drawImage(customMaskCanvas, 0, 0, width, height);
-    paintCtx.restore();
+  return paintCanvas;
+}
 
-    // Composite painted walls over base unpainted image
-    ctx.save();
-    ctx.globalCompositeOperation = 'source-over';
-    ctx.globalAlpha = paintOpacity;
-    ctx.drawImage(paintCanvas, 0, 0, width, height);
-    ctx.restore();
-  } else if (maskPolygon && coverageMode !== 'full') {
-    // Preset scene with SVG polygon path
-    ctx.save();
-    ctx.beginPath();
-    const points = parsePolygonPoints(maskPolygon);
-    if (points.length > 0) {
-      ctx.moveTo(points[0][0] * width, points[0][1] * height);
-      for (let i = 1; i < points.length; i++) {
-        ctx.lineTo(points[i][0] * width, points[i][1] * height);
-      }
-      ctx.closePath();
-      ctx.clip();
+/**
+ * Renders realistic painted room to target HTMLCanvasElement preserving wall shadows,
+ * highlights, ambient lighting, and finish textures.
+ *
+ * Supports multi-zone / shape painting (allowing only particular places or custom drawn shapes
+ * to receive paint), user-uploaded photos, and single surface masks.
+ */
+export function renderPaintedRoomCanvas(
+  targetCanvas: HTMLCanvasElement,
+  options: RenderRoomOptions
+) {
+  const {
+    image,
+    maskPolygon,
+    customMaskCanvas,
+    zones,
+    hex,
+    finish,
+    lighting,
+    coverageMode = 'smart',
+    paintOpacity = 1.0,
+  } = options;
+
+  const ctx = targetCanvas.getContext('2d');
+  if (!ctx || !image) return;
+
+  if (!image.complete || image.naturalWidth === 0) {
+    if (!image.complete) {
+      image.onload = () => renderPaintedRoomCanvas(targetCanvas, options);
     }
-    ctx.globalCompositeOperation = 'source-over';
-    ctx.globalAlpha = paintOpacity;
-    ctx.drawImage(paintCanvas, 0, 0, width, height);
-    ctx.restore();
-  } else {
-    // Full surface coverage (e.g. exterior facade, full room coat)
-    ctx.save();
-    ctx.globalCompositeOperation = 'source-over';
-    ctx.globalAlpha = paintOpacity;
-    ctx.drawImage(paintCanvas, 0, 0, width, height);
-    ctx.restore();
+    return;
   }
 
-  // 4. Global Ambient Lighting Simulation over the final composite
+  const width = image.naturalWidth || targetCanvas.width || 1600;
+  const height = image.naturalHeight || targetCanvas.height || 1000;
+
+  if (targetCanvas.width !== width || targetCanvas.height !== height) {
+    targetCanvas.width = width;
+    targetCanvas.height = height;
+  }
+
+  // 1. Draw base unpainted room image onto target canvas
+  ctx.save();
+  ctx.clearRect(0, 0, width, height);
+  ctx.drawImage(image, 0, 0, width, height);
+  ctx.restore();
+
+  // 2. Render Painted Shape(s) / Zone(s)
+  if (zones && zones.length > 0 && coverageMode !== 'full') {
+    // Only paint the specific shapes/zones that have a color assigned!
+    for (const zone of zones) {
+      if (!zone.hex) continue; // Unpainted zone remains original natural photo
+      const zoneFinish = zone.finish || finish;
+      const paintLayer = createPaintedLayer(image, zone.hex, zoneFinish, width, height);
+      if (!paintLayer) continue;
+
+      const points = zone.points && zone.points.length > 0
+        ? zone.points
+        : parsePolygonPoints(zone.polygon || '');
+
+      if (points.length > 0) {
+        ctx.save();
+        ctx.beginPath();
+        ctx.moveTo(points[0][0] * width, points[0][1] * height);
+        for (let i = 1; i < points.length; i++) {
+          ctx.lineTo(points[i][0] * width, points[i][1] * height);
+        }
+        ctx.closePath();
+        ctx.clip();
+        ctx.globalCompositeOperation = 'source-over';
+        ctx.globalAlpha = paintOpacity;
+        ctx.drawImage(paintLayer, 0, 0, width, height);
+        ctx.restore();
+      }
+    }
+  } else if (customMaskCanvas && coverageMode !== 'full') {
+    // Custom user photo with alpha segmentation mask
+    const activeHex = hex || '#D8D0C2';
+    const paintLayer = createPaintedLayer(image, activeHex, finish, width, height);
+    if (paintLayer) {
+      const paintCtx = paintLayer.getContext('2d');
+      if (paintCtx) {
+        paintCtx.save();
+        paintCtx.globalCompositeOperation = 'destination-in';
+        paintCtx.globalAlpha = 1.0;
+        paintCtx.drawImage(customMaskCanvas, 0, 0, width, height);
+        paintCtx.restore();
+      }
+      ctx.save();
+      ctx.globalCompositeOperation = 'source-over';
+      ctx.globalAlpha = paintOpacity;
+      ctx.drawImage(paintLayer, 0, 0, width, height);
+      ctx.restore();
+    }
+  } else if (hex) {
+    // Preset scene with SVG polygon path or full coat
+    const paintLayer = createPaintedLayer(image, hex, finish, width, height);
+    if (paintLayer) {
+      ctx.save();
+      if (maskPolygon && coverageMode !== 'full') {
+        ctx.beginPath();
+        const points = parsePolygonPoints(maskPolygon);
+        if (points.length > 0) {
+          ctx.moveTo(points[0][0] * width, points[0][1] * height);
+          for (let i = 1; i < points.length; i++) {
+            ctx.lineTo(points[i][0] * width, points[i][1] * height);
+          }
+          ctx.closePath();
+          ctx.clip();
+        }
+      }
+      ctx.globalCompositeOperation = 'source-over';
+      ctx.globalAlpha = paintOpacity;
+      ctx.drawImage(paintLayer, 0, 0, width, height);
+      ctx.restore();
+    }
+  }
+
+  // 3. Global Ambient Lighting Simulation over the final composite
   ctx.save();
   if (lighting === 'Daylight') {
     ctx.globalCompositeOperation = 'soft-light';

@@ -13,7 +13,7 @@ import {
   ChevronDown,
 } from 'lucide-react';
 import { companyContact } from '../data/brand';
-import mathulacLogo from '../assets/logo/logo.webp';
+import visakaLogo from '../assets/logo/visaka-chemicals-white-logo.png';
 
 export function ContactPage() {
   const [submitted, setSubmitted] = useState(false);
@@ -84,17 +84,14 @@ export function ContactPage() {
             {/* Vertically Centered Contact Content Block */}
             <div className="flex-1 flex flex-col justify-center py-4 space-y-7">
               {/* Brand Logo & Name */}
-              <div className="flex items-center gap-4">
+              <div className="flex flex-col sm:flex-row sm:items-center gap-4 pb-2">
                 <img
-                  src={mathulacLogo}
+                  src={visakaLogo}
                   alt={companyContact.companyName}
-                  className="h-16 w-auto object-contain rounded-lg bg-white p-1.5 shadow-md flex-shrink-0"
+                  className="h-14 sm:h-16 w-auto object-contain flex-shrink-0 drop-shadow-lg"
                 />
-                <div>
-                  <h3 className="font-bold text-white text-lg sm:text-xl tracking-wide uppercase leading-tight">
-                    {companyContact.companyName}
-                  </h3>
-                  <div className="inline-flex items-center gap-1.5 text-xs font-semibold text-yellow-300 mt-1">
+                <div className="sm:border-l sm:border-white/15 sm:pl-4">
+                  <div className="inline-flex items-center gap-1.5 text-xs font-semibold text-yellow-300">
                     <Award className="w-3.5 h-3.5 text-yellow-400" />
                     <span>{companyContact.certification}</span>
                   </div>

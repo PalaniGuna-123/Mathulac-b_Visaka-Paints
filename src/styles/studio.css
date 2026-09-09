@@ -994,3 +994,36 @@
     grid-template-columns: repeat(3, 1fr);
   }
 }
+
+/* Surface Zone & Custom Shape Drawing Enhancements */
+.surface-zone-bar {
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+
+.surface-zone-bar::-webkit-scrollbar {
+  display: none;
+}
+
+.cursor-crosshair {
+  cursor: crosshair !important;
+}
+
+.touch-none {
+  touch-action: none !important;
+}
+
+@keyframes shapePulseBorder {
+  0%, 100% {
+    stroke-opacity: 1;
+    stroke-dashoffset: 0;
+  }
+  50% {
+    stroke-opacity: 0.45;
+    stroke-dashoffset: 8;
+  }
+}
+
+.shape-active-pulse {
+  animation: shapePulseBorder 2s ease-in-out infinite;
+}

@@ -18,6 +18,14 @@ import {
   Loader2,
   Filter,
   CheckCircle2,
+  PenTool,
+  Trash2,
+  Eye,
+  EyeOff,
+  Undo2,
+  Layers,
+  MousePointerClick,
+  Plus,
 } from 'lucide-react';
 import {
   paintShades,
@@ -25,8 +33,10 @@ import {
   colorFamilies,
   visualizationScenes,
   sceneCategoryTabs,
+  getSceneZones,
   type PaintShade,
   type VisualizationScene,
+  type SceneZone,
 } from '../../data';
 import { Link, useNavigate } from '../../routes/Router';
 import { FloatingPaintBubbles, PaintSplash } from '../../components/paint';
@@ -34,9 +44,13 @@ import {
   renderPaintedRoomCanvas,
   getComplementaryPalette,
   segmentWalls,
+  parsePolygonPoints,
+  pointsToPolygonString,
+  isPointInsidePolygon,
   type LightingMode,
   type FinishMode,
   type CoverageMode,
+  type PaintedZone,
 } from './canvasEngine';
 
 const lightingOptions: LightingMode[] = ['Daylight', 'Warm Light', 'Evening', 'Natural'];
@@ -71,6 +85,74 @@ export function PaintStudio({ scrollTo, initialShadeId }: PaintStudioProps) {
   const [activeScene, setActiveScene] = useState<VisualizationScene>(visualizationScenes[0]); // Default: Living Room
   const [selectedSceneTab, setSelectedSceneTab] = useState<string>('ALL');
 
+  // Architectural preset zones for the active scene
+  const availablePresetZones = useMemo(() => {
+    return getSceneZones(activeScene);
+  }, [activeScene]);
+
+  // Selected active zone ID (defaults to first preset wall shape e.g. 'accent-left')
+  const [activeZoneId, setActiveZoneId] = useState<string>(() => {
+    return availablePresetZones[0]?.id || 'accent-left';
+  });
+
+  // Map of zoneId -> { hex: string, shade: PaintShade }
+  // Only the active zone starts with a color; other zones are natural/unpainted until chosen!
+  const [paintedZones, setPaintedZones] = useState<Record<string, { hex: string; shade: PaintShade }>>(() => {
+    const initId = availablePresetZones[0]?.id || 'accent-left';
+    return {
+      [initId]: { hex: defaultShade.hex, shade: defaultShade },
+    };
+  });
+
+  // Custom drawn shapes by user: { id: string, name: string, polygon: string, points: [number, number][] }
+  const [customShapes, setCustomShapes] = useState<Array<{
+    id: string;
+    name: string;
+    polygon: string;
+    points: Array<[number, number]>;
+  }>>([]);
+
+  // Interactive drawing mode state
+  const [isDrawingMode, setIsDrawingMode] = useState<boolean>(false);
+  const [drawPoints, setDrawPoints] = useState<Array<[number, number]>>([]);
+  const [showZoneOutlines, setShowZoneOutlines] = useState<boolean>(true);
+  const [hoveredZoneId, setHoveredZoneId] = useState<string | null>(null);
+
+  // User image upload state
+  const [userImage, setUserImage] = useState<HTMLImageElement | null>(null);
+  const [userMaskCanvas, setUserMaskCanvas] = useState<HTMLCanvasElement | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
+  const [uploadDragOver, setUploadDragOver] = useState(false);
+  const [segmentInfo, setSegmentInfo] = useState<string | null>(null);
+
+  // All zones combined for current view (presets + user custom drawn shapes)
+  const allZones = useMemo(() => {
+    if (userImage) {
+      return customShapes.map((cs) => ({
+        id: cs.id,
+        name: cs.name,
+        polygon: cs.polygon,
+        points: cs.points,
+        isCustom: true,
+      }));
+    }
+    const presets = availablePresetZones.map((pz) => ({
+      id: pz.id,
+      name: pz.name,
+      polygon: pz.polygon,
+      points: parsePolygonPoints(pz.polygon),
+      isCustom: false,
+    }));
+    const customs = customShapes.map((cs) => ({
+      id: cs.id,
+      name: cs.name,
+      polygon: cs.polygon,
+      points: cs.points,
+      isCustom: true,
+    }));
+    return [...presets, ...customs];
+  }, [userImage, availablePresetZones, customShapes]);
+
   const [family, setFamily] = useState<string>('ALL');
   const [query, setQuery] = useState('');
   const [lighting, setLighting] = useState<LightingMode>('Natural');
@@ -79,13 +161,6 @@ export function PaintStudio({ scrollTo, initialShadeId }: PaintStudioProps) {
   const [favourites, setFavourites] = useState<string[]>([]);
   const [showFavourites, setShowFavourites] = useState(false);
   const [toast, setToast] = useState('');
-
-  // User image upload state
-  const [userImage, setUserImage] = useState<HTMLImageElement | null>(null);
-  const [userMaskCanvas, setUserMaskCanvas] = useState<HTMLCanvasElement | null>(null);
-  const [isUploading, setIsUploading] = useState(false);
-  const [uploadDragOver, setUploadDragOver] = useState(false);
-  const [segmentInfo, setSegmentInfo] = useState<string | null>(null);
 
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const paletteRef = useRef<HTMLDivElement | null>(null);
@@ -134,7 +209,7 @@ export function PaintStudio({ scrollTo, initialShadeId }: PaintStudioProps) {
   // Toast Auto-dismiss
   useEffect(() => {
     if (!toast) return;
-    const timer = setTimeout(() => setToast(''), 3000);
+    const timer = setTimeout(() => setToast(''), 3500);
     return () => clearTimeout(timer);
   }, [toast]);
 
@@ -145,29 +220,57 @@ export function PaintStudio({ scrollTo, initialShadeId }: PaintStudioProps) {
     gsap.fromTo(cards, { opacity: 0, scale: 0.95 }, { opacity: 1, scale: 1, stagger: 0.02, duration: 0.3, ease: 'power2.out', overwrite: true });
   }, [selectedSceneTab]);
 
-  // Main Photorealistic Wall Canvas Render Loop
+  // Main Photorealistic Wall Canvas Render Loop with Multi-Zone Painting
   const renderCanvas = useCallback(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
     if (userImage) {
-      // Render user uploaded photo
-      renderPaintedRoomCanvas(canvas, {
-        image: userImage,
-        customMaskCanvas: userMaskCanvas,
-        hex: shade.hex,
-        finish,
-        lighting,
-        coverageMode,
-      });
+      if (customShapes.length > 0 && coverageMode !== 'full') {
+        const paintedZoneList: PaintedZone[] = customShapes.map((cs) => ({
+          id: cs.id,
+          name: cs.name,
+          polygon: cs.polygon,
+          points: cs.points,
+          hex: paintedZones[cs.id]?.hex,
+          finish,
+        }));
+        renderPaintedRoomCanvas(canvas, {
+          image: userImage,
+          zones: paintedZoneList,
+          hex: shade.hex,
+          finish,
+          lighting,
+          coverageMode: 'smart',
+        });
+      } else {
+        renderPaintedRoomCanvas(canvas, {
+          image: userImage,
+          customMaskCanvas: userMaskCanvas,
+          hex: shade.hex,
+          finish,
+          lighting,
+          coverageMode,
+        });
+      }
     } else {
-      // Render selected preset scene
       const img = new Image();
       img.crossOrigin = 'anonymous';
       img.src = activeScene.image;
       img.onload = () => {
+        // Build list of all painted zones
+        const paintedZoneList: PaintedZone[] = allZones.map((z) => ({
+          id: z.id,
+          name: z.name,
+          polygon: z.polygon,
+          points: z.points,
+          hex: paintedZones[z.id]?.hex,
+          finish,
+        }));
+
         renderPaintedRoomCanvas(canvas, {
           image: img,
+          zones: paintedZoneList,
           maskPolygon: activeScene.mask,
           hex: shade.hex,
           finish,
@@ -176,7 +279,7 @@ export function PaintStudio({ scrollTo, initialShadeId }: PaintStudioProps) {
         });
       };
     }
-  }, [userImage, userMaskCanvas, shade.hex, finish, lighting, coverageMode, activeScene]);
+  }, [userImage, userMaskCanvas, customShapes, paintedZones, allZones, shade.hex, finish, lighting, coverageMode, activeScene]);
 
   useEffect(() => {
     renderCanvas();
@@ -282,10 +385,136 @@ export function PaintStudio({ scrollTo, initialShadeId }: PaintStudioProps) {
   const selectShade = (next: PaintShade) => {
     if (!next) return;
     setShade(next);
+
+    // Apply colour ONLY to the active place/shape!
+    if (activeZoneId) {
+      setPaintedZones((prev) => ({
+        ...prev,
+        [activeZoneId]: { hex: next.hex, shade: next },
+      }));
+      const activeZoneObj = allZones.find((z) => z.id === activeZoneId);
+      const activeZoneName = activeZoneObj?.name || 'Selected Place';
+      setToast(`${next.name} applied to ${activeZoneName}!`);
+    } else if (allZones.length > 0) {
+      const firstId = allZones[0].id;
+      setActiveZoneId(firstId);
+      setPaintedZones((prev) => ({
+        ...prev,
+        [firstId]: { hex: next.hex, shade: next },
+      }));
+    }
+
     requestAnimationFrame(() => {
       const el = paletteRef.current?.querySelector(`[data-shade-id="${next.id}"]`);
       el?.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
     });
+  };
+
+  const finishCustomShape = () => {
+    if (drawPoints.length < 3) {
+      setToast('Please add at least 3 points on the image to create a shape.');
+      return;
+    }
+    const shapeId = `custom-zone-${Date.now()}`;
+    const shapeName = `Custom Shape ${customShapes.length + 1}`;
+    const polyStr = pointsToPolygonString(drawPoints);
+    const newShape = {
+      id: shapeId,
+      name: shapeName,
+      polygon: polyStr,
+      points: drawPoints,
+    };
+    setCustomShapes((prev) => [...prev, newShape]);
+    setActiveZoneId(shapeId);
+    // Apply current shade to this custom shape immediately!
+    setPaintedZones((prev) => ({
+      ...prev,
+      [shapeId]: { hex: shade.hex, shade },
+    }));
+    setIsDrawingMode(false);
+    setDrawPoints([]);
+    setToast(`${shapeName} created and painted with ${shade.name}!`);
+  };
+
+  const clearCurrentZone = () => {
+    if (!activeZoneId) return;
+    setPaintedZones((prev) => {
+      const next = { ...prev };
+      delete next[activeZoneId];
+      return next;
+    });
+    setToast('Reset selected place to natural unpainted wall.');
+  };
+
+  const paintAllZones = () => {
+    const updated: Record<string, { hex: string; shade: PaintShade }> = {};
+    for (const z of allZones) {
+      updated[z.id] = { hex: shade.hex, shade };
+    }
+    setPaintedZones(updated);
+    setToast(`Applied ${shade.name} to all places in the scene!`);
+  };
+
+  const deleteCustomShape = (id: string, e?: React.MouseEvent) => {
+    e?.stopPropagation();
+    setCustomShapes((prev) => prev.filter((s) => s.id !== id));
+    setPaintedZones((prev) => {
+      const next = { ...prev };
+      delete next[id];
+      return next;
+    });
+    if (activeZoneId === id) {
+      setActiveZoneId(availablePresetZones[0]?.id || 'accent-left');
+    }
+    setToast('Custom shape removed.');
+  };
+
+  const handleCanvasPointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    const xRatio = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+    const yRatio = Math.max(0, Math.min(1, (e.clientY - rect.top) / rect.height));
+
+    if (isDrawingMode) {
+      // If user clicks near the starting point after 3+ points, close the shape
+      if (drawPoints.length >= 3) {
+        const [firstX, firstY] = drawPoints[0];
+        const dist = Math.hypot(xRatio - firstX, yRatio - firstY);
+        if (dist < 0.05) {
+          finishCustomShape();
+          return;
+        }
+      }
+      setDrawPoints((prev) => [...prev, [xRatio, yRatio]]);
+    } else {
+      // Ray-cast to see which shape/zone was clicked on the image
+      const hitZone = [...allZones].reverse().find((zone) => {
+        const points = zone.points || parsePolygonPoints(zone.polygon || '');
+        return isPointInsidePolygon([xRatio, yRatio], points);
+      });
+      if (hitZone) {
+        setActiveZoneId(hitZone.id);
+        const paintedShade = paintedZones[hitZone.id];
+        if (paintedShade) {
+          setToast(`Selected: ${hitZone.name} (${paintedShade.shade.name})`);
+        } else {
+          setToast(`Selected: ${hitZone.name}. Pick any shade on the right to paint.`);
+        }
+      }
+    }
+  };
+
+  const handleSceneSelect = (scene: VisualizationScene) => {
+    setUserImage(null);
+    setActiveScene(scene);
+    const zones = getSceneZones(scene);
+    const firstZone = zones[0]?.id || `${scene.id}-accent-left`;
+    setActiveZoneId(firstZone);
+    setPaintedZones({
+      [firstZone]: { hex: shade.hex, shade },
+    });
+    setCustomShapes([]);
+    setIsDrawingMode(false);
+    setDrawPoints([]);
   };
 
   const shareShade = async () => {
@@ -323,7 +552,7 @@ export function PaintStudio({ scrollTo, initialShadeId }: PaintStudioProps) {
   };
 
   return (
-    <section id="studio" className="hidden md:block studio-shell relative py-16 md:py-24 px-4 md:px-8 overflow-hidden">
+    <section id="studio" className="w-full studio-shell relative py-8 sm:py-16 md:py-24 px-3 sm:px-6 md:px-8 overflow-hidden">
       {/* Animated Liquid Paint Background */}
       <div className="liquid-paint-bg">
         <div className="liquid-paint-blob liquid-paint-blob-1" />
@@ -375,16 +604,21 @@ export function PaintStudio({ scrollTo, initialShadeId }: PaintStudioProps) {
       </div>
 
       {/* MAIN VISUALIZER WORKSPACE */}
-      <div id="main-visualizer" className="max-w-[1400px] mx-auto mt-8 sm:mt-14 studio-grid">
+      <div id="main-visualizer" className="max-w-[1400px] mx-auto mt-6 sm:mt-12 studio-grid">
         {/* Left Column: Photorealistic Canvas Room & 25+ Scene Selector */}
-        <div className="space-y-4 sm:space-y-5">
-          <div className="studio-visual-card p-3 sm:p-4 bg-[#0e1426]/90 border border-white/15 rounded-2xl backdrop-blur-xl shadow-2xl">
-            {/* Photorealistic Canvas Frame */}
-            <div className="studio-room relative aspect-[16/10] rounded-xl overflow-hidden shadow-2xl border border-white/15 bg-[#080d1a]">
-              <canvas ref={canvasRef} className="w-full h-full object-cover" />
+        <div className="space-y-3.5 sm:space-y-4">
+          <div className="studio-visual-card p-2.5 sm:p-4 bg-[#0e1426]/90 border border-white/15 rounded-2xl backdrop-blur-xl shadow-2xl">
+            {/* Photorealistic Canvas Frame with Interactive Particular Place & Shape Selection */}
+            <div
+              className={`studio-room relative aspect-[4/3] sm:aspect-[16/10] rounded-xl overflow-hidden shadow-2xl border border-white/15 bg-[#080d1a] select-none ${
+                isDrawingMode ? 'cursor-crosshair touch-none' : 'cursor-pointer'
+              }`}
+              onPointerDown={handleCanvasPointerDown}
+            >
+              <canvas ref={canvasRef} className="w-full h-full object-cover pointer-events-none" />
               <span
                 ref={shadeWashRef}
-                className="studio-room__paint-wash"
+                className="studio-room__paint-wash pointer-events-none"
                 style={{ backgroundColor: shade.hex }}
                 aria-hidden="true"
               />
@@ -394,8 +628,70 @@ export function PaintStudio({ scrollTo, initialShadeId }: PaintStudioProps) {
                 size="small"
                 variant="compact"
                 trigger="mount"
-                className="studio-room__shade-splash"
+                className="studio-room__shade-splash pointer-events-none"
               />
+
+              {/* SVG Interactive Shape & Drawing Overlay */}
+              <svg
+                className="absolute inset-0 w-full h-full pointer-events-none"
+                viewBox="0 0 100 100"
+                preserveAspectRatio="none"
+              >
+                {/* Shapes outlines */}
+                {showZoneOutlines &&
+                  allZones.map((zone) => {
+                    const isActive = zone.id === activeZoneId;
+                    const isHovered = zone.id === hoveredZoneId;
+                    const points = zone.points || parsePolygonPoints(zone.polygon || '');
+                    const ptsStr = points.map(([x, y]) => `${(x * 100).toFixed(2)},${(y * 100).toFixed(2)}`).join(' ');
+
+                    return (
+                      <g key={zone.id}>
+                        <polygon
+                          points={ptsStr}
+                          fill={isActive ? 'rgba(230, 0, 126, 0.08)' : isHovered ? 'rgba(255, 255, 255, 0.08)' : 'transparent'}
+                          stroke={isActive ? '#e6007e' : isHovered ? 'rgba(255,255,255,0.7)' : 'rgba(255, 255, 255, 0.28)'}
+                          strokeWidth={isActive ? '0.75' : '0.35'}
+                          strokeDasharray={isActive ? '2,1.2' : '1.5,1.5'}
+                        />
+                      </g>
+                    );
+                  })}
+
+                {/* Live In-Progress Drawing Shape */}
+                {isDrawingMode && (
+                  <g>
+                    {drawPoints.length >= 2 && (
+                      <polyline
+                        points={drawPoints.map(([x, y]) => `${(x * 100).toFixed(2)},${(y * 100).toFixed(2)}`).join(' ')}
+                        fill="none"
+                        stroke="#00c8ff"
+                        strokeWidth="0.8"
+                        strokeDasharray="2,2"
+                      />
+                    )}
+                    {drawPoints.length >= 3 && (
+                      <polygon
+                        points={drawPoints.map(([x, y]) => `${(x * 100).toFixed(2)},${(y * 100).toFixed(2)}`).join(' ')}
+                        fill="rgba(0, 200, 255, 0.22)"
+                        stroke="#00c8ff"
+                        strokeWidth="0.6"
+                      />
+                    )}
+                    {drawPoints.map(([x, y], idx) => (
+                      <circle
+                        key={idx}
+                        cx={(x * 100).toFixed(2)}
+                        cy={(y * 100).toFixed(2)}
+                        r={idx === 0 ? '1.8' : '1.2'}
+                        fill={idx === 0 ? '#ff1493' : '#00c8ff'}
+                        stroke="#ffffff"
+                        strokeWidth="0.4"
+                      />
+                    ))}
+                  </g>
+                )}
+              </svg>
 
               {isUploading && (
                 <div className="absolute inset-0 bg-black/60 backdrop-blur-sm z-20 flex items-center justify-center text-white gap-3">
@@ -405,7 +701,7 @@ export function PaintStudio({ scrollTo, initialShadeId }: PaintStudioProps) {
               )}
 
               {/* Room Top Toolbar */}
-              <div className="studio-room-toolbar absolute top-2 sm:top-3 left-2 sm:left-3 right-2 sm:right-3 z-10 flex items-center justify-between gap-1.5 text-white">
+              <div className="studio-room-toolbar absolute top-2 sm:top-3 left-2 sm:left-3 right-2 sm:right-3 z-10 flex items-center justify-between gap-1.5 text-white pointer-events-auto">
                 <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-black/70 backdrop-blur-md border border-white/20 text-[10px] sm:text-xs font-bold uppercase tracking-wider shadow">
                   <span className="w-2 h-2 rounded-full bg-[#67d600] animate-pulse" />
                   {userImage ? 'Custom Photo' : activeScene.name}
@@ -447,7 +743,7 @@ export function PaintStudio({ scrollTo, initialShadeId }: PaintStudioProps) {
               </div>
 
               {/* Room Bottom Swatch Tag */}
-              <div className="studio-room-caption absolute bottom-2 sm:bottom-3 left-2 sm:left-3 z-10 px-2.5 py-1.5 sm:px-3 sm:py-2 rounded-xl bg-black/75 backdrop-blur-md border border-white/20 text-white min-w-[110px] shadow-lg">
+              <div className="studio-room-caption absolute bottom-2 sm:bottom-3 left-2 sm:left-3 z-10 px-2.5 py-1.5 sm:px-3 sm:py-2 rounded-xl bg-black/75 backdrop-blur-md border border-white/20 text-white min-w-[110px] shadow-lg pointer-events-auto">
                 <span className="text-[9px] uppercase tracking-widest text-cyan font-bold block leading-tight">{shade.id}</span>
                 <strong className="font-display text-sm sm:text-base text-white font-bold block leading-tight mt-0.5">{shade.name}</strong>
                 <small className="text-[8px] sm:text-[9px] text-white/70 block uppercase tracking-wider mt-0.5">{shade.family} • {shade.hex}</small>
@@ -456,12 +752,145 @@ export function PaintStudio({ scrollTo, initialShadeId }: PaintStudioProps) {
               {userImage && (
                 <button
                   onClick={resetUserUpload}
-                  className="absolute top-2 right-2 sm:top-3 sm:right-3 bg-black/70 hover:bg-black/90 text-white p-1.5 sm:p-2 rounded-full backdrop-blur-md transition-colors z-10 cursor-pointer border border-white/20"
+                  className="absolute top-2 right-2 sm:top-3 sm:right-3 bg-black/70 hover:bg-black/90 text-white p-1.5 sm:p-2 rounded-full backdrop-blur-md transition-colors z-10 cursor-pointer border border-white/20 pointer-events-auto"
                   title="Reset to default scenes"
                 >
                   <RotateCcw className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                 </button>
               )}
+            </div>
+
+            {/* Drawing Mode Helper Banner */}
+            {isDrawingMode && (
+              <div className="mt-2.5 p-2.5 px-3 rounded-xl bg-cyan/15 border border-cyan/40 text-white flex flex-wrap items-center justify-between gap-2 text-xs animate-fadeIn">
+                <div className="flex items-center gap-2">
+                  <Sparkles className="w-4 h-4 text-cyan animate-spin flex-shrink-0" />
+                  <span className="text-cyan-100">
+                    <strong>Drawing Shape:</strong> Click or tap points on the room to outline your custom area ({drawPoints.length} points placed).
+                  </span>
+                </div>
+                <div className="flex items-center gap-2 ml-auto">
+                  {drawPoints.length >= 3 && (
+                    <button
+                      onClick={finishCustomShape}
+                      className="px-3 py-1 rounded-lg bg-cyan text-black font-extrabold text-[11px] hover:bg-cyan/90 cursor-pointer shadow flex items-center gap-1"
+                    >
+                      <Check className="w-3 h-3" /> Finish Shape
+                    </button>
+                  )}
+                  {drawPoints.length > 0 && (
+                    <button
+                      onClick={() => setDrawPoints((prev) => prev.slice(0, -1))}
+                      className="px-2.5 py-1 rounded-lg bg-white/10 text-white font-bold text-[11px] hover:bg-white/20 cursor-pointer flex items-center gap-1"
+                    >
+                      <Undo2 className="w-3 h-3" /> Undo
+                    </button>
+                  )}
+                  <button
+                    onClick={() => {
+                      setIsDrawingMode(false);
+                      setDrawPoints([]);
+                    }}
+                    className="px-2.5 py-1 rounded-lg bg-white/10 text-white/70 font-bold text-[11px] hover:bg-white/20 cursor-pointer"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* PARTICULAR PLACE & SHAPE SELECTION TOOLBAR */}
+            <div className="mt-3 p-2.5 rounded-xl bg-black/50 border border-white/12 backdrop-blur-md flex flex-wrap items-center justify-between gap-2">
+              <div className="flex items-center gap-1.5 flex-wrap min-w-0">
+                <span className="text-[10px] font-extrabold uppercase tracking-widest text-cyan flex items-center gap-1">
+                  <Layers className="w-3.5 h-3.5" /> Place to Paint:
+                </span>
+                {allZones.map((zone) => {
+                  const isSelected = zone.id === activeZoneId;
+                  const zonePaint = paintedZones[zone.id];
+                  return (
+                    <div key={zone.id} className="relative flex items-center">
+                      <button
+                        onClick={() => {
+                          setActiveZoneId(zone.id);
+                          if (isDrawingMode) setIsDrawingMode(false);
+                        }}
+                        onMouseEnter={() => setHoveredZoneId(zone.id)}
+                        onMouseLeave={() => setHoveredZoneId(null)}
+                        className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] sm:text-xs font-bold transition-all cursor-pointer ${
+                          isSelected
+                            ? 'bg-gradient-to-r from-magenta to-violet text-white shadow-md shadow-magenta/30 border border-magenta'
+                            : 'bg-white/10 text-white/80 hover:bg-white/20 hover:text-white border border-white/15'
+                        }`}
+                      >
+                        {zonePaint ? (
+                          <span
+                            className="w-2.5 h-2.5 rounded-full border border-white/40 flex-shrink-0"
+                            style={{ backgroundColor: zonePaint.hex }}
+                            title={`Painted: ${zonePaint.shade.name}`}
+                          />
+                        ) : (
+                          <span className="w-2 h-2 rounded-full bg-white/30 flex-shrink-0" />
+                        )}
+                        <span className="truncate max-w-[120px] sm:max-w-[160px]">{zone.name}</span>
+                      </button>
+                      {zone.isCustom && (
+                        <button
+                          onClick={(e) => deleteCustomShape(zone.id, e)}
+                          className="ml-0.5 p-1 rounded-full text-white/40 hover:text-white hover:bg-red-500/30 transition-colors"
+                          title="Delete custom shape"
+                        >
+                          <X className="w-2.5 h-2.5" />
+                        </button>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+
+              <div className="flex items-center gap-1.5 flex-shrink-0 ml-auto">
+                <button
+                  onClick={() => {
+                    setIsDrawingMode(!isDrawingMode);
+                    setDrawPoints([]);
+                  }}
+                  className={`px-2.5 py-1 rounded-full text-[10px] sm:text-xs font-bold flex items-center gap-1 cursor-pointer transition-all ${
+                    isDrawingMode
+                      ? 'bg-cyan text-black shadow-md shadow-cyan/40 font-extrabold animate-pulse'
+                      : 'bg-white/10 text-white hover:bg-white/20 border border-white/15'
+                  }`}
+                  title="Draw a custom shape directly on the room image"
+                >
+                  <PenTool className="w-3 h-3" />
+                  <span>{isDrawingMode ? 'Drawing...' : '+ Draw Shape'}</span>
+                </button>
+
+                {paintedZones[activeZoneId] && (
+                  <button
+                    onClick={clearCurrentZone}
+                    className="px-2 py-1 rounded-full text-[10px] font-bold bg-white/5 hover:bg-red-500/20 text-white/70 hover:text-red-300 border border-white/10 transition-all cursor-pointer"
+                    title="Reset current place to natural unpainted wall"
+                  >
+                    Clear Place
+                  </button>
+                )}
+
+                <button
+                  onClick={paintAllZones}
+                  className="px-2 py-1 rounded-full text-[10px] font-bold bg-white/5 hover:bg-magenta/20 text-white/70 hover:text-white border border-white/10 transition-all cursor-pointer"
+                  title="Paint all places in this room with current shade"
+                >
+                  Paint All
+                </button>
+
+                <button
+                  onClick={() => setShowZoneOutlines(!showZoneOutlines)}
+                  className="p-1.5 rounded-full bg-white/10 text-white/70 hover:text-white hover:bg-white/20 border border-white/10 transition-colors cursor-pointer"
+                  title={showZoneOutlines ? 'Hide shape outlines (Clean Photographic View)' : 'Show shape outlines'}
+                >
+                  {showZoneOutlines ? <Eye className="w-3.5 h-3.5" /> : <EyeOff className="w-3.5 h-3.5" />}
+                </button>
+              </div>
             </div>
 
             {/* CATEGORY-BASED SCENE NAVIGATION & 25+ SCENE CARDS */}
@@ -479,10 +908,11 @@ export function PaintStudio({ scrollTo, initialShadeId }: PaintStudioProps) {
                   <button
                     key={tab.id}
                     onClick={() => setSelectedSceneTab(tab.id)}
-                    className={`px-3 py-1.5 rounded-full text-[10px] sm:text-[11px] font-bold uppercase tracking-wider transition-all whitespace-nowrap cursor-pointer ${selectedSceneTab === tab.id
+                    className={`px-3 py-1.5 rounded-full text-[10px] sm:text-[11px] font-bold uppercase tracking-wider transition-all whitespace-nowrap cursor-pointer ${
+                      selectedSceneTab === tab.id
                         ? 'bg-magenta text-white shadow-md shadow-magenta/30 border border-magenta'
                         : 'bg-white/10 text-white/80 hover:bg-white/20 hover:text-white border border-white/15'
-                      }`}
+                    }`}
                   >
                     {tab.label}
                   </button>
@@ -496,12 +926,10 @@ export function PaintStudio({ scrollTo, initialShadeId }: PaintStudioProps) {
                   return (
                     <button
                       key={scene.id}
-                      onClick={() => {
-                        setUserImage(null);
-                        setActiveScene(scene);
-                      }}
-                      className={`scene-card group relative aspect-[4/3] rounded-xl overflow-hidden border-2 text-left transition-all cursor-pointer ${isSelected ? 'border-magenta shadow-lg shadow-magenta/30 scale-[1.02]' : 'border-white/10 hover:border-white/30'
-                        }`}
+                      onClick={() => handleSceneSelect(scene)}
+                      className={`scene-card group relative aspect-[4/3] rounded-xl overflow-hidden border-2 text-left transition-all cursor-pointer ${
+                        isSelected ? 'border-magenta shadow-lg shadow-magenta/30 scale-[1.02]' : 'border-white/10 hover:border-white/30'
+                      }`}
                     >
                       <img src={scene.image} alt={scene.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300" />
                       <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
@@ -582,6 +1010,29 @@ export function PaintStudio({ scrollTo, initialShadeId }: PaintStudioProps) {
               >
                 <Heart className="w-3.5 h-3.5" /> Favourites ({favourites.length})
               </button>
+            </div>
+
+            {/* Active Target Place Indicator */}
+            <div className="mt-2.5 mb-1 p-2 px-3 rounded-xl bg-gradient-to-r from-magenta/20 via-violet/20 to-transparent border border-magenta/30 flex items-center justify-between text-xs">
+              <div className="flex items-center gap-1.5 min-w-0">
+                <Layers className="w-3.5 h-3.5 text-magenta flex-shrink-0" />
+                <span className="text-white/80 text-[11px] truncate">
+                  Target place:{' '}
+                  <strong className="text-white font-bold">
+                    {allZones.find((z) => z.id === activeZoneId)?.name || 'Selected Place'}
+                  </strong>
+                </span>
+              </div>
+              {paintedZones[activeZoneId] ? (
+                <span
+                  className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full border border-white/30 text-white flex-shrink-0 shadow"
+                  style={{ backgroundColor: paintedZones[activeZoneId].hex }}
+                >
+                  {paintedZones[activeZoneId].shade.id}
+                </span>
+              ) : (
+                <span className="text-[10px] text-white/50 flex-shrink-0">Unpainted</span>
+              )}
             </div>
 
             {/* Search Input */}

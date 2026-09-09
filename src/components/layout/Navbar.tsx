@@ -3,7 +3,7 @@ import { Menu, Phone, X, Sparkles } from 'lucide-react';
 import gsap from 'gsap';
 import { navItems, phoneNumbers } from '../../data';
 import { NavLink, Link, useLocation, useNavigate } from '../../routes/Router';
-const mathulacLogo = '/assets/brand/mathulac-logo-nav.webp';
+const visakaLogo = '/assets/brand/visaka-paints-white-logo.png';
 
 interface NavbarProps {
   scrolled?: boolean;
@@ -83,13 +83,13 @@ export function Navbar({ scrolled: externalScrolled }: NavbarProps) {
           <Link
             to="/"
             className="site-logo-link flex items-center gap-2 group shrink-0 min-w-0"
-            aria-label="Mathulac Paints Home"
+            aria-label="Visaka Paints Home"
           >
             <img
               ref={logoRef}
-              src={mathulacLogo}
-              alt="Visaka Mathulac Paints Logo"
-              className="h-9 sm:h-11 md:h-12 w-auto object-contain transition-transform duration-300 group-hover:scale-105"
+              src={visakaLogo}
+              alt="Visaka Paints Logo"
+              className="h-9 sm:h-11 md:h-12 w-auto object-contain transition-transform duration-300 group-hover:scale-105 drop-shadow-sm"
             />
             <span className="site-logo-paint-dot" aria-hidden="true" />
           </Link>
