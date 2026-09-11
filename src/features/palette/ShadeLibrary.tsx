@@ -114,7 +114,7 @@ export function ShadeLibrary() {
   ];
 
   return (
-    <section id="shade-library" className="w-full bg-ink text-white py-16 md:py-20 px-4 md:px-8 relative min-h-screen">
+    <section id="shade-library" className="w-full max-w-full overflow-hidden bg-ink text-white py-12 sm:py-16 md:py-20 px-3 sm:px-6 md:px-8 relative min-h-screen">
       {/* Header Banner */}
       <div className="max-w-3xl mx-auto text-center mb-8">
         <div className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-magenta/20 text-magenta text-[11px] font-extrabold uppercase tracking-widest border border-magenta/30 mb-3">
@@ -187,7 +187,7 @@ export function ShadeLibrary() {
 
       {/* ── Circular Mathulac Color Palette Wheel (Signature Feature) ── */}
       {selectorMode === 'wheel' && (
-        <div className="max-w-4xl mx-auto my-8 p-6 bg-gradient-to-b from-white/[0.07] to-transparent rounded-3xl border border-white/10 backdrop-blur-xl relative overflow-hidden text-center">
+        <div className="max-w-4xl mx-auto my-8 p-3 sm:p-6 bg-gradient-to-b from-white/[0.07] to-transparent rounded-3xl border border-white/10 backdrop-blur-xl relative overflow-hidden text-center w-full min-w-0">
           <div className="mb-6">
             <h2 className="text-sm uppercase tracking-widest text-magenta font-extrabold flex items-center justify-center gap-2">
               <Sparkles className="w-4 h-4" /> Mathulac Color Palette Wheel

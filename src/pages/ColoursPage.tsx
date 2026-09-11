@@ -6,7 +6,7 @@ import { ContactSection } from '../features/contact';
 
 export function ColoursPage() {
   return (
-    <div className="w-full pt-16">
+    <div className="w-full max-w-full overflow-x-hidden min-w-0 pt-16">
       {/* Interactive Paint Studio & Live Architectural Visualizer */}
       <PaintStudio />
 
