@@ -117,7 +117,7 @@ export function ContactSection() {
                   <input
                     required
                     type="tel"
-                    placeholder="+91 93631 14313"
+                    placeholder="+91 93631 14343"
                     value={formData.phone}
                     onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                     className="w-full px-4 py-3 rounded-xl bg-white/15 border border-white/25 text-white placeholder-white/50 focus:outline-none focus:border-white focus:bg-white/25 transition-all text-sm shadow-inner"

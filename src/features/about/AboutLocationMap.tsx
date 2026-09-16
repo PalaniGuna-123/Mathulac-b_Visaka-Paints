@@ -32,7 +32,7 @@ export function AboutLocationMap() {
     message: '',
   });
 
-  const addressText = 'MATHULAC PAINT, S.F.NO:127/2A2, ELLAPALAYAM POST, POGALUR VIA, Kariampalayam, Coimbatore, Tamil Nadu 641697, India';
+  const addressText = 'Visaka Paints And Chemicals India, Sf.No.:127/2A2, Kariyampalayam, Ellapalayam (P.O.), Coimbatore, Tamil Nadu - 641 697, India';
   const googleMapsSearchUrl = 'https://www.google.com/maps/search/?api=1&query=MATHULAC+PAINT+kariampalayam+Coimbatore+641697';
   const googleMapsDirectionsUrl = 'https://www.google.com/maps/dir/?api=1&destination=MATHULAC+PAINT+kariampalayam+Coimbatore+641697';
   const googleMapsEmbedUrl = 'https://maps.google.com/maps?q=MATHULAC%20PAINT%20kariampalayam%20Coimbatore&t=&z=15&ie=UTF8&iwloc=&output=embed';
@@ -246,7 +246,7 @@ export function AboutLocationMap() {
                       <input
                         required
                         type="tel"
-                        placeholder="+91 93631 14313"
+                        placeholder="+91 93631 14343"
                         value={formData.phone}
                         onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                         className="w-full px-4 py-3 rounded-xl bg-ink/90 border border-white/20 text-white placeholder-white/45 text-sm focus:outline-none focus:border-magenta focus:ring-1 focus:ring-magenta transition-all shadow-inner"
@@ -316,7 +316,7 @@ export function AboutLocationMap() {
             <div className="pt-3.5 sm:pt-4 mt-4 sm:mt-6 border-t border-white/10 flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 sm:gap-2 text-[11px] sm:text-xs text-white/60">
               <span>Quick response guaranteed</span>
               <a href="tel:+919363114343" className="text-magenta font-bold hover:underline inline-flex items-center gap-1">
-                Call +91 93631 14313 <ArrowRight className="w-3 h-3" />
+                Call +91 93631 14343 <ArrowRight className="w-3 h-3" />
               </a>
             </div>
           </div>
