@@ -11,11 +11,11 @@ interface MainLayoutProps {
 
 export function MainLayout({ children }: MainLayoutProps) {
   return (
-    <div className="relative min-h-screen flex flex-col bg-ink text-cream">
+    <div className="relative min-h-screen flex flex-col bg-ink text-cream w-full max-w-full overflow-x-hidden">
       <CustomCursor />
       <ScrollToTop />
       <Navbar />
-      <main className="flex-1 w-full">{children}</main>
+      <main className="flex-1 w-full max-w-full min-w-0 overflow-x-hidden">{children}</main>
       <FloatingWhatsApp />
       <Footer />
     </div>

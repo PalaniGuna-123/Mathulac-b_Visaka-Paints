@@ -77,6 +77,8 @@ select:-webkit-autofill:focus {
 html {
   scroll-behavior: smooth;
   overflow-x: clip;
+  width: 100%;
+  max-width: 100%;
 }
 
 html.lenis,
@@ -101,6 +103,8 @@ body {
   background: #0B1020;
   color: #FFF8F1;
   overflow-x: hidden;
+  width: 100%;
+  max-width: 100%;
   min-height: 100vh;
 }
 

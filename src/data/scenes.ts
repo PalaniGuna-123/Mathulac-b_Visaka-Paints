@@ -1,3 +1,11 @@
+export interface SceneZone {
+  id: string;
+  name: string;
+  polygon: string;
+  description?: string;
+  defaultHex?: string;
+}
+
 export interface VisualizationScene {
   id: string;
   name: string;
@@ -5,6 +13,7 @@ export interface VisualizationScene {
   subCategory: 'ALL' | 'INTERIORS' | 'BEDROOM' | 'LIVING' | 'KITCHEN' | 'BATHROOM' | 'EXTERIOR' | 'AUTOMOTIVE' | 'WOOD' | 'FURNITURE';
   image: string;
   mask: string; // SVG-style polygon mask
+  zones?: SceneZone[];
   surfaceType: 'wall' | 'facade' | 'car-body' | 'wood-grain';
   originalHex: string;
 }
@@ -22,6 +31,33 @@ export const sceneCategoryTabs = [
   { id: 'FURNITURE', label: 'FURNITURE' },
 ] as const;
 
+/**
+ * Returns predefined architectural zones for any scene, or generates intelligent split zones
+ */
+export function getSceneZones(scene: VisualizationScene): SceneZone[] {
+  if (scene.zones && scene.zones.length > 0) {
+    return scene.zones;
+  }
+  // Universal multi-zone fallback for any scene without custom annotations
+  return [
+    {
+      id: `${scene.id}-accent-left`,
+      name: 'Accent Wall (Left)',
+      polygon: 'polygon(0 0, 48% 0, 48% 70%, 0 70%)',
+    },
+    {
+      id: `${scene.id}-feature-right`,
+      name: 'Feature Wall (Right)',
+      polygon: 'polygon(48% 0, 100% 0, 100% 70%, 48% 70%)',
+    },
+    {
+      id: `${scene.id}-full`,
+      name: 'All Walls / Surfaces',
+      polygon: scene.mask || 'polygon(0 0, 100% 0, 100% 70%, 0 70%)',
+    },
+  ];
+}
+
 export const visualizationScenes: VisualizationScene[] = [
   // --- INTERIORS: LIVING & GENERAL ---
   {
@@ -31,6 +67,26 @@ export const visualizationScenes: VisualizationScene[] = [
     subCategory: 'LIVING',
     image: 'https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?auto=format&fit=crop&w=1600&q=85',
     mask: 'polygon(0 0, 100% 0, 100% 69%, 0 72%)',
+    zones: [
+      {
+        id: 'accent-left',
+        name: 'Accent Gallery Wall (Left)',
+        polygon: 'polygon(0 0, 48% 0, 48% 70%, 0 72%)',
+        description: 'Left picture-frame accent wall plane',
+      },
+      {
+        id: 'window-right',
+        name: 'Sunlit Window Wall (Right)',
+        polygon: 'polygon(48% 0, 100% 0, 100% 68%, 48% 70%)',
+        description: 'Right wall with natural window lighting',
+      },
+      {
+        id: 'full-wall',
+        name: 'Entire Living Room Walls',
+        polygon: 'polygon(0 0, 100% 0, 100% 69%, 0 72%)',
+        description: 'Full room continuous paint coverage',
+      },
+    ],
     surfaceType: 'wall',
     originalHex: '#D8D0C2',
   },
@@ -41,6 +97,23 @@ export const visualizationScenes: VisualizationScene[] = [
     subCategory: 'LIVING',
     image: 'https://images.unsplash.com/photo-1600585154526-990dced4db0d?auto=format&fit=crop&w=1600&q=85',
     mask: 'polygon(0 0, 100% 0, 100% 75%, 0 75%)',
+    zones: [
+      {
+        id: 'left-hall',
+        name: 'Left Corridor Wall',
+        polygon: 'polygon(0 0, 50% 0, 50% 75%, 0 75%)',
+      },
+      {
+        id: 'right-hall',
+        name: 'Right Corridor Wall',
+        polygon: 'polygon(50% 0, 100% 0, 100% 75%, 50% 75%)',
+      },
+      {
+        id: 'full-hall',
+        name: 'Complete Foyer Walls',
+        polygon: 'polygon(0 0, 100% 0, 100% 75%, 0 75%)',
+      },
+    ],
     surfaceType: 'wall',
     originalHex: '#E2DDD4',
   },
@@ -51,6 +124,23 @@ export const visualizationScenes: VisualizationScene[] = [
     subCategory: 'LIVING',
     image: 'https://images.unsplash.com/photo-1595526114035-0d45ed16cfbf?auto=format&fit=crop&w=1600&q=85',
     mask: 'polygon(0 0, 100% 0, 100% 70%, 0 70%)',
+    zones: [
+      {
+        id: 'tv-center',
+        name: 'TV Feature Center Wall',
+        polygon: 'polygon(18% 0, 82% 0, 82% 70%, 18% 70%)',
+      },
+      {
+        id: 'tv-sides',
+        name: 'Side Columns',
+        polygon: 'polygon(0 0, 18% 0, 18% 70%, 0 70%)',
+      },
+      {
+        id: 'full-media',
+        name: 'All Media Room Walls',
+        polygon: 'polygon(0 0, 100% 0, 100% 70%, 0 70%)',
+      },
+    ],
     surfaceType: 'wall',
     originalHex: '#D5CEC4',
   },

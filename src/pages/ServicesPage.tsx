@@ -40,8 +40,6 @@ import { phoneNumbers } from '../data';
 import { Link } from '../routes/Router';
 import { ContactSection } from '../features/contact';
 
-const mathulacLogo = '/assets/brand/mathulac-logo-nav.webp';
-
 export function ServicesPage() {
   // State for Service Category filtering
   const [selectedServiceCat, setSelectedServiceCat] = useState<'all' | 'residential' | 'commercial' | 'industrial' | 'specialized'>('all');

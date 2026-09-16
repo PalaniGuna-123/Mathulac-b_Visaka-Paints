@@ -21,8 +21,8 @@ export function Loader({ progress = 100 }: LoaderProps) {
 
         <div className="ld-logo-box">
           <img
-            src="/assets/brand/mathulac-logo-nav.webp"
-            alt="Mathulac"
+            src="/assets/brand/visaka-chemicals-white-logo.png"
+            alt="Visaka Paints & Chemicals India"
             className="ld-logo"
             draggable={false}
           />

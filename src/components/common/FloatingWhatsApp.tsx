@@ -1,35 +1,12 @@
-import { useState, useEffect } from 'react';
-
 interface FloatingWhatsAppProps {
   phoneNumber?: string;
   defaultMessage?: string;
 }
 
 export function FloatingWhatsApp({
-  phoneNumber = '919363114313',
+  phoneNumber = '919363114343',
   defaultMessage = 'Hi Visaka Mathulac Paints, I would like to inquire about your paint products and color consultation.',
 }: FloatingWhatsAppProps) {
-  const [showTooltip, setShowTooltip] = useState(false);
-  const [hasInteracted, setHasInteracted] = useState(false);
-
-  // Show friendly teaser tooltip shortly after load to encourage conversion
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      if (!hasInteracted) {
-        setShowTooltip(true);
-      }
-    }, 2800);
-
-    const autoHideTimer = setTimeout(() => {
-      setShowTooltip(false);
-    }, 9000);
-
-    return () => {
-      clearTimeout(timer);
-      clearTimeout(autoHideTimer);
-    };
-  }, [hasInteracted]);
-
   const cleanNumber = phoneNumber.replace(/[^0-9]/g, '');
   const encodedMsg = encodeURIComponent(defaultMessage);
   const whatsappUrl = `https://wa.me/${cleanNumber}?text=${encodedMsg}`;
@@ -37,46 +14,18 @@ export function FloatingWhatsApp({
   return (
     <aside
       aria-label="WhatsApp Support"
-      className="fixed bottom-6 right-5 sm:right-7 md:bottom-8 md:right-8 z-50 flex items-center gap-3 select-none"
+      className="fixed z-50 select-none flex items-center pointer-events-auto"
+      style={{
+        right: 'max(1.25rem, env(safe-area-inset-right, 1.25rem))',
+        bottom: 'max(1.25rem, env(safe-area-inset-bottom, 1.25rem))',
+      }}
     >
-      {/* Interactive Tooltip Card / Bubble */}
-      <div
-        className={`hidden sm:flex items-center gap-3 px-4 py-2.5 rounded-xl bg-ink/90 border border-white/20 text-white backdrop-blur-xl shadow-2xl transition-all duration-300 transform origin-right ${
-          showTooltip
-            ? 'opacity-100 scale-100 translate-x-0'
-            : 'opacity-0 scale-90 translate-x-4 pointer-events-none'
-        }`}
-      >
-        <div className="relative flex h-2.5 w-2.5">
-          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-          <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
-        </div>
-        <div className="text-left">
-          <div className="text-xs font-bold text-white leading-tight">Need Paint Advice?</div>
-          <div className="text-[11px] text-white/70 leading-tight">Chat with us on WhatsApp</div>
-        </div>
-        <button
-          onClick={() => {
-            setShowTooltip(false);
-            setHasInteracted(true);
-          }}
-          className="text-white/40 hover:text-white text-xs ml-1 transition-colors"
-          aria-label="Close message"
-        >
-          ✕
-        </button>
-      </div>
-
       {/* Floating WhatsApp Action Button */}
       <a
         href={whatsappUrl}
         target="_blank"
         rel="noopener noreferrer"
-        data-cursor="WhatsApp"
         aria-label="Chat with Visaka Mathulac Paints on WhatsApp (+91 93631 14343)"
-        onMouseEnter={() => setShowTooltip(true)}
-        onMouseLeave={() => setShowTooltip(false)}
-        onClick={() => setHasInteracted(true)}
         className="group relative flex items-center justify-center w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-gradient-to-tr from-[#128C7E] via-[#25D366] to-[#25D366] text-white shadow-xl shadow-emerald-600/35 hover:shadow-2xl hover:shadow-emerald-500/60 hover:scale-110 active:scale-95 transition-all duration-300 focus:outline-none focus:ring-4 focus:ring-emerald-400/40"
       >
         {/* Radar Pulse Glow Rings */}
@@ -100,3 +49,4 @@ export function FloatingWhatsApp({
 }
 
 export default FloatingWhatsApp;
+

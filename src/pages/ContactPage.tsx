@@ -11,9 +11,10 @@ import {
   CheckCircle2,
   Award,
   ChevronDown,
+  User,
 } from 'lucide-react';
 import { companyContact } from '../data/brand';
-import mathulacLogo from '../assets/logo/logo.webp';
+import visakaLogo from '../assets/logo/visaka-chemicals-white-logo.png';
 
 export function ContactPage() {
   const [submitted, setSubmitted] = useState(false);
@@ -84,17 +85,14 @@ export function ContactPage() {
             {/* Vertically Centered Contact Content Block */}
             <div className="flex-1 flex flex-col justify-center py-4 space-y-7">
               {/* Brand Logo & Name */}
-              <div className="flex items-center gap-4">
+              <div className="flex flex-col sm:flex-row sm:items-center gap-4 pb-2">
                 <img
-                  src={mathulacLogo}
+                  src={visakaLogo}
                   alt={companyContact.companyName}
-                  className="h-16 w-auto object-contain rounded-lg bg-white p-1.5 shadow-md flex-shrink-0"
+                  className="h-14 sm:h-16 w-auto object-contain flex-shrink-0 drop-shadow-lg"
                 />
-                <div>
-                  <h3 className="font-bold text-white text-lg sm:text-xl tracking-wide uppercase leading-tight">
-                    {companyContact.companyName}
-                  </h3>
-                  <div className="inline-flex items-center gap-1.5 text-xs font-semibold text-yellow-300 mt-1">
+                <div className="sm:border-l sm:border-white/15 sm:pl-4">
+                  <div className="inline-flex items-center gap-1.5 text-xs font-semibold text-yellow-300">
                     <Award className="w-3.5 h-3.5 text-yellow-400" />
                     <span>{companyContact.certification}</span>
                   </div>
@@ -102,16 +100,29 @@ export function ContactPage() {
               </div>
 
               {/* Content Details */}
-              <div className="space-y-6 text-sm sm:text-base leading-relaxed text-white/90">
-                {/* Address */}
+              <div className="space-y-5 text-sm sm:text-base leading-relaxed text-white/90">
+                {/* Contact Person */}
+                <div className="flex items-start gap-3.5">
+                  <div className="w-8 h-8 rounded-lg bg-yellow-400/20 flex items-center justify-center text-yellow-300 flex-shrink-0 mt-0.5">
+                    <User className="w-4 h-4" />
+                  </div>
+                  <div className="leading-snug">
+                    <span className="text-white/60 text-xs font-bold uppercase tracking-wider block">Contact Person</span>
+                    <span className="text-white font-bold text-base">{companyContact.contactPerson}</span>
+                  </div>
+                </div>
+
+                {/* Letter Correspondence Address */}
                 <div className="flex items-start gap-3.5">
                   <div className="w-8 h-8 rounded-lg bg-magenta/20 flex items-center justify-center text-magenta flex-shrink-0 mt-0.5">
                     <MapPin className="w-4 h-4" />
                   </div>
                   <div className="space-y-0.5 font-medium leading-snug">
-                    <div>S.F.No.127/2A2, Kariampalayam,</div>
-                    <div>Ellapalayam ( P.O.) Pogalur (Via),</div>
-                    <div>Coimbatore - 641 697. TamilNadu, INDIA</div>
+                    <span className="text-white/60 text-xs font-bold uppercase tracking-wider block">Letter Correspondence</span>
+                    <strong className="text-white block font-semibold">{companyContact.companyName}</strong>
+                    <div>Sf.No.:127/2A2, Kariyampalayam,</div>
+                    <div>Ellapalayam ( P.O.),</div>
+                    <div>Coimbatore, Tamil Nadu - 641 697.</div>
                   </div>
                 </div>
 
@@ -121,28 +132,38 @@ export function ContactPage() {
                     <Phone className="w-4 h-4" />
                   </div>
                   <div className="leading-snug">
-                    <span className="font-bold text-white">Mobile: </span>
+                    <span className="font-bold text-white block sm:inline">Contact Numbers: </span>
                     <a
-                      href="tel:+919363114313"
-                      className="text-white hover:text-leaf font-semibold transition-colors"
+                      href="tel:+919363114343"
+                      className="text-white hover:text-leaf font-semibold transition-colors inline-block"
                     >
-                      +91 93631 14313
+                      +91 93631 14343
                     </a>
-                    <span className="text-white/40 mx-1.5">,</span>
+                    <span className="text-white/40 mx-2">/</span>
                     <a
-                      href="tel:+919600909056"
-                      className="text-white hover:text-leaf font-semibold transition-colors"
+                      href="tel:+919600909066"
+                      className="text-white hover:text-leaf font-semibold transition-colors inline-block"
                     >
-                      96009 09056
-                    </a>
-                    <span className="text-white/40 mx-1.5">,</span>
-                    <a
-                      href="tel:+919600909077"
-                      className="text-white hover:text-leaf font-semibold transition-colors"
-                    >
-                      96009 09077
+                      +91 96009 09066
                     </a>
                   </div>
+                </div>
+
+                {/* WhatsApp Support Direct Button */}
+                <div className="pt-1">
+                  <a
+                    href={`https://wa.me/${companyContact.whatsappPhone}?text=${encodeURIComponent(
+                      'Hi Visaka Mathulac Paints, I would like to inquire about paint products and color consultation.'
+                    )}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-[#128C7E] to-[#25D366] text-white text-xs sm:text-sm font-bold shadow-lg hover:shadow-emerald-500/30 hover:scale-[1.02] transition-all"
+                  >
+                    <svg viewBox="0 0 32 32" className="w-4 h-4 fill-current shrink-0" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M16 2a13.9 13.9 0 0 0-12 20.89L2 30l7.35-1.92A13.94 13.94 0 1 0 16 2zm0 25.56a11.58 11.58 0 0 1-5.91-1.61l-.42-.25-4.38 1.15 1.17-4.27-.27-.44A11.62 11.62 0 1 1 16 27.56zm6.38-8.7c-.35-.18-2.07-1-2.4-1.12s-.56-.17-.8.18-.92 1.12-1.13 1.35-.42.26-.77.09a9.7 9.7 0 0 1-2.86-1.77 10.74 10.74 0 0 1-2-2.46c-.21-.35 0-.54.16-.72.16-.16.35-.42.53-.63a2.38 2.38 0 0 0 .35-.59.66.66 0 0 0 0-.63c-.09-.17-.8-1.92-1.09-2.63s-.58-.6-.8-.61h-.68a1.31 1.31 0 0 0-.95.44 4 4 0 0 0-1.25 3 7 7 0 0 0 1.47 3.71 16 16 0 0 0 6.13 5.41 21 21 0 0 0 2.05.76 4.92 4.92 0 0 0 2.26.14 3.7 3.7 0 0 0 2.43-1.7 3 3 0 0 0 .21-1.71c-.08-.16-.32-.26-.67-.44z" />
+                    </svg>
+                    <span>Chat on WhatsApp (+91 93631 14343)</span>
+                  </a>
                 </div>
 
                 {/* Email */}
@@ -184,6 +205,12 @@ export function ContactPage() {
                       www.mathulac.com
                     </a>
                   </div>
+                </div>
+
+                {/* GSTIN */}
+                <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-white/[0.05] border border-white/15 text-xs">
+                  <span className="text-white/50 text-[11px] font-bold uppercase tracking-wider">GSTIN:</span>
+                  <span className="font-mono text-cyan font-bold tracking-wider">{companyContact.gstin}</span>
                 </div>
               </div>
             </div>
@@ -299,7 +326,7 @@ export function ContactPage() {
                     <input
                       required
                       type="tel"
-                      placeholder="+91 93631 14313"
+                      placeholder="+91 93631 14343"
                       value={formData.phone}
                       onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                       className="w-full px-4 py-3 rounded-xl bg-ink/90 border border-white/20 text-white placeholder-white/45 text-sm focus:outline-none focus:border-magenta focus:ring-1 focus:ring-magenta transition-all shadow-inner"

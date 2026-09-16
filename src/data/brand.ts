@@ -44,23 +44,29 @@ export const homepageVisualizer = {
   ],
 } as const;
 
-export const phoneNumbers: string[] = ['+91 93631 14313', '+91 96009 09056', '+91 96009 09077'];
+export const phoneNumbers: string[] = ['+91 93631 14343', '+91 96009 09066'];
 
 export const companyContact = {
-  companyName: 'VISAKA PAINTS & CHEMICALS INDIA',
+  companyName: 'Visaka Paints And Chemicals India',
+  contactPerson: 'N.S.Chakravarthy',
   certification: 'An ISO 9001 Certified Company',
   brandName: 'MATHULAC PAINT',
-  locationName: 'MATHULAC PAINT kariampalayam',
+  locationName: 'MATHULAC PAINT Kariampalayam',
+  gstin: '33AAEFV9821G1Z3',
   addressLines: [
-    'S.F.No.127/2A2, Kariampalayam,',
-    'Ellapalayam ( P.O.) Pogalur (Via),',
-    'Coimbatore - 641 697. TamilNadu, INDIA',
+    'Sf.No.:127/2A2, Kariyampalayam,',
+    'Ellapalayam ( P.O.),',
+    'Coimbatore, Tamil Nadu - 641 697.',
   ],
-  fullAddress: 'S.F.No.127/2A2, Kariampalayam, Ellapalayam (P.O.) Pogalur (Via), Coimbatore - 641 697. TamilNadu, INDIA',
-  shortAddress: 'Kariampalayam, Pogalur Via, Coimbatore, Tamil Nadu 641697',
-  phones: ['+91 93631 14313', '+91 96009 09056', '+91 96009 09077'],
+  fullAddress: 'Sf.No.:127/2A2, Kariyampalayam, Ellapalayam ( P.O.), Coimbatore, Tamil Nadu - 641 697.',
+  shortAddress: 'Sf.No.:127/2A2, Kariyampalayam, Ellapalayam (P.O.), Coimbatore, Tamil Nadu - 641 697',
+  phones: ['+91 93631 14343', '+91 96009 09066'],
+  rawPhones: ['09363114343', '09600909066'],
+  whatsappPhone: '919363114343',
+  whatsappDisplay: '+91 93631 14343',
   emails: ['visaka_cbe@yahoo.co.in', 'mathulac.cbe@gmail.com'],
   website: 'www.mathulac.com',
+  websiteUrl: 'https://www.mathulac.com',
   workingHours: 'Mon – Sat: 9:00 AM – 6:00 PM (Sunday Closed)',
   rating: {
     score: 4.1,

@@ -19,7 +19,8 @@ export default defineConfig({
     ],
   },
   optimizeDeps: {
-    exclude: ['lucide-react'],
+    include: ['lucide-react'],
+    exclude: ['lenis'],
   },
   build: {
     rollupOptions: {

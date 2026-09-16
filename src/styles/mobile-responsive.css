@@ -4,9 +4,11 @@
    ========================================================================== */
 
 /* ─── Global overflow guard ──────────────────────────────────────────────── */
+html,
 body,
 #root {
-  max-width: 100vw;
+  width: 100%;
+  max-width: 100%;
   overflow-x: hidden;
 }
 
@@ -146,38 +148,123 @@ body,
    ========================================================================== */
 @media (max-width: 1023px) {
   .studio-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .studio-controls {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .studio-visual-card,
+  .studio-explorer {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
   }
 }
 
 @media (max-width: 767px) {
   .studio-shell {
-    padding-inline: 1rem;
+    padding-inline: 0.75rem;
+    width: 100%;
+    max-width: 100%;
+    overflow-x: hidden;
   }
 
   .studio-intro {
     text-align: center;
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .studio-intro h2 {
+    font-size: clamp(1.4rem, 6vw, 1.95rem);
+    line-height: 1.2;
+    word-break: break-word;
+    overflow-wrap: break-word;
   }
 
   .studio-intro p {
     margin-inline: auto;
+    font-size: 0.8rem;
+    padding-inline: 0.5rem;
   }
 
   .studio-hero-ctas {
     flex-direction: column;
     align-items: stretch;
-    gap: 0.75rem;
+    gap: 0.65rem;
+    width: 100%;
+    max-width: 320px;
+    margin: 1.25rem auto 0;
   }
 
   .studio-primary,
   .studio-secondary {
     width: 100%;
     justify-content: center;
+    padding: 0.8rem 1.25rem;
+    font-size: 0.85rem;
+  }
+
+  .studio-grid {
+    grid-template-columns: minmax(0, 1fr);
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+  }
+
+  .studio-visual-card {
+    padding: 0.5rem;
+    border-radius: 1rem;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
   }
 
   .studio-room {
-    aspect-ratio: 16/10;
-    border-radius: 0.9rem;
+    aspect-ratio: 16/10 !important;
+    border-radius: 0.75rem;
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .studio-room canvas {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
+    display: block;
+  }
+
+  .studio-room-toolbar {
+    top: 0.4rem;
+    left: 0.4rem;
+    right: 0.4rem;
+    font-size: 0.6rem;
+  }
+
+  .studio-room-caption {
+    bottom: 0.4rem;
+    left: 0.4rem;
+    padding: 0.35rem 0.6rem;
+    min-width: auto;
+    max-width: calc(100% - 0.8rem);
+    border-radius: 8px;
+  }
+
+  .studio-room-caption strong {
+    font-size: 0.92rem;
+    line-height: 1.1;
+  }
+
+  .studio-room-caption span,
+  .studio-room-caption small {
+    font-size: 0.55rem;
+    letter-spacing: 0.08em;
   }
 
   .studio-room-strip button {
@@ -192,18 +279,24 @@ body,
 
   .studio-controls {
     display: block;
-    padding: 1rem;
+    padding: 0.85rem;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
   }
 
   .studio-explorer {
-    padding: 1rem;
+    padding: 0.85rem;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
   }
 
   .studio-palette {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 0.5rem;
-    max-height: 300px;
+    max-height: 280px;
     overflow-y: auto;
   }
 

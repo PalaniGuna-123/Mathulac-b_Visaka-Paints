@@ -191,6 +191,9 @@
   align-items: start;
   position: relative;
   z-index: 1;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
 }
 
 .studio-visual-card,
@@ -443,7 +446,7 @@
 }
 
 .studio-compare-after>img {
-  width: 100vw;
+  width: 100%;
   max-width: none;
   right: 0;
   left: auto;
@@ -920,22 +923,22 @@
 
 @media (max-width: 1024px) {
   .studio-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
+    width: 100%;
+    max-width: 100%;
   }
 
   .studio-controls {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 0 1rem;
+    display: block;
+    width: 100%;
+    max-width: 100%;
   }
 
-  .studio-selection-card,
-  .studio-action-row {
-    grid-column: span 2;
-  }
-
-  .palette-builder-grid {
-    grid-template-columns: repeat(5, 1fr);
+  .studio-visual-card,
+  .studio-explorer {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
   }
 }
 
@@ -948,33 +951,109 @@
 
 @media (max-width: 640px) {
   .studio-shell {
-    padding-top: 3.5rem;
-    padding-bottom: 4rem;
+    padding-top: 2.5rem;
+    padding-bottom: 3.5rem;
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+    width: 100%;
+    max-width: 100%;
+    overflow-x: hidden;
   }
 
   .studio-intro h2 {
-    font-size: 1.75rem;
-    line-height: 1.15;
+    font-size: clamp(1.45rem, 6vw, 1.95rem);
+    line-height: 1.2;
+    word-break: break-word;
+    overflow-wrap: break-word;
+  }
+
+  .studio-intro p {
+    font-size: 0.8rem;
+    padding-inline: 0.5rem;
+    line-height: 1.5;
+  }
+
+  .studio-hero-ctas {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.65rem;
+    width: 100%;
+    max-width: 320px;
+    margin: 1.5rem auto 0;
+  }
+
+  .studio-primary,
+  .studio-secondary {
+    width: 100%;
+    padding: 0.8rem 1.25rem;
+    font-size: 0.85rem;
+    justify-content: center;
   }
 
   .studio-grid {
-    margin-top: 1.8rem;
+    margin-top: 1.5rem;
+    grid-template-columns: minmax(0, 1fr);
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
   }
 
   .studio-visual-card {
     padding: 0.5rem;
-    border-radius: 1.25rem;
+    border-radius: 1rem;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
   }
 
   .studio-room {
-    border-radius: 0.9rem;
-    aspect-ratio: 1.25;
+    border-radius: 0.75rem;
+    aspect-ratio: 16/10 !important;
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .studio-room canvas {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
+    display: block;
+  }
+
+  .studio-room-toolbar {
+    top: 0.4rem;
+    left: 0.4rem;
+    right: 0.4rem;
+    font-size: 0.6rem;
+  }
+
+  .studio-room-caption {
+    bottom: 0.4rem;
+    left: 0.4rem;
+    padding: 0.35rem 0.6rem;
+    min-width: auto;
+    max-width: calc(100% - 0.8rem);
+    border-radius: 8px;
+  }
+
+  .studio-room-caption strong {
+    font-size: 0.92rem;
+    line-height: 1.1;
+  }
+
+  .studio-room-caption span,
+  .studio-room-caption small {
+    font-size: 0.55rem;
+    letter-spacing: 0.08em;
   }
 
   .studio-controls,
   .studio-explorer {
-    border-radius: 1.25rem;
-    padding: 1rem;
+    border-radius: 1rem;
+    padding: 0.85rem;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
   }
 
   .studio-controls {
@@ -982,15 +1061,48 @@
   }
 
   .studio-palette {
-    display: flex;
-    overflow-x: auto;
-  }
-
-  .studio-palette-card {
-    flex: 0 0 155px;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.5rem;
+    max-height: 280px;
+    overflow-y: auto;
   }
 
   .palette-builder-grid {
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(5, 1fr);
+    gap: 0.25rem;
   }
+}
+
+/* Surface Zone & Custom Shape Drawing Enhancements */
+.surface-zone-bar {
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+
+.surface-zone-bar::-webkit-scrollbar {
+  display: none;
+}
+
+.cursor-crosshair {
+  cursor: crosshair !important;
+}
+
+.touch-none {
+  touch-action: none !important;
+}
+
+@keyframes shapePulseBorder {
+  0%, 100% {
+    stroke-opacity: 1;
+    stroke-dashoffset: 0;
+  }
+  50% {
+    stroke-opacity: 0.45;
+    stroke-dashoffset: 8;
+  }
+}
+
+.shape-active-pulse {
+  animation: shapePulseBorder 2s ease-in-out infinite;
 }
