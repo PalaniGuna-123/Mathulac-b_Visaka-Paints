@@ -14,10 +14,13 @@ import { createHeroMotionState, getHeroViewportProfile } from './heroMotion';
 import { useHeroTimeline } from './useHeroTimeline';
 import HeroScene from './HeroScene';
 import { MobileHouseTransformation } from './MobileHouseTransformation';
+import bucket01 from '../../assets/paint/paint_bucket_01.png';
+import bucket02 from '../../assets/paint/paint_bucket_02.png';
+import bucket03 from '../../assets/paint/paint_bucket_03.png';
+import bucket04 from '../../assets/paint/paint_bucket_04.png';
+import bucket05 from '../../assets/paint/paint_bucket_05.png';
 
-const uprightBucketsUrl = '/assets/hero/bucket/muthulac-5-buckets-upright.jpg';
-const pouringBucketsUrl = '/assets/hero/bucket/muthulac-5-buckets-pouring.jpg';
-const swirlBucketsUrl = '/assets/hero/bucket/muthulac-5-colors-swirl.jpg';
+const heroBucketImages = [bucket01, bucket02, bucket03, bucket04, bucket05];
 const houseUnpaintedUrl = '/assets/hero/house/house-00-unpainted.webp';
 const housePaintStageOneUrl = '/assets/hero/house/house-01-base-painted.webp';
 const housePaintStageTwoUrl = '/assets/hero/house/house-02-blue-painted.webp';
@@ -27,13 +30,106 @@ const housePaintStageFiveUrl = '/assets/hero/house/house-05-luxury-final.webp';
 const paintFlowUrl = '/assets/hero/paint/blue-paint-splash.webp';
 
 const heroPreloadAssets = [
-  uprightBucketsUrl,
-  pouringBucketsUrl,
-  swirlBucketsUrl,
+  ...heroBucketImages,
   houseUnpaintedUrl,
   housePaintStageOneUrl,
   housePaintStageTwoUrl,
 ];
+
+function HeroBucketSet({ className = '' }: { className?: string }) {
+  return (
+    <div className={`hero-bucket-set ${className}`}>
+      {heroBucketImages.map((src, index) => (
+        <img key={src} data-hero-bucket={`bucket-${index + 1}`} src={src} alt="" />
+      ))}
+    </div>
+  );
+}
+
+function MobileBucketCarousel() {
+  const [activeIndex, setActiveIndex] = useState(0);
+  const [isInteracting, setIsInteracting] = useState(false);
+  const touchStartX = useRef<number | null>(null);
+  const resumeTimer = useRef<number | null>(null);
+
+  const goTo = useCallback((nextIndex: number) => {
+    setActiveIndex((nextIndex + heroBucketImages.length) % heroBucketImages.length);
+  }, []);
+
+  const pauseAutoplay = useCallback(() => {
+    setIsInteracting(true);
+    if (resumeTimer.current !== null) window.clearTimeout(resumeTimer.current);
+    resumeTimer.current = window.setTimeout(() => setIsInteracting(false), 2600);
+  }, []);
+
+  useEffect(() => {
+    if (isInteracting) return undefined;
+    const autoplay = window.setInterval(() => {
+      setActiveIndex((index) => (index + 1) % heroBucketImages.length);
+    }, 4500);
+    return () => window.clearInterval(autoplay);
+  }, [isInteracting]);
+
+  useEffect(() => () => {
+    if (resumeTimer.current !== null) window.clearTimeout(resumeTimer.current);
+  }, []);
+
+  const handleTouchStart = (event: React.TouchEvent<HTMLDivElement>) => {
+    touchStartX.current = event.touches[0]?.clientX ?? null;
+    pauseAutoplay();
+  };
+
+  const handleTouchEnd = (event: React.TouchEvent<HTMLDivElement>) => {
+    if (touchStartX.current === null) return;
+    const distance = (event.changedTouches[0]?.clientX ?? touchStartX.current) - touchStartX.current;
+    if (Math.abs(distance) > 42) goTo(activeIndex + (distance < 0 ? 1 : -1));
+    touchStartX.current = null;
+  };
+
+  return (
+    <div
+      className="hero-bucket-carousel"
+      onTouchStart={handleTouchStart}
+      onTouchEnd={handleTouchEnd}
+      aria-label="Mathulac paint bucket carousel"
+    >
+      <div className="hero-bucket-carousel__track">
+        {heroBucketImages.map((src, index) => {
+          let offset = index - activeIndex;
+          if (offset > 2) offset -= heroBucketImages.length;
+          if (offset < -2) offset += heroBucketImages.length;
+          const active = offset === 0;
+          return (
+            <img
+              key={src}
+              src={src}
+              alt={active ? `Mathulac paint bucket ${index + 1}` : ''}
+              className="hero-bucket-carousel__item"
+              style={{
+                transform: `translate3d(calc(-50% + ${offset * 57}%), 0, 0) scale(${active ? 1 : 0.78})`,
+                opacity: Math.abs(offset) > 1 ? 0 : active ? 1 : 0.48,
+                zIndex: active ? 3 : 2,
+              }}
+            />
+          );
+        })}
+      </div>
+      <div className="hero-bucket-carousel__dots" role="tablist" aria-label="Choose paint bucket">
+        {heroBucketImages.map((src, index) => (
+          <button
+            key={src}
+            type="button"
+            role="tab"
+            aria-selected={index === activeIndex}
+            aria-label={`Show paint bucket ${index + 1}`}
+            className={index === activeIndex ? 'is-active' : ''}
+            onClick={() => { pauseAutoplay(); goTo(index); }}
+          />
+        ))}
+      </div>
+    </div>
+  );
+}
 
 const heroChapters = [
   {
@@ -240,12 +336,7 @@ export function Hero({ scrollTo }: HeroProps) {
 
           {/* Muthulac 5-Buckets Visual Presentation */}
           <div className="relative w-full mt-6 rounded-2xl overflow-hidden shadow-2xl border border-white/15 bg-white/5 p-2">
-            <img
-              src={uprightBucketsUrl}
-              alt="Muthulac 5 Color Paint Buckets"
-              className="w-full h-auto object-contain rounded-xl drop-shadow-[0_15px_30px_rgba(0,0,0,0.8)]"
-              loading="eager"
-            />
+            <MobileBucketCarousel />
             <div className="flex items-center justify-center gap-2 mt-2 text-[10px] font-bold text-white/60 uppercase tracking-wider">
               <span>5 Formulations</span>
               <span>•</span>
@@ -304,7 +395,7 @@ export function Hero({ scrollTo }: HeroProps) {
         </div>
 
         <div ref={posterRef} className="cinematic-hero__poster" aria-hidden="true">
-          <img src={uprightBucketsUrl} alt="" width="1920" height="1080" />
+          <HeroBucketSet />
         </div>
 
         <div className="cinematic-hero__webgl" aria-hidden="true">
@@ -325,8 +416,7 @@ export function Hero({ scrollTo }: HeroProps) {
           {!webglAvailable && (
             <>
               <div className="cinematic-hero__story-glow" />
-              <img data-hero-bucket="pouring" src={pouringBucketsUrl} alt="" width="1920" height="1080" />
-              <img data-hero-bucket="swirl" src={swirlBucketsUrl} alt="" width="1920" height="1080" />
+              <HeroBucketSet />
               <img data-hero-house="base" src={houseUnpaintedUrl} alt="" width="1536" height="1024" />
               <img data-hero-house="stage-one" src={housePaintStageOneUrl} alt="" width="1536" height="1024" />
               <img data-hero-house="stage-two" src={housePaintStageTwoUrl} alt="" width="1536" height="1024" />

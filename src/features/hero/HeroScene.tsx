@@ -6,6 +6,11 @@ import { ArchitecturalHouse } from './ArchitecturalHouse';
 import { LiquidPaint } from './LiquidPaint';
 import { createHeroSceneLayout, type HeroSceneLayout } from './heroSceneLayout';
 import type { HeroMotionState, HeroViewportProfile } from './heroMotion';
+import bucket01 from '../../assets/paint/paint_bucket_01.png';
+import bucket02 from '../../assets/paint/paint_bucket_02.png';
+import bucket03 from '../../assets/paint/paint_bucket_03.png';
+import bucket04 from '../../assets/paint/paint_bucket_04.png';
+import bucket05 from '../../assets/paint/paint_bucket_05.png';
 
 interface HeroSceneProps {
   motion: MutableRefObject<HeroMotionState>;
@@ -19,11 +24,7 @@ interface StudioBucketProps extends HeroSceneProps {
   layout: HeroSceneLayout;
 }
 
-const BUCKET_TEXTURES: string[] = [
-  '/assets/hero/bucket/muthulac-5-buckets-upright.jpg',
-  '/assets/hero/bucket/muthulac-5-buckets-pouring.jpg',
-  '/assets/hero/bucket/muthulac-5-colors-swirl.jpg',
-];
+const BUCKET_TEXTURES: string[] = [bucket01, bucket02, bucket03, bucket04, bucket05];
 
 const ENVIRONMENT_TEXTURES: string[] = [
   '/assets/hero/environment/background-plants.webp',
@@ -55,13 +56,18 @@ const SPLASH_DROPS = [
 
 function StudioBucket({ motion, profile, reducedMotion, onReady, layout }: StudioBucketProps) {
   const bucketGroupRef = useRef<THREE.Group>(null);
-  const meshRef = useRef<THREE.Mesh>(null);
+  const bucketRefs = useRef<Array<THREE.Mesh | null>>([]);
+  // The old shader effect below now safely no-ops because there is no single
+  // composite material; each new PNG has its own transparent material.
   const materialRef = useRef<THREE.MeshBasicMaterial>(null);
   const shaderRef = useRef<CompiledBucketShader | null>(null);
   const splashGroupRef = useRef<THREE.Group>(null);
   const shadowRef = useRef<THREE.Mesh>(null);
 
-  const [uprightTexture, pouringTexture, swirlTexture] = useTexture(BUCKET_TEXTURES) as THREE.Texture[];
+  const bucketTextures = useTexture(BUCKET_TEXTURES) as THREE.Texture[];
+  const uprightTexture = bucketTextures[0];
+  const pouringTexture = bucketTextures[1];
+  const swirlTexture = bucketTextures[2];
   const { gl } = useThree();
 
   const shadowTexture = useMemo(() => {
@@ -82,7 +88,7 @@ function StudioBucket({ motion, profile, reducedMotion, onReady, layout }: Studi
 
   useLayoutEffect(() => {
     const anisotropy = Math.min(profile === 'desktop' ? 8 : 4, gl.capabilities.getMaxAnisotropy());
-    [uprightTexture, pouringTexture, swirlTexture].forEach((texture) => {
+    bucketTextures.forEach((texture) => {
       if (texture) {
         texture.colorSpace = THREE.SRGBColorSpace;
         texture.anisotropy = anisotropy;
@@ -94,7 +100,7 @@ function StudioBucket({ motion, profile, reducedMotion, onReady, layout }: Studi
     });
     shadowTexture.needsUpdate = true;
     return () => shadowTexture.dispose();
-  }, [gl, pouringTexture, profile, shadowTexture, swirlTexture, uprightTexture]);
+  }, [bucketTextures, gl, profile, shadowTexture]);
 
   useEffect(() => onReady(), [onReady]);
 
@@ -220,6 +226,18 @@ function StudioBucket({ motion, profile, reducedMotion, onReady, layout }: Studi
     const effectiveFade = reducedMotion && values.houseReveal > 0.9 ? 0.9 : fade;
     group.visible = effectiveFade > 0.002;
 
+    const settle = segment(values.intro, 0.08, 0.9);
+    bucketRefs.current.forEach((mesh, index) => {
+      const item = layout.bucketItems[index];
+      if (!mesh || !item) return;
+      mesh.position.x = THREE.MathUtils.lerp(item.position.x * 1.12, item.position.x, settle);
+      mesh.position.y = THREE.MathUtils.lerp(item.position.y + 0.16, item.position.y, settle);
+      mesh.position.z = item.position.z + (1 - settle) * 0.08;
+      mesh.rotation.z = THREE.MathUtils.lerp(item.rotation.z * 1.7, item.rotation.z, settle);
+      mesh.scale.setScalar(item.scale * (0.92 + settle * 0.08));
+      (mesh.material as THREE.MeshBasicMaterial).opacity = effectiveFade * (0.72 + settle * 0.28);
+    });
+
     const shader = shaderRef.current;
     if (shader) {
       shader.uniforms.uPourProgress.value = pourProgress;
@@ -258,23 +276,23 @@ function StudioBucket({ motion, profile, reducedMotion, onReady, layout }: Studi
     gl.domElement.dataset.heroMotion = values.master.toFixed(3);
   });
 
-  // 16:9 Studio Canvas Dimensions (1920x1080 Aspect Ratio)
+  // Square planes match the transparent 1254x1254 bucket assets.
   const planeWidth = profile === 'mobile' ? 7.2 : profile === 'tablet' ? 8.2 : 9.2;
-  const planeHeight = planeWidth / 1.7778;
 
   return (
     <>
       <group ref={bucketGroupRef}>
-        {/* Unified 5-Buckets Photographic Stage Mesh */}
-        <mesh ref={meshRef} position={[0, 0, 0.1]} renderOrder={2}>
-          <planeGeometry args={[planeWidth, planeHeight, 48, 32]} />
-          <meshBasicMaterial
-            ref={materialRef}
-            map={uprightTexture}
-            transparent
-            depthWrite={false}
-          />
-        </mesh>
+        {/* Five transparent PNGs share the existing cinematic transform group. */}
+        {bucketTextures.map((texture, index) => (
+          <mesh
+            key={BUCKET_TEXTURES[index]}
+            ref={(mesh) => { bucketRefs.current[index] = mesh; }}
+            renderOrder={2 + index}
+          >
+            <planeGeometry args={[planeWidth / 3.8, planeWidth / 3.8, 1, 1]} />
+            <meshBasicMaterial map={texture} transparent depthWrite={false} opacity={0} />
+          </mesh>
+        ))}
 
         {/* Dynamic 3D Cascade Droplets & Micro-Splashes at Stream Base */}
         <group ref={splashGroupRef} position={[0, 0, 0.15]} visible={false}>

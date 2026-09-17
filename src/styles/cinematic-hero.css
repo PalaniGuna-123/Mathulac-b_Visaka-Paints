@@ -63,6 +63,87 @@
   filter: drop-shadow(0 38px 54px rgba(0, 0, 0, 0.48));
 }
 
+.hero-bucket-set {
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  width: min(56vw, 920px);
+  height: min(32vw, 520px);
+}
+
+.hero-bucket-set img {
+  width: 23%;
+  height: auto;
+  flex: 0 0 23%;
+  object-fit: contain;
+  filter: drop-shadow(0 28px 38px rgba(0, 0, 0, 0.46));
+  transform: translateX(-8%);
+}
+
+.hero-bucket-set img + img { margin-left: -5%; }
+
+.hero-bucket-carousel {
+  position: relative;
+  width: 100%;
+  height: min(68vw, 350px);
+  overflow: hidden;
+  touch-action: pan-y;
+}
+
+.hero-bucket-carousel__track {
+  position: absolute;
+  inset: 0;
+}
+
+.hero-bucket-carousel__item {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: min(58%, 230px);
+  height: 100%;
+  margin: 0;
+  object-fit: contain;
+  filter: drop-shadow(0 22px 26px rgba(0, 0, 0, 0.48));
+  transition: transform 620ms cubic-bezier(0.22, 0.8, 0.24, 1), opacity 460ms ease;
+  will-change: transform, opacity;
+}
+
+.hero-bucket-carousel__dots {
+  position: absolute;
+  right: 0;
+  bottom: 0.35rem;
+  left: 0;
+  z-index: 5;
+  display: flex;
+  justify-content: center;
+  gap: 0.35rem;
+}
+
+.hero-bucket-carousel__dots button {
+  width: 0.34rem;
+  height: 0.34rem;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.34);
+  transition: transform 220ms ease, background-color 220ms ease;
+}
+
+.hero-bucket-carousel__dots button.is-active {
+  transform: scale(1.35);
+  background: #00c8ff;
+}
+
+.cinematic-hero__poster .hero-bucket-set img {
+  width: 23%;
+  height: auto;
+  aspect-ratio: 1;
+  margin: 0;
+  object-fit: contain;
+  transform: translateX(-8%);
+}
+
 .cinematic-hero__webgl {
   z-index: 3;
   pointer-events: none;
@@ -111,6 +192,15 @@
   height: auto;
   object-fit: contain;
   filter: drop-shadow(0 24px 28px rgba(0, 21, 79, 0.32));
+}
+
+.cinematic-hero__story .hero-bucket-set {
+  position: absolute;
+  inset: 8% 0 auto;
+  z-index: 2;
+  width: 100%;
+  height: 72%;
+  transform-origin: center bottom;
 }
 
 .cinematic-hero__final {
@@ -534,9 +624,30 @@
     width: min(48vw, 600px);
     margin-left: 34vw;
   }
+
+  .cinematic-hero__poster .hero-bucket-set {
+    width: min(96vw, 540px);
+    height: min(82vw, 440px);
+    margin-top: 14vh;
+  }
+
+  .cinematic-hero__poster .hero-bucket-set img,
+  .hero-bucket-set img {
+    width: 25%;
+    flex-basis: 25%;
+  }
 }
 
 @media (max-width: 767px) {
+  .cinematic-hero-mobile .hero-bucket-set {
+    width: 100%;
+    height: min(58vw, 300px);
+  }
+
+  .cinematic-hero-mobile .hero-bucket-carousel {
+    height: min(70vw, 330px);
+  }
+
   .cinematic-hero__stage {
     min-height: 650px;
   }
@@ -783,4 +894,3 @@
 .mobile-house-transformation {
   touch-action: pan-y;
 }
-

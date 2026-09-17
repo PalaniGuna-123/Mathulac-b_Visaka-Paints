@@ -13,6 +13,7 @@ export interface HeroSceneLayout {
   housePosition: THREE.Vector3;
   houseWidth: number;
   houseLookAt: THREE.Vector3;
+  bucketItems: Array<{ position: THREE.Vector3; rotation: THREE.Euler; scale: number }>;
 }
 
 const makeCurve = (points: THREE.Vector3[], tension = 0.42) => {
@@ -45,6 +46,18 @@ export function createHeroSceneLayout(profile: HeroViewportProfile): HeroSceneLa
     0,
     0,
   );
+  const bucketSpread = mobile ? 0.72 : tablet ? 0.9 : 1.05;
+  const bucketItems = [
+    [-2.05, -0.16, 0.02, -0.08, 0.88],
+    [-1.03, 0.02, 0.12, -0.035, 0.96],
+    [0, 0.12, 0.25, 0, 1.12],
+    [1.03, 0.02, 0.13, 0.035, 0.96],
+    [2.05, -0.16, 0.03, 0.08, 0.88],
+  ].map(([x, y, z, rotation, scale]) => ({
+    position: new THREE.Vector3(x * bucketSpread, y, z),
+    rotation: new THREE.Euler(0, 0, rotation),
+    scale,
+  }));
 
   // Connects directly to the bottom cascade of the central pouring paint
   const paintOrigin = new THREE.Vector3(0.12, -0.65, 0.22)
@@ -100,5 +113,6 @@ export function createHeroSceneLayout(profile: HeroViewportProfile): HeroSceneLa
     housePosition,
     houseWidth: mobile ? 11.8 : tablet ? 9.5 : 11.8,
     houseLookAt: new THREE.Vector3(mobile ? 0.35 : 0.05, mobile ? 0.12 : 0.08, housePosition.z),
+    bucketItems,
   };
 }

@@ -25,6 +25,7 @@ interface PaintBubbleSpec {
 }
 
 const PAINT_BLUE = new THREE.Color('#075dcc');
+const PAINT_STREAM_COLORS = ['#ffd000', '#f51b24', '#146bff', '#67d600', '#7b2cff'];
 const clamp01 = (value: number) => Math.min(1, Math.max(0, value));
 const segment = (progress: number, start: number, end: number) => {
   const value = clamp01((progress - start) / Math.max(0.0001, end - start));
@@ -308,6 +309,101 @@ const PaintBubbles = memo(function PaintBubbles({ motion, profile, curve }: Liqu
   );
 });
 
+interface StreamShader {
+  uniforms: Record<string, THREE.IUniform>;
+}
+
+const ColorStreams = memo(function ColorStreams({ motion, profile, curve }: LiquidPaintProps) {
+  const materialRefs = useRef<Array<THREE.MeshPhysicalMaterial | null>>([]);
+  const shaderRefs = useRef<Array<StreamShader | null>>([]);
+  const streamCurves = useMemo(() => PAINT_STREAM_COLORS.map((_, streamIndex) => {
+    const spread = (streamIndex - 2) * (profile === 'mobile' ? 0.12 : 0.2);
+    const points = Array.from({ length: 25 }, (_, pointIndex) => {
+      const t = pointIndex / 24;
+      const point = curve.getPointAt(t).clone();
+      const convergence = 1 - segment(t, 0.12, 0.56);
+      point.x += spread * convergence;
+      point.y += Math.sin(t * Math.PI) * (streamIndex - 2) * 0.035 * convergence;
+      point.z += (streamIndex - 2) * 0.012;
+      return point;
+    });
+    return new THREE.CatmullRomCurve3(points, false, 'centripetal', 0.38);
+  }), [curve, profile]);
+  const streamGeometries = useMemo(
+    () => streamCurves.map((streamCurve) => new THREE.TubeGeometry(
+      streamCurve,
+      profile === 'desktop' ? 96 : 64,
+      profile === 'mobile' ? 0.055 : 0.075,
+      8,
+      false,
+    )),
+    [profile, streamCurves],
+  );
+
+  useLayoutEffect(() => {
+    materialRefs.current.forEach((material, index) => {
+      if (!material) return;
+      material.onBeforeCompile = (shader) => {
+        shader.uniforms.uStreamProgress = { value: 0 };
+        shader.uniforms.uStreamOpacity = { value: 0 };
+        shader.vertexShader = shader.vertexShader.replace(
+          '#include <common>',
+          '#include <common>\nvarying vec2 vStreamUv;',
+        ).replace(
+          '#include <uv_vertex>',
+          '#include <uv_vertex>\nvStreamUv = uv;',
+        );
+        shader.fragmentShader = shader.fragmentShader.replace(
+          '#include <common>',
+          '#include <common>\nvarying vec2 vStreamUv;\nuniform float uStreamProgress;\nuniform float uStreamOpacity;',
+        ).replace(
+          '#include <dithering_fragment>',
+          'if (vStreamUv.x > uStreamProgress) discard;\ndiffuseColor.a *= uStreamOpacity;\n#include <dithering_fragment>',
+        );
+        shaderRefs.current[index] = shader;
+      };
+      material.needsUpdate = true;
+    });
+    const activeShaders = shaderRefs.current;
+    return () => { activeShaders.fill(null); };
+  }, [streamCurves]);
+
+  useLayoutEffect(() => () => {
+    streamGeometries.forEach((geometry) => geometry.dispose());
+  }, [streamGeometries]);
+
+  useFrame(() => {
+    const values = motion.current;
+    const progress = segment(values.paintProgress, 0.02, 0.5);
+    const opacity = (1 - segment(values.housePaint, 0.04, 0.34)) * 0.76;
+    shaderRefs.current.forEach((shader) => {
+      if (shader) {
+        shader.uniforms.uStreamProgress.value = progress;
+        shader.uniforms.uStreamOpacity.value = opacity;
+      }
+    });
+  });
+
+  return (
+    <group renderOrder={2}>
+      {streamGeometries.map((geometry, index) => (
+        <mesh key={PAINT_STREAM_COLORS[index]} geometry={geometry}>
+          <meshPhysicalMaterial
+            ref={(material) => { materialRefs.current[index] = material; }}
+            color={PAINT_STREAM_COLORS[index]}
+            roughness={0.24}
+            clearcoat={0.72}
+            clearcoatRoughness={0.14}
+            transparent
+            opacity={0}
+            depthWrite={false}
+          />
+        </mesh>
+      ))}
+    </group>
+  );
+});
+
 export function LiquidPaint({ motion, profile, curve, reducedMotion }: LiquidPaintProps) {
   const materialRef = useRef<THREE.MeshPhysicalMaterial>(null);
   const shaderRef = useRef<CompiledPaintShader | null>(null);
@@ -489,6 +585,7 @@ export function LiquidPaint({ motion, profile, curve, reducedMotion }: LiquidPai
   return (
     <group>
       <PaintAnticipation motion={motion} profile={profile} curve={curve} />
+      <ColorStreams motion={motion} profile={profile} curve={curve} />
 
       <mesh geometry={brushGeometry} frustumCulled={false} renderOrder={3}>
         <meshPhysicalMaterial
