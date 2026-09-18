@@ -5,13 +5,14 @@ import { useLocation } from '../routes/Router';
 
 export function ProductsPage() {
   const { search } = useLocation();
-  const [selectedCategoryId, setSelectedCategoryId] = useState<string>('thinners');
+  const [selectedCategoryId, setSelectedCategoryId] = useState<string>('all');
 
   useEffect(() => {
     const params = new URLSearchParams(search);
     const cat = params.get('category');
     if (cat) {
       const matchMap: Record<string, string> = {
+        all: 'all',
         auto: 'primers-auto-putty',
         wood: 'wood-coatings',
         decor: 'trendy-interior-products',
