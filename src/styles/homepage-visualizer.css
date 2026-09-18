@@ -383,17 +383,60 @@
   .visualizer-chapter__stage {
     height: auto;
     min-height: 100svh;
-    padding: 6rem 1rem 4rem;
+    padding: 4.5rem 1rem 2rem;
   }
   .visualizer-chapter__content {
-    grid-template-columns: 1fr;
-    gap: 2.5rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.85rem;
+    padding: 0.5rem 0;
+    width: 100%;
+    max-width: 640px;
+    margin: 0 auto;
+  }
+  .visualizer-chapter__copy {
+    display: contents;
+  }
+  .visualizer-chapter__eyebrow {
+    order: 1;
+    margin: 0 auto;
+  }
+  .visualizer-chapter__copy h2 {
+    order: 2;
+    margin: 0 auto;
+    text-align: center;
+    font-size: clamp(1.75rem, 5vw, 2.4rem);
+    line-height: 1.15;
+    padding-bottom: 0.2em;
+  }
+  .visualizer-chapter__copy p {
+    order: 3;
+    margin: 0 auto;
+    text-align: center;
+    font-size: clamp(0.8rem, 2.2vw, 0.95rem);
+    line-height: 1.5;
+    max-width: 32rem;
+  }
+  .visualizer-preview {
+    order: 4;
+    width: 100%;
+    max-width: 580px;
+    aspect-ratio: 16 / 10;
+    margin-top: 0.25rem;
+  }
+  .visualizer-chapter__actions {
+    order: 5;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    gap: 0.6rem;
+    margin-top: 0.5rem;
+    width: 100%;
   }
   .visualizer-chapter__index {
     display: none;
-  }
-  .visualizer-preview {
-    aspect-ratio: 16 / 11;
   }
   .visualizer-preview__surface {
     width: 200px;
@@ -405,14 +448,34 @@
 
 @media (max-width: 640px) {
   .visualizer-chapter__stage {
-    padding: 5rem 0.75rem 3rem;
+    padding: 4rem 0.75rem 1.5rem;
+  }
+  .visualizer-chapter__content {
+    gap: 0.65rem;
+    padding: 0.25rem 0;
   }
   .visualizer-chapter__copy h2 {
-    font-size: 2rem;
+    font-size: clamp(1.5rem, 6.5vw, 1.95rem);
+    line-height: 1.12;
+  }
+  .visualizer-chapter__copy p {
+    font-size: 0.78rem;
+    line-height: 1.45;
+    max-width: 24rem;
   }
   .visualizer-preview {
-    aspect-ratio: 4 / 3;
+    aspect-ratio: 16 / 10.2;
     border-radius: 1rem;
+    margin-top: 0.15rem;
+  }
+  .visualizer-chapter__actions {
+    gap: 0.5rem;
+    margin-top: 0.4rem;
+  }
+  .visualizer-chapter__actions .visualizer-cta {
+    padding: 0.65rem 1.1rem;
+    font-size: 0.78rem;
+    border-radius: 10px;
   }
   .visualizer-preview__surface {
     width: 160px;

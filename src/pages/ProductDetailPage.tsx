@@ -66,16 +66,8 @@ export function ProductDetailPage() {
     (p) => p.categoryKey === category.id
   );
 
-  // Selected pack size state
-  const [selectedSize, setSelectedSize] = useState<string>(
-    product.availableSizes[0] || '1 Ltr'
-  );
-
-  // Reset selected size, selected shade and scroll to top when product changes
+  // Reset selected shade and scroll to top when product changes
   useEffect(() => {
-    if (product.availableSizes && product.availableSizes.length > 0) {
-      setSelectedSize(product.availableSizes[0]);
-    }
     setSelectedShade(null);
     window.scrollTo({ top: 0, behavior: 'instant' });
   }, [product.id, id]);
@@ -319,9 +311,9 @@ Inquiries: visakapaints@gmail.com | mathulac.com`;
                 </span>
               </div>
 
-              {/* Active Pack Size Indicator */}
-              <div className="absolute top-5 right-5 px-3 py-1 rounded-full bg-magenta/20 border border-magenta/40 text-magenta font-mono text-[10px] font-bold uppercase tracking-wider z-20">
-                Pack: {selectedSize}
+              {/* Available Pack Sizes Count Badge */}
+              <div className="absolute top-5 right-5 px-3 py-1 rounded-full bg-white/10 backdrop-blur-md border border-white/15 text-white/80 font-mono text-[10px] font-bold uppercase tracking-wider z-20">
+                {product.availableSizes.length} {product.availableSizes.length === 1 ? 'Pack Size' : 'Pack Sizes'}
               </div>
 
               {/* Product Container Image with High-Def Sizing & Smooth Hover */}
@@ -347,7 +339,7 @@ Inquiries: visakapaints@gmail.com | mathulac.com`;
               </div>
             </div>
 
-            {/* Pack Size Selector Strip */}
+            {/* Available Pack Sizes Info Strip (Non-button hover interaction) */}
             <div className="w-full mt-5 p-4 rounded-2xl bg-white/[0.03] border border-white/10 flex flex-col sm:flex-row items-center justify-between gap-3">
               <div className="flex items-center gap-2">
                 <Box className="w-4 h-4 text-cyan flex-shrink-0" />
@@ -356,23 +348,15 @@ Inquiries: visakapaints@gmail.com | mathulac.com`;
                 </span>
               </div>
 
-              <div className="flex flex-wrap gap-2">
-                {product.availableSizes.map((size) => {
-                  const isSelected = size === selectedSize;
-                  return (
-                    <button
-                      key={size}
-                      onClick={() => setSelectedSize(size)}
-                      className={`px-3 py-1.5 rounded-xl text-xs font-mono font-bold transition-all cursor-pointer border ${
-                        isSelected
-                          ? 'bg-cyan text-black border-cyan shadow-lg shadow-cyan/30 scale-105'
-                          : 'bg-white/5 hover:bg-white/15 text-white/80 border-white/10'
-                      }`}
-                    >
-                      {size}
-                    </button>
-                  );
-                })}
+              <div className="flex flex-wrap items-center justify-center gap-2">
+                {product.availableSizes.map((size) => (
+                  <span
+                    key={size}
+                    className="px-3.5 py-1.5 rounded-xl text-xs font-mono font-bold bg-white/[0.06] hover:bg-white/[0.14] text-white/85 hover:text-white border border-white/15 hover:border-cyan/50 hover:shadow-lg hover:shadow-cyan/20 hover:scale-105 transition-all duration-200 cursor-default select-none"
+                  >
+                    {size}
+                  </span>
+                ))}
               </div>
             </div>
           </div>
@@ -489,7 +473,7 @@ Inquiries: visakapaints@gmail.com | mathulac.com`;
         {/* 3.5. AVAILABLE SIGNATURE COLOR SHADES & TINT FORMULATIONS */}
         {/* ============================================================ */}
         {matchingShades.length > 0 && (
-          <div className="mb-16 p-6 sm:p-8 rounded-3xl bg-gradient-to-b from-white/[0.04] to-white/[0.01] border border-white/15 shadow-2xl backdrop-blur-md">
+          <div className="hidden md:block mb-16 p-6 sm:p-8 rounded-3xl bg-gradient-to-b from-white/[0.04] to-white/[0.01] border border-white/15 shadow-2xl backdrop-blur-md">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 pb-4 border-b border-white/10">
               <div>
                 <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-magenta/20 text-magenta text-[10px] font-mono font-bold uppercase tracking-widest border border-magenta/30 mb-2">

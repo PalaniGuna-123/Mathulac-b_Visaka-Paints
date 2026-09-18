@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import {
   Sparkles,
   Phone,
@@ -48,6 +48,26 @@ export function ServicesPage() {
   // State for Project References filtering & modal
   const [selectedProjectCat, setSelectedProjectCat] = useState<string>('all');
   const [activeProjectModal, setActiveProjectModal] = useState<ProjectReferenceItem | null>(null);
+
+  // Close modals on Escape key & prevent body scrolling while modal is open
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setActiveProjectModal(null);
+        setActiveServiceModal(null);
+      }
+    };
+    if (activeProjectModal || activeServiceModal) {
+      window.addEventListener('keydown', handleKeyDown);
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+      document.body.style.overflow = '';
+    };
+  }, [activeProjectModal, activeServiceModal]);
 
   // State for Process Step
   const [activeStepIndex, setActiveStepIndex] = useState<number>(0);
@@ -1179,11 +1199,18 @@ export function ServicesPage() {
       {/* 10. MODAL: DETAILED SERVICE SPECIFICATIONS */}
       {/* ============================================================ */}
       {activeServiceModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fade-in">
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md animate-fade-in"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) setActiveServiceModal(null);
+          }}
+        >
           <div className="relative w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-3xl bg-[#0e111d] border border-white/20 p-6 sm:p-8 shadow-2xl">
             <button
+              type="button"
               onClick={() => setActiveServiceModal(null)}
-              className="absolute top-5 right-5 w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition-colors"
+              className="absolute top-4 right-4 z-30 w-10 h-10 rounded-full bg-ink/85 hover:bg-magenta text-white border border-white/30 backdrop-blur-md shadow-2xl flex items-center justify-center transition-all duration-200 hover:scale-110 active:scale-95 cursor-pointer"
+              aria-label="Close service details"
             >
               <X className="w-5 h-5" />
             </button>
@@ -1261,11 +1288,19 @@ export function ServicesPage() {
       {/* 11. MODAL: PROJECT REFERENCE DETAIL */}
       {/* ============================================================ */}
       {activeProjectModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fade-in">
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/85 backdrop-blur-md animate-fade-in"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) setActiveProjectModal(null);
+          }}
+        >
           <div className="relative w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-3xl bg-[#0e111d] border border-white/20 p-6 sm:p-8 shadow-2xl">
+            {/* Prominent Floating Close Button on top of the image */}
             <button
+              type="button"
               onClick={() => setActiveProjectModal(null)}
-              className="absolute top-5 right-5 w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition-colors"
+              className="absolute top-4 right-4 z-30 w-10 h-10 rounded-full bg-ink/85 hover:bg-magenta text-white border border-white/30 backdrop-blur-md shadow-2xl flex items-center justify-center transition-all duration-200 hover:scale-110 active:scale-95 cursor-pointer"
+              aria-label="Close project details"
             >
               <X className="w-5 h-5" />
             </button>
@@ -1276,7 +1311,7 @@ export function ServicesPage() {
                 alt={activeProjectModal.title}
                 className="w-full h-full object-cover"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-[#0e111d] via-transparent to-transparent" />
+              <div className="absolute inset-0 bg-gradient-to-t from-[#0e111d] via-transparent to-transparent pointer-events-none" />
             </div>
 
             <span className="text-xs font-mono uppercase font-bold text-magenta bg-magenta/10 px-2.5 py-1 rounded-md border border-magenta/30">
@@ -1312,11 +1347,14 @@ export function ServicesPage() {
               </div>
             </div>
 
+            {/* Bottom Action / Close Button */}
             <button
+              type="button"
               onClick={() => setActiveProjectModal(null)}
-              className="w-full py-3 rounded-xl bg-white/10 hover:bg-white/20 text-white font-bold text-xs uppercase tracking-wider transition-colors"
+              className="w-full py-3.5 rounded-xl bg-gradient-to-r from-magenta to-cyan hover:opacity-95 text-white font-bold text-xs uppercase tracking-wider transition-all shadow-lg flex items-center justify-center gap-2 cursor-pointer"
             >
-              Back to Services
+              <X className="w-4 h-4" />
+              <span>Close Project Details</span>
             </button>
           </div>
         </div>

@@ -116,30 +116,67 @@ body,
    HOMEPAGE VISUALIZER
    ========================================================================== */
 @media (max-width: 767px) {
-  .homepage-visualizer {
-    padding-top: 3.5rem;
-    padding-bottom: 3.5rem;
-    padding-inline: 1rem;
-    overflow: hidden;
-  }
-
-  .visualizer-chapter__layout {
-    flex-direction: column !important;
-    gap: 2rem !important;
+  .visualizer-chapter__stage {
+    padding: 4rem 0.75rem 1.5rem !important;
   }
 
   .visualizer-chapter__content {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    gap: 0.65rem !important;
     max-width: 100% !important;
     text-align: center !important;
+    padding: 0.25rem 0 !important;
   }
 
-  .visualizer-preview-wrap {
+  .visualizer-chapter__copy {
+    display: contents !important;
+  }
+
+  .visualizer-chapter__eyebrow {
+    order: 1 !important;
+    margin: 0 auto !important;
+  }
+
+  .visualizer-chapter__copy h2 {
+    order: 2 !important;
+    margin: 0 auto !important;
+    font-size: clamp(1.5rem, 6.5vw, 1.95rem) !important;
+    line-height: 1.12 !important;
+  }
+
+  .visualizer-chapter__copy p {
+    order: 3 !important;
+    margin: 0 auto !important;
+    font-size: 0.78rem !important;
+    line-height: 1.45 !important;
+    max-width: 24rem !important;
+  }
+
+  .visualizer-preview {
+    order: 4 !important;
     width: 100% !important;
     max-width: 100% !important;
+    aspect-ratio: 16 / 10.2 !important;
+    margin-top: 0.2rem !important;
   }
 
-  .visualizer-chapter__heading {
-    font-size: clamp(1.6rem, 8vw, 2.2rem) !important;
+  .visualizer-chapter__actions {
+    order: 5 !important;
+    display: flex !important;
+    flex-wrap: wrap !important;
+    justify-content: center !important;
+    align-items: center !important;
+    gap: 0.5rem !important;
+    margin-top: 0.4rem !important;
+    width: 100% !important;
+  }
+
+  .visualizer-chapter__actions .visualizer-cta {
+    padding: 0.65rem 1.1rem !important;
+    font-size: 0.78rem !important;
+    border-radius: 10px !important;
   }
 }
 

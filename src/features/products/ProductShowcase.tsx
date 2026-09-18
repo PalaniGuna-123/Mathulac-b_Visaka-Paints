@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useLayoutEffect, useRef } from 'react';
+import React, { useState, useEffect, useLayoutEffect, useRef, useMemo } from 'react';
 import {
   ChevronLeft,
   ChevronRight,
@@ -20,6 +20,10 @@ import {
   Users,
   MapPin,
   Droplets,
+  Search,
+  X,
+  ChevronDown,
+  Check,
 } from 'lucide-react';
 import {
   mathulacCategories,
@@ -41,8 +45,86 @@ interface ProductShowcaseProps {
   pinned?: boolean;
 }
 
+// Human-readable labels for surface filters
+const surfaceLabels: Record<string, string> = {
+  all: 'All surfaces',
+  wood: 'Wood & Timber',
+  metal: 'Metal & Steel',
+  auto: 'Auto & Primer',
+  walls: 'Walls & Putty',
+  exterior: 'Exterior',
+};
+
+// Available standard pack sizes for quick multi-selection
+const ALL_PACK_SIZES = ['500 ml', '1 Ltr', '4 Ltr', '5 Ltr', '20 Ltr', '1 kg', '7 kg', '35 kg'];
+
+// Helper to accurately match products to surface types
+const matchesSurface = (product: MathulacProductItem, surface: string): boolean => {
+  if (surface === 'all') return true;
+  const text = `${product.name} ${product.description} ${product.categoryName} ${(product.features || []).join(' ')}`.toLowerCase();
+
+  switch (surface) {
+    case 'wood':
+      return (
+        product.categoryKey === 'wood-coatings' ||
+        text.includes('wood') ||
+        text.includes('timber') ||
+        text.includes('melamine') ||
+        text.includes('table top') ||
+        text.includes('sanding sealer')
+      );
+    case 'metal':
+      return (
+        product.categoryKey === 'aluminium-paints' ||
+        product.categoryKey === 'hammertone-paints' ||
+        product.categoryKey === 'gp-enamels' ||
+        product.categoryKey === 'synthetic-enamels' ||
+        text.includes('metal') ||
+        text.includes('steel') ||
+        text.includes('iron') ||
+        text.includes('chassis') ||
+        text.includes('aluminium') ||
+        text.includes('grill') ||
+        text.includes('gate')
+      );
+    case 'auto':
+      return (
+        product.categoryKey === 'primers-auto-putty' ||
+        text.includes('auto') ||
+        text.includes('chassis') ||
+        text.includes('nc putty') ||
+        text.includes('og putty') ||
+        text.includes('qd primer') ||
+        text.includes('pu thinner')
+      );
+    case 'walls':
+      return (
+        product.categoryKey === 'acrylic-cement-putty' ||
+        product.categoryKey === 'interior-exterior-primers' ||
+        product.categoryKey === 'trendy-interior-products' ||
+        text.includes('wall') ||
+        text.includes('distemper') ||
+        text.includes('emulsion') ||
+        text.includes('plaster') ||
+        text.includes('cement') ||
+        text.includes('interior')
+      );
+    case 'exterior':
+      return (
+        product.categoryKey === 'exterior-emulsion' ||
+        product.categoryKey === 'tile-coat' ||
+        text.includes('exterior') ||
+        text.includes('weather') ||
+        text.includes('optima') ||
+        text.includes('apt')
+      );
+    default:
+      return true;
+  }
+};
+
 export function ProductShowcase({
-  initialFilter = 'thinners',
+  initialFilter = 'all',
   scrollTo,
   showTrustSection = false,
   pinned = false,
@@ -50,22 +132,141 @@ export function ProductShowcase({
   const sectionRef = useRef<HTMLElement>(null);
   const scrollContentRef = useRef<HTMLDivElement>(null);
 
-  // Active selected category
-  const [selectedCategory, setSelectedCategory] = useState<CatalogCategory>(
-    mathulacCategories.find((c) => c.id === initialFilter) || mathulacCategories[0]
-  );
+  // Multi-Category selection (empty or ['all'] means all categories)
+  const [selectedCategoryIds, setSelectedCategoryIds] = useState<string[]>(() => {
+    if (!initialFilter || initialFilter === 'all') return [];
+    return [initialFilter];
+  });
 
-  // Products in the active category
-  const categoryProducts = mathulacProductItems.filter(
-    (p) => p.categoryKey === selectedCategory.id
-  );
+  // Search and multi-filter states
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedSurface, setSelectedSurface] = useState('all');
+  const [selectedPackSizes, setSelectedPackSizes] = useState<string[]>([]);
+  const [sortBy, setSortBy] = useState<'default' | 'name-asc' | 'name-desc'>('default');
+
+  // Modal temporary state (staged until "Apply" is clicked)
+  const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
+  const [tempCategoryIds, setTempCategoryIds] = useState<string[]>([]);
+  const [tempSurface, setTempSurface] = useState('all');
+  const [tempPackSizes, setTempPackSizes] = useState<string[]>([]);
+  const [tempSort, setTempSort] = useState<'default' | 'name-asc' | 'name-desc'>('default');
+
+  // Active filter count for badge indicator
+  const activeFilterCount = useMemo(() => {
+    let count = 0;
+    if (selectedCategoryIds.length > 0 && !selectedCategoryIds.includes('all')) {
+      count += selectedCategoryIds.length;
+    }
+    if (selectedSurface !== 'all') {
+      count += 1;
+    }
+    if (selectedPackSizes.length > 0 && !selectedPackSizes.includes('all')) {
+      count += selectedPackSizes.length;
+    }
+    if (searchQuery.trim()) {
+      count += 1;
+    }
+    return count;
+  }, [selectedCategoryIds, selectedSurface, selectedPackSizes, searchQuery]);
+
+  // Backward-compatibility alias for category object
+  const activeCategory =
+    selectedCategoryIds.length === 1 && selectedCategoryIds[0] !== 'all'
+      ? mathulacCategories.find((c) => c.id === selectedCategoryIds[0]) || null
+      : null;
+
+  // Filtered products combining multi-category, surface, multi-pack-size & search
+  const displayedProducts = useMemo(() => {
+    return mathulacProductItems
+      .filter((product) => {
+        // 1. Multi-Category filter
+        if (
+          selectedCategoryIds.length > 0 &&
+          !selectedCategoryIds.includes('all') &&
+          !selectedCategoryIds.includes(product.categoryKey)
+        ) {
+          return false;
+        }
+
+        // 2. Surface / application filter
+        if (selectedSurface !== 'all' && !matchesSurface(product, selectedSurface)) {
+          return false;
+        }
+
+        // 3. Multi-Pack size filter
+        if (selectedPackSizes.length > 0 && !selectedPackSizes.includes('all')) {
+          const matchesAnySize = selectedPackSizes.some((filterSize) =>
+            product.availableSizes.some((s) =>
+              s.toLowerCase().includes(filterSize.toLowerCase())
+            )
+          );
+          if (!matchesAnySize) return false;
+        }
+
+        // 4. Search query
+        if (searchQuery.trim()) {
+          const q = searchQuery.toLowerCase().trim();
+          const nameMatch = product.name.toLowerCase().includes(q);
+          const catMatch = product.categoryName.toLowerCase().includes(q);
+          const descMatch = product.description.toLowerCase().includes(q);
+          const sizeMatch = product.availableSizes.some((s) => s.toLowerCase().includes(q));
+          const featureMatch = (product.features || []).some((f) => f.toLowerCase().includes(q));
+          if (!nameMatch && !catMatch && !descMatch && !sizeMatch && !featureMatch) {
+            return false;
+          }
+        }
+
+        return true;
+      })
+      .sort((a, b) => {
+        if (sortBy === 'name-asc') return a.name.localeCompare(b.name);
+        if (sortBy === 'name-desc') return b.name.localeCompare(a.name);
+        return 0;
+      });
+  }, [selectedCategoryIds, selectedSurface, selectedPackSizes, searchQuery, sortBy]);
+
+  // Real-time staged preview count inside modal
+  const stagedPreviewCount = useMemo(() => {
+    return mathulacProductItems.filter((product) => {
+      if (
+        tempCategoryIds.length > 0 &&
+        !tempCategoryIds.includes('all') &&
+        !tempCategoryIds.includes(product.categoryKey)
+      ) {
+        return false;
+      }
+      if (tempSurface !== 'all' && !matchesSurface(product, tempSurface)) {
+        return false;
+      }
+      if (tempPackSizes.length > 0 && !tempPackSizes.includes('all')) {
+        const matchesAnySize = tempPackSizes.some((filterSize) =>
+          product.availableSizes.some((s) =>
+            s.toLowerCase().includes(filterSize.toLowerCase())
+          )
+        );
+        if (!matchesAnySize) return false;
+      }
+      if (searchQuery.trim()) {
+        const q = searchQuery.toLowerCase().trim();
+        const nameMatch = product.name.toLowerCase().includes(q);
+        const catMatch = product.categoryName.toLowerCase().includes(q);
+        const descMatch = product.description.toLowerCase().includes(q);
+        if (!nameMatch && !catMatch && !descMatch) return false;
+      }
+      return true;
+    }).length;
+  }, [tempCategoryIds, tempSurface, tempPackSizes, searchQuery]);
+
+  // Backward-compatibility alias
+  const selectedCategory = activeCategory || mathulacCategories[0];
+  const categoryProducts = displayedProducts;
 
   // Active product index
   const [activeProductIndex, setActiveProductIndex] = useState(0);
 
   // Active product for technical inspection
   const currentProduct: MathulacProductItem =
-    categoryProducts[activeProductIndex] || categoryProducts[0] || mathulacProductItems[0];
+    displayedProducts[activeProductIndex] || displayedProducts[0] || mathulacProductItems[0];
 
   // Modal for full category product list is removed in favor of direct full-page showcase
   // Animated stat counters
@@ -171,29 +372,101 @@ export function ProductShowcase({
   // Active timeline step
   const [activeTimelineStep, setActiveTimelineStep] = useState(0);
 
-  // Sync selectedCategory when the initialFilter prop changes
+  // Sync selectedCategoryIds when the initialFilter prop changes
   useEffect(() => {
-    const matched = mathulacCategories.find((c) => c.id === initialFilter);
-    if (matched) {
-      setSelectedCategory(matched);
+    if (initialFilter && initialFilter !== 'all') {
+      setSelectedCategoryIds([initialFilter]);
+    } else if (initialFilter === 'all') {
+      setSelectedCategoryIds([]);
     }
   }, [initialFilter]);
 
-  // Reset product index when category changes
+  // Reset product index when category or filters change
   useEffect(() => {
     setActiveProductIndex(0);
-  }, [selectedCategory]);
+  }, [selectedCategoryIds, selectedSurface, selectedPackSizes, searchQuery]);
 
   const handlePrevProduct = () => {
     setActiveProductIndex((prev) =>
-      prev > 0 ? prev - 1 : categoryProducts.length - 1
+      prev > 0 ? prev - 1 : Math.max(0, displayedProducts.length - 1)
     );
   };
 
   const handleNextProduct = () => {
     setActiveProductIndex((prev) =>
-      prev < categoryProducts.length - 1 ? prev + 1 : 0
+      prev < displayedProducts.length - 1 ? prev + 1 : 0
     );
+  };
+
+  const toggleTempCategory = (catId: string) => {
+    if (catId === 'all') {
+      setTempCategoryIds([]);
+      return;
+    }
+    setTempCategoryIds((prev) =>
+      prev.includes(catId)
+        ? prev.filter((id) => id !== catId)
+        : [...prev.filter((id) => id !== 'all'), catId]
+    );
+  };
+
+  const toggleTempPackSize = (size: string) => {
+    if (size === 'all') {
+      setTempPackSizes([]);
+      return;
+    }
+    setTempPackSizes((prev) =>
+      prev.includes(size)
+        ? prev.filter((s) => s !== size)
+        : [...prev.filter((s) => s !== 'all'), size]
+    );
+  };
+
+  const openFilterModal = () => {
+    setTempCategoryIds([...selectedCategoryIds]);
+    setTempSurface(selectedSurface);
+    setTempPackSizes([...selectedPackSizes]);
+    setTempSort(sortBy);
+    setIsFilterModalOpen(true);
+  };
+
+  const closeFilterModal = () => {
+    setIsFilterModalOpen(false);
+  };
+
+  const handleClearFilters = () => {
+    setTempCategoryIds([]);
+    setTempSurface('all');
+    setTempPackSizes([]);
+    setTempSort('default');
+  };
+
+  const handleApplyFilters = () => {
+    setSelectedCategoryIds(tempCategoryIds);
+    setSelectedSurface(tempSurface);
+    setSelectedPackSizes(tempPackSizes);
+    setSortBy(tempSort);
+    setIsFilterModalOpen(false);
+    setActiveProductIndex(0);
+    const el = document.getElementById('product-viewer');
+    if (el) el.scrollIntoView({ behavior: 'smooth' });
+  };
+
+  const resetAllFilters = () => {
+    setSelectedCategoryIds([]);
+    setSelectedSurface('all');
+    setSelectedPackSizes([]);
+    setSearchQuery('');
+    setSortBy('default');
+    setActiveProductIndex(0);
+  };
+
+  const removeCategory = (id: string) => {
+    setSelectedCategoryIds((prev) => prev.filter((c) => c !== id));
+  };
+
+  const removePackSize = (size: string) => {
+    setSelectedPackSizes((prev) => prev.filter((s) => s !== size));
   };
 
   const handleConsult = () => {
@@ -226,46 +499,460 @@ export function ProductShowcase({
             </p>
           </div>
 
-          {/* 12-Category Grid Selector (All 12 visible at a single glance without scroll cuts) */}
-          <div className="mb-10" data-reveal>
-            <div className="flex items-center justify-between gap-2 mb-3 pb-2 border-b border-white/10">
-              <span className="text-xs font-extrabold uppercase tracking-widest text-white/60 flex items-center gap-2">
-                <Grid className="w-4 h-4 text-magenta" /> Select Product Category (12 Systems)
-              </span>
+          {/* ============================================================ */}
+          {/* MOBILE SEARCH & FILTER BAR (Strictly for Mobile Responsive: md:hidden) */}
+          {/* Search bar on the LEFT, Filter icon with count badge on the RIGHT */}
+          {/* ============================================================ */}
+          <div className="block md:hidden mb-6" data-reveal>
+            <div className="flex items-center gap-2.5">
+              {/* Search bar on the LEFT */}
+              <div className="relative flex-1">
+                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-white/40">
+                  <Search className="w-4 h-4" />
+                </div>
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Search products..."
+                  className="w-full pl-10 pr-9 py-2.5 rounded-xl bg-white/[0.06] border border-white/20 text-white placeholder-white/40 text-xs sm:text-sm focus:outline-none focus:border-cyan focus:ring-1 focus:ring-cyan transition-all shadow-inner"
+                />
+                {searchQuery && (
+                  <button
+                    onClick={() => setSearchQuery('')}
+                    className="absolute inset-y-0 right-0 pr-3 flex items-center text-white/40 hover:text-white cursor-pointer"
+                    aria-label="Clear search query"
+                  >
+                    <X className="w-3.5 h-3.5" />
+                  </button>
+                )}
+              </div>
+
+              {/* Filter Icon Button on the RIGHT with Numerical Badge */}
               <button
-                onClick={() => {
-                  const el = document.getElementById('category-lineup');
-                  if (el) el.scrollIntoView({ behavior: 'smooth' });
-                }}
-                className="text-xs font-bold text-cyan hover:text-white flex items-center gap-1.5 cursor-pointer transition-colors"
+                onClick={openFilterModal}
+                className={`relative p-2.5 rounded-xl border flex items-center justify-center transition-all cursor-pointer shadow-md flex-shrink-0 ${
+                  activeFilterCount > 0
+                    ? 'bg-red-600/25 border-red-500 text-white ring-1 ring-red-500/50'
+                    : 'bg-white/[0.06] hover:bg-white/[0.12] border-white/20 text-white hover:text-white'
+                }`}
+                aria-label="Open filter options"
+                title="Filter products"
               >
-                <Layers className="w-3.5 h-3.5 text-magenta" /> View {selectedCategory.name} Gallery ({categoryProducts.length})
+                {/* 3 tapering horizontal bars icon matching Image 2 */}
+                <svg
+                  className="w-5 h-5 text-white"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2.2"
+                  strokeLinecap="round"
+                >
+                  <line x1="4" y1="6" x2="20" y2="6" />
+                  <line x1="7" y1="12" x2="17" y2="12" />
+                  <line x1="10" y1="18" x2="14" y2="18" />
+                </svg>
+                {activeFilterCount > 0 && (
+                  <span className="absolute -top-1.5 -right-1.5 min-w-[19px] h-[19px] px-1 rounded-full bg-red-500 text-white text-[10px] font-black flex items-center justify-center ring-2 ring-[#0B0D17] shadow-lg">
+                    {activeFilterCount}
+                  </span>
+                )}
               </button>
+            </div>
+
+            {/* Mobile Filter Status summary & quick clear */}
+            <div className="flex items-center justify-between mt-2.5 px-0.5 text-xs text-white/60">
+              <span className="font-medium text-[11px]">
+                Showing {displayedProducts.length} {displayedProducts.length === 1 ? 'product' : 'products'}
+                {selectedCategoryIds.length === 1 && (
+                  <span className="text-cyan ml-1 font-bold">
+                    • {mathulacCategories.find((c) => c.id === selectedCategoryIds[0])?.name || selectedCategoryIds[0]}
+                  </span>
+                )}
+                {selectedCategoryIds.length > 1 && (
+                  <span className="text-cyan ml-1 font-bold">
+                    • {selectedCategoryIds.length} categories
+                  </span>
+                )}
+              </span>
+              {activeFilterCount > 0 && (
+                <button
+                  onClick={resetAllFilters}
+                  className="text-red-400 hover:text-red-300 font-semibold underline text-[11px] cursor-pointer"
+                >
+                  Reset filters
+                </button>
+              )}
+            </div>
+
+            {/* Mobile Multi-Filter Active Chips Row (Wrapped cleanly so all chips are fully visible on screen without swiping/scrollbar) */}
+            {activeFilterCount > 0 && (
+              <div className="flex flex-wrap items-center gap-1.5 mt-2.5">
+                {/* Category Chips */}
+                {selectedCategoryIds.map((catId) => {
+                  const cat = mathulacCategories.find((c) => c.id === catId);
+                  return (
+                    <span
+                      key={catId}
+                      className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-magenta/20 border border-magenta/40 text-white text-[11px] font-medium shadow-sm transition-all"
+                    >
+                      <span>{cat?.name || catId}</span>
+                      <button
+                        onClick={() => removeCategory(catId)}
+                        className="text-white/60 hover:text-white p-0.5 rounded hover:bg-white/10 active:scale-90 transition-all cursor-pointer"
+                        aria-label={`Remove ${cat?.name || catId} filter`}
+                      >
+                        <X className="w-3 h-3" />
+                      </button>
+                    </span>
+                  );
+                })}
+
+                {/* Surface Chip */}
+                {selectedSurface !== 'all' && (
+                  <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-cyan/20 border border-cyan/40 text-cyan text-[11px] font-medium shadow-sm transition-all">
+                    <span>Surface: {surfaceLabels[selectedSurface] || selectedSurface}</span>
+                    <button
+                      onClick={() => setSelectedSurface('all')}
+                      className="text-cyan/60 hover:text-white p-0.5 rounded hover:bg-white/10 active:scale-90 transition-all cursor-pointer"
+                      aria-label="Remove surface filter"
+                    >
+                      <X className="w-3 h-3" />
+                    </button>
+                  </span>
+                )}
+
+                {/* Pack Size Chips */}
+                {selectedPackSizes.map((size) => (
+                  <span
+                    key={size}
+                    className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-purple-500/20 border border-purple-400/40 text-purple-200 text-[11px] font-medium shadow-sm transition-all"
+                  >
+                    <span>{size}</span>
+                    <button
+                      onClick={() => removePackSize(size)}
+                      className="text-purple-200/60 hover:text-white p-0.5 rounded hover:bg-white/10 active:scale-90 transition-all cursor-pointer"
+                      aria-label={`Remove ${size} filter`}
+                    >
+                      <X className="w-3 h-3" />
+                    </button>
+                  </span>
+                ))}
+
+                {/* Search Chip */}
+                {searchQuery.trim() && (
+                  <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-white/10 border border-white/20 text-white/90 text-[11px] font-medium shadow-sm transition-all">
+                    <span>"{searchQuery.trim()}"</span>
+                    <button
+                      onClick={() => setSearchQuery('')}
+                      className="text-white/60 hover:text-white p-0.5 rounded hover:bg-white/10 active:scale-90 transition-all cursor-pointer"
+                      aria-label="Clear search query"
+                    >
+                      <X className="w-3 h-3" />
+                    </button>
+                  </span>
+                )}
+
+                <button
+                  onClick={resetAllFilters}
+                  className="text-[11px] font-bold text-red-400 hover:text-red-300 underline px-1 py-0.5 cursor-pointer transition-colors"
+                >
+                  Clear all
+                </button>
+              </div>
+            )}
+          </div>
+
+          {/* ============================================================ */}
+          {/* FILTER POPUP MODAL (Multi-Filter Enhanced, Image 2 Styling) */}
+          {/* ============================================================ */}
+          {isFilterModalOpen && (
+            <div
+              className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md"
+              onClick={(e) => {
+                if (e.target === e.currentTarget) closeFilterModal();
+              }}
+            >
+              <div
+                role="dialog"
+                aria-modal="true"
+                className="w-full max-w-[460px] max-h-[88vh] bg-[#121624] border border-white/20 rounded-2xl shadow-2xl shadow-black/90 relative text-white flex flex-col overflow-hidden"
+              >
+                {/* Header: Filter Icon + "Filter Products" on Left, "Close" on Right */}
+                <div className="flex items-center justify-between p-4 sm:p-5 border-b border-white/10 flex-shrink-0">
+                  <div className="flex items-center gap-2.5">
+                    <div className="w-8 h-8 rounded-lg bg-red-500/15 border border-red-500/30 flex items-center justify-center text-red-500">
+                      {/* Filter icon from Image 2 */}
+                      <svg
+                        className="w-4 h-4 text-red-500"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2.4"
+                        strokeLinecap="round"
+                      >
+                        <line x1="4" y1="6" x2="20" y2="6" />
+                        <line x1="7" y1="12" x2="17" y2="12" />
+                        <line x1="10" y1="18" x2="14" y2="18" />
+                      </svg>
+                    </div>
+                    <div>
+                      <h3 className="font-bold text-base text-white tracking-tight leading-none">
+                        Filter Products
+                      </h3>
+                      <p className="text-[11px] text-white/50 mt-1">
+                        Select multiple categories, surfaces &amp; sizes
+                      </p>
+                    </div>
+                  </div>
+
+                  <button
+                    onClick={closeFilterModal}
+                    className="text-sm font-semibold text-white/60 hover:text-white transition-colors cursor-pointer px-2.5 py-1 rounded-lg hover:bg-white/10"
+                  >
+                    Close
+                  </button>
+                </div>
+
+                {/* Modal Scrollable Body */}
+                <div className="p-4 sm:p-5 overflow-y-auto space-y-4 flex-1">
+                  {/* Category Multi-Selection */}
+                  <div>
+                    <div className="flex items-center justify-between mb-2">
+                      <label className="text-xs font-bold uppercase tracking-wider text-white/80">
+                        Categories
+                      </label>
+                      <span className="text-[11px] text-cyan font-semibold">
+                        {tempCategoryIds.length === 0 ? 'All Categories' : `${tempCategoryIds.length} Selected`}
+                      </span>
+                    </div>
+
+                    <div className="flex flex-wrap gap-1.5">
+                      <button
+                        type="button"
+                        onClick={() => setTempCategoryIds([])}
+                        className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer border ${
+                          tempCategoryIds.length === 0
+                            ? 'bg-gradient-to-r from-red-600 to-rose-600 text-white border-red-500 shadow-md shadow-red-600/30 font-bold'
+                            : 'bg-white/[0.05] text-white/70 hover:text-white border-white/10 hover:bg-white/10'
+                        }`}
+                      >
+                        All Categories
+                      </button>
+                      {mathulacCategories.map((cat) => {
+                        const isCatActive = tempCategoryIds.includes(cat.id);
+                        const catCount = mathulacProductItems.filter((p) => p.categoryKey === cat.id).length;
+                        return (
+                          <button
+                            key={cat.id}
+                            type="button"
+                            onClick={() => toggleTempCategory(cat.id)}
+                            className={`px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer border flex items-center gap-1.5 ${
+                              isCatActive
+                                ? 'bg-gradient-to-r from-red-600 to-rose-600 text-white border-red-500 shadow-md shadow-red-600/30 font-bold'
+                                : 'bg-white/[0.05] text-white/70 hover:text-white border-white/10 hover:bg-white/10'
+                            }`}
+                          >
+                            {isCatActive && <Check className="w-3 h-3 text-white flex-shrink-0" />}
+                            <span>{cat.name}</span>
+                            <span className={`text-[10px] ${isCatActive ? 'text-white/90' : 'text-white/40'}`}>
+                              ({catCount})
+                            </span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  {/* 2-Column Grid: Surface & Sort Order */}
+                  <div className="grid grid-cols-2 gap-3 pt-1">
+                    {/* Surface Dropdown */}
+                    <div>
+                      <label className="block text-xs font-bold uppercase tracking-wider text-white/80 mb-1.5">
+                        Surface
+                      </label>
+                      <div className="relative">
+                        <select
+                          value={tempSurface}
+                          onChange={(e) => setTempSurface(e.target.value)}
+                          className="w-full appearance-none bg-white/[0.06] border border-white/20 rounded-xl px-3 py-2 pr-7 text-xs text-white focus:outline-none focus:border-cyan transition-all cursor-pointer truncate"
+                        >
+                          <option value="all" className="bg-[#121624] text-white">All surfaces</option>
+                          <option value="wood" className="bg-[#121624] text-white">Wood &amp; Timber</option>
+                          <option value="metal" className="bg-[#121624] text-white">Metal &amp; Steel</option>
+                          <option value="auto" className="bg-[#121624] text-white">Auto &amp; Primer</option>
+                          <option value="walls" className="bg-[#121624] text-white">Walls &amp; Putty</option>
+                          <option value="exterior" className="bg-[#121624] text-white">Exterior</option>
+                        </select>
+                        <ChevronDown className="w-3.5 h-3.5 text-white/50 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                      </div>
+                    </div>
+
+                    {/* Sort Order Dropdown */}
+                    <div>
+                      <label className="block text-xs font-bold uppercase tracking-wider text-white/80 mb-1.5">
+                        Sort By
+                      </label>
+                      <div className="relative">
+                        <select
+                          value={tempSort}
+                          onChange={(e) => setTempSort(e.target.value as any)}
+                          className="w-full appearance-none bg-white/[0.06] border border-white/20 rounded-xl px-3 py-2 pr-7 text-xs text-white focus:outline-none focus:border-cyan transition-all cursor-pointer truncate"
+                        >
+                          <option value="default" className="bg-[#121624] text-white">Default</option>
+                          <option value="name-asc" className="bg-[#121624] text-white">Name: A to Z</option>
+                          <option value="name-desc" className="bg-[#121624] text-white">Name: Z to A</option>
+                        </select>
+                        <ChevronDown className="w-3.5 h-3.5 text-white/50 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Pack Sizes Multi-Selection */}
+                  <div className="pt-1">
+                    <div className="flex items-center justify-between mb-2">
+                      <label className="text-xs font-bold uppercase tracking-wider text-white/80">
+                        Available Pack Sizes
+                      </label>
+                      <span className="text-[11px] text-purple-300 font-semibold">
+                        {tempPackSizes.length === 0 ? 'All Sizes' : `${tempPackSizes.length} Selected`}
+                      </span>
+                    </div>
+
+                    <div className="flex flex-wrap gap-1.5">
+                      <button
+                        type="button"
+                        onClick={() => setTempPackSizes([])}
+                        className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer border ${
+                          tempPackSizes.length === 0
+                            ? 'bg-purple-600 text-white border-purple-400 shadow-md shadow-purple-600/30 font-bold'
+                            : 'bg-white/[0.05] text-white/70 hover:text-white border-white/10 hover:bg-white/10'
+                        }`}
+                      >
+                        All Sizes
+                      </button>
+                      {ALL_PACK_SIZES.map((size) => {
+                        const isSizeActive = tempPackSizes.includes(size);
+                        return (
+                          <button
+                            key={size}
+                            type="button"
+                            onClick={() => toggleTempPackSize(size)}
+                            className={`px-2.5 py-1.5 rounded-lg text-xs font-mono font-semibold transition-all cursor-pointer border flex items-center gap-1 ${
+                              isSizeActive
+                                ? 'bg-purple-600 text-white border-purple-400 shadow-md shadow-purple-600/30 font-bold'
+                                : 'bg-white/[0.05] text-white/70 hover:text-white border-white/10 hover:bg-white/10'
+                            }`}
+                          >
+                            {isSizeActive && <Check className="w-3 h-3 text-white flex-shrink-0" />}
+                            <span>{size}</span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Sticky Footer: Clear on Left, Live-count Apply on Right */}
+                <div className="p-4 sm:p-5 border-t border-white/10 bg-[#0E121E] flex items-center justify-between gap-3 flex-shrink-0">
+                  <button
+                    onClick={handleClearFilters}
+                    className="px-5 py-2.5 rounded-xl bg-white/[0.08] hover:bg-white/[0.14] text-white/80 hover:text-white text-xs sm:text-sm font-semibold border border-white/15 transition-all cursor-pointer"
+                  >
+                    Clear All
+                  </button>
+                  <button
+                    onClick={handleApplyFilters}
+                    className="px-7 py-2.5 rounded-xl bg-[#dc2626] hover:bg-[#b91c1c] text-white text-xs sm:text-sm font-bold shadow-lg shadow-red-600/30 transition-all cursor-pointer flex items-center gap-2"
+                  >
+                    <span>Apply ({stagedPreviewCount} {stagedPreviewCount === 1 ? 'Product' : 'Products'})</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* 12-Category Grid Selector (Desktop only: hidden md:block) */}
+          <div className="mb-10 hidden md:block" data-reveal>
+            <div className="flex items-center justify-between gap-2 mb-3 pb-2 border-b border-white/10">
+              <div className="flex items-center gap-3">
+                <span className="text-xs font-extrabold uppercase tracking-widest text-white/60 flex items-center gap-2">
+                  <Grid className="w-4 h-4 text-magenta" /> Select Product Category (12 Systems)
+                </span>
+                <button
+                  onClick={() => setSelectedCategoryIds([])}
+                  className={`px-3 py-1 rounded-full text-xs font-bold transition-all cursor-pointer border ${
+                    selectedCategoryIds.length === 0
+                      ? 'bg-gradient-to-r from-magenta to-cyan text-white border-transparent shadow-md shadow-magenta/20 scale-105'
+                      : 'bg-white/5 hover:bg-white/10 text-white/70 hover:text-white border-white/15'
+                  }`}
+                >
+                  All Products ({mathulacProductItems.length})
+                </button>
+              </div>
+
+              <div className="flex items-center gap-3">
+                {/* Desktop Search Bar */}
+                <div className="relative w-52">
+                  <input
+                    type="text"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    placeholder="Search products..."
+                    className="w-full pl-8 pr-7 py-1.5 rounded-lg bg-white/[0.05] border border-white/15 text-xs text-white placeholder-white/40 focus:outline-none focus:border-cyan transition-all"
+                  />
+                  <Search className="w-3.5 h-3.5 text-white/40 absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                  {searchQuery && (
+                    <button
+                      onClick={() => setSearchQuery('')}
+                      className="absolute right-2 top-1/2 -translate-y-1/2 text-white/40 hover:text-white cursor-pointer"
+                    >
+                      <X className="w-3 h-3" />
+                    </button>
+                  )}
+                </div>
+
+                <button
+                  onClick={() => {
+                    const el = document.getElementById('category-lineup');
+                    if (el) el.scrollIntoView({ behavior: 'smooth' });
+                  }}
+                  className="text-xs font-bold text-cyan hover:text-white flex items-center gap-1.5 cursor-pointer transition-colors"
+                >
+                  <Layers className="w-3.5 h-3.5 text-magenta" /> View Gallery ({displayedProducts.length})
+                </button>
+              </div>
             </div>
 
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2.5">
               {mathulacCategories.map((cat) => {
-                const isSelected = selectedCategory.id === cat.id;
+                const isSelected = selectedCategoryIds.includes(cat.id);
                 const Icon = cat.icon;
                 return (
                   <button
                     key={cat.id}
-                    onClick={() => setSelectedCategory(cat)}
+                    onClick={() => {
+                      setSelectedCategoryIds((prev) =>
+                        prev.includes(cat.id)
+                          ? prev.filter((id) => id !== cat.id)
+                          : [...prev.filter((id) => id !== 'all'), cat.id]
+                      );
+                    }}
                     aria-pressed={isSelected}
-                    className={`paint-category group relative p-3 rounded-xl text-left transition-all duration-300 cursor-pointer border flex flex-col justify-between ${isSelected
-                      ? 'is-paint-active '
-                      : ''}${isSelected
-                        ? 'bg-gradient-to-b from-magenta/25 via-white/[0.08] to-violet/20 border-magenta shadow-lg shadow-magenta/20 scale-[1.02] ring-1 ring-magenta/40'
+                    className={`paint-category group relative p-3 rounded-xl text-left transition-all duration-300 cursor-pointer border flex flex-col justify-between ${
+                      isSelected
+                        ? 'is-paint-active bg-gradient-to-b from-magenta/25 via-white/[0.08] to-violet/20 border-magenta shadow-lg shadow-magenta/20 scale-[1.02] ring-1 ring-magenta/40'
                         : 'bg-white/[0.03] hover:bg-white/[0.07] border-white/10 hover:border-white/25'
-                      }`}
+                    }`}
                   >
                     <div className="flex items-center justify-between mb-1.5">
                       <span className={`text-[10px] font-mono font-bold ${isSelected ? 'text-magenta' : 'text-white/40'}`}>
                         {String(cat.orderNumber).padStart(2, '0')}
                       </span>
                       <div
-                        className={`w-6 h-6 rounded-lg flex items-center justify-center transition-transform group-hover:scale-110 ${isSelected ? 'bg-magenta text-white' : 'bg-white/10 text-white/70'
-                          }`}
+                        className={`w-6 h-6 rounded-lg flex items-center justify-center transition-transform group-hover:scale-110 ${
+                          isSelected ? 'bg-magenta text-white' : 'bg-white/10 text-white/70'
+                        }`}
                       >
                         <Icon className="w-3.5 h-3.5" />
                       </div>
@@ -289,12 +976,82 @@ export function ProductShowcase({
                 );
               })}
             </div>
+
+            {/* Desktop Active Filters Bar */}
+            {activeFilterCount > 0 && (
+              <div className="flex items-center flex-wrap gap-2 mt-3 pt-3 border-t border-white/10 text-xs">
+                <span className="text-white/50 font-semibold text-[11px]">Active Filters ({activeFilterCount}):</span>
+                {selectedCategoryIds.map((catId) => {
+                  const cat = mathulacCategories.find((c) => c.id === catId);
+                  return (
+                    <span
+                      key={catId}
+                      className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-magenta/20 border border-magenta/40 text-white text-[11px] font-semibold"
+                    >
+                      <span>{cat?.name || catId}</span>
+                      <button
+                        onClick={() => removeCategory(catId)}
+                        className="hover:text-red-400 p-0.5 cursor-pointer"
+                        title={`Remove ${cat?.name || catId}`}
+                      >
+                        <X className="w-3 h-3" />
+                      </button>
+                    </span>
+                  );
+                })}
+                {selectedSurface !== 'all' && (
+                  <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-cyan/20 border border-cyan/40 text-cyan text-[11px] font-semibold">
+                    <span>Surface: {surfaceLabels[selectedSurface] || selectedSurface}</span>
+                    <button
+                      onClick={() => setSelectedSurface('all')}
+                      className="hover:text-red-400 p-0.5 cursor-pointer"
+                      title="Remove surface filter"
+                    >
+                      <X className="w-3 h-3" />
+                    </button>
+                  </span>
+                )}
+                {selectedPackSizes.map((size) => (
+                  <span
+                    key={size}
+                    className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-purple-500/20 border border-purple-400/40 text-purple-200 text-[11px] font-semibold"
+                  >
+                    <span>Size: {size}</span>
+                    <button
+                      onClick={() => removePackSize(size)}
+                      className="hover:text-red-400 p-0.5 cursor-pointer"
+                      title={`Remove size ${size}`}
+                    >
+                      <X className="w-3 h-3" />
+                    </button>
+                  </span>
+                ))}
+                {searchQuery.trim() && (
+                  <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-white/10 border border-white/20 text-white/90 text-[11px] font-semibold">
+                    <span>Search: "{searchQuery.trim()}"</span>
+                    <button
+                      onClick={() => setSearchQuery('')}
+                      className="hover:text-red-400 p-0.5 cursor-pointer"
+                      title="Clear search"
+                    >
+                      <X className="w-3 h-3" />
+                    </button>
+                  </span>
+                )}
+                <button
+                  onClick={resetAllFilters}
+                  className="text-red-400 hover:text-red-300 font-bold underline text-[11px] ml-2 cursor-pointer"
+                >
+                  Reset all
+                </button>
+              </div>
+            )}
           </div>
 
           {/* ============================================================ */}
           {/* MAIN TECHNICAL DATA SHOWCASE (Exact Full Page Viewer) */}
           {/* ============================================================ */}
-          {categoryProducts.length > 0 && currentProduct ? (
+          {displayedProducts.length > 0 && currentProduct ? (
             <div
               id="product-viewer"
               key={currentProduct.id}
@@ -303,10 +1060,10 @@ export function ProductShowcase({
             >
               {/* Left Column: Real Product Visual (5 cols) */}
               <div className="lg:col-span-5 flex flex-col items-center justify-center gap-2 relative">
-                {/* Product Quick-Switch Tabs for Multi-Product Categories */}
-                {categoryProducts.length > 1 && (
-                  <div className="w-full flex flex-wrap items-center justify-center gap-1.5 mb-2">
-                    {categoryProducts.map((p, idx) => {
+                {/* Product Quick-Switch Tabs for Multi-Product Catalog (Desktop Only) */}
+                {displayedProducts.length > 1 && (
+                  <div className="w-full hidden md:flex flex-wrap items-center justify-center gap-1.5 mb-2">
+                    {displayedProducts.slice(0, 6).map((p, idx) => {
                       const isCurrent = idx === activeProductIndex;
                       return (
                         <button
@@ -329,53 +1086,64 @@ export function ProductShowcase({
                   </div>
                 )}
 
-                {/* Real Product Image Stage */}
+                {/* Real Product Image Stage with Side-Based Next & Previous Navigation */}
                 <div
-                  className="product-paint-stage w-full flex items-center justify-center relative"
+                  className="product-paint-stage w-full flex items-center justify-center relative rounded-3xl overflow-hidden group"
                   style={{ '--paint-accent': currentProduct.color || '#00C8FF' } as React.CSSProperties}
                 >
-                  <ProductVisual
-                    product={currentProduct}
-                    className="w-full h-[320px] sm:h-[360px] md:h-[380px]"
-                  />
-                </div>
-
-                {/* Switcher Controls immediately below Image */}
-                {categoryProducts.length > 1 && (
-                  <div className="w-full max-w-[280px] flex items-center justify-between gap-3 px-3.5 py-1.5 rounded-xl bg-white/[0.06] border border-white/15 backdrop-blur-md shadow-lg mt-1">
+                  {/* Side-Based Previous Button (Left Side) */}
+                  {displayedProducts.length > 1 && (
                     <button
                       onClick={handlePrevProduct}
-                      className="px-3 py-1 rounded-lg bg-white/10 hover:bg-white/20 text-white text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer"
+                      aria-label="Previous product"
                       title="Previous Product"
+                      className="absolute left-2 sm:left-3 top-1/2 -translate-y-1/2 z-30 w-9 h-9 sm:w-11 sm:h-11 rounded-full bg-black/60 hover:bg-black/85 text-white/80 hover:text-white border border-white/20 hover:border-cyan/60 flex items-center justify-center backdrop-blur-md shadow-xl hover:shadow-cyan/25 hover:scale-110 active:scale-95 transition-all cursor-pointer"
                     >
-                      <ChevronLeft className="w-4 h-4" />
-                      <span>Previous</span>
+                      <ChevronLeft className="w-5 h-5 sm:w-6 sm:h-6" />
                     </button>
+                  )}
 
-                    <div className="flex items-center gap-2">
-                      {categoryProducts.map((p, idx) => (
+                  <ProductVisual
+                    product={currentProduct}
+                    className="w-full h-[280px] sm:h-[340px] md:h-[380px]"
+                  />
+
+                  {/* Side-Based Next Button (Right Side) */}
+                  {displayedProducts.length > 1 && (
+                    <button
+                      onClick={handleNextProduct}
+                      aria-label="Next product"
+                      title="Next Product"
+                      className="absolute right-2 sm:right-3 top-1/2 -translate-y-1/2 z-30 w-9 h-9 sm:w-11 sm:h-11 rounded-full bg-black/60 hover:bg-black/85 text-white/80 hover:text-white border border-white/20 hover:border-cyan/60 flex items-center justify-center backdrop-blur-md shadow-xl hover:shadow-cyan/25 hover:scale-110 active:scale-95 transition-all cursor-pointer"
+                    >
+                      <ChevronRight className="w-5 h-5 sm:w-6 sm:h-6" />
+                    </button>
+                  )}
+
+                  {/* Indicator Dots overlay inside image stage */}
+                  {displayedProducts.length > 1 && (
+                    <div className="absolute bottom-2.5 left-1/2 -translate-x-1/2 z-30 flex items-center gap-1.5 px-3 py-1 rounded-full bg-black/60 backdrop-blur-md border border-white/15">
+                      {displayedProducts.slice(0, 8).map((p, idx) => (
                         <button
                           key={p.id}
                           onClick={() => setActiveProductIndex(idx)}
-                          className={`w-2.5 h-2.5 rounded-full transition-all cursor-pointer ${idx === activeProductIndex
-                            ? 'bg-cyan scale-125 ring-2 ring-white/60'
-                            : 'bg-white/30 hover:bg-white/60'
-                            }`}
+                          className={`transition-all cursor-pointer rounded-full ${
+                            idx === activeProductIndex
+                              ? 'w-5 h-2 bg-gradient-to-r from-magenta to-cyan'
+                              : 'w-2 h-2 bg-white/30 hover:bg-white/60'
+                          }`}
                           title={p.name}
+                          aria-label={`Go to ${p.name}`}
                         />
                       ))}
+                      {displayedProducts.length > 8 && (
+                        <span className="text-[10px] font-mono text-white/50 ml-1">
+                          {activeProductIndex + 1}/{displayedProducts.length}
+                        </span>
+                      )}
                     </div>
-
-                    <button
-                      onClick={handleNextProduct}
-                      className="px-3 py-1 rounded-lg bg-white/10 hover:bg-white/20 text-white text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer"
-                      title="Next Product"
-                    >
-                      <span>Next</span>
-                      <ChevronRight className="w-4 h-4" />
-                    </button>
-                  </div>
-                )}
+                  )}
+                </div>
               </div>
 
               {/* Right Column: Animated Rainbow Border Card (7 cols) */}
@@ -394,7 +1162,7 @@ export function ProductShowcase({
 
                     {/* Tagline / Subtitle */}
                     <p className="text-white/70 text-[12px] sm:text-[13px] leading-relaxed font-normal mb-5 max-w-xl">
-                      {selectedCategory.name} • Division {String(selectedCategory.orderNumber).padStart(2, '0')} formulation engineered for maximum durability and finish.
+                      {activeCategory ? activeCategory.name : currentProduct.categoryName} • Division {activeCategory ? String(activeCategory.orderNumber).padStart(2, '0') : 'Master'} formulation engineered for maximum durability and finish.
                     </p>
 
                     {/* Structured Technical Specification Rows */}
@@ -443,7 +1211,7 @@ export function ProductShowcase({
                             {currentProduct.availableSizes.map((size, sIdx) => (
                               <span
                                 key={sIdx}
-                                className="px-2.5 py-0.5 rounded-md bg-white/[0.06] border border-white/10 text-[11px] font-mono font-semibold text-white"
+                                className="px-2.5 py-0.5 rounded-md bg-white/[0.06] hover:bg-white/[0.14] border border-white/10 hover:border-cyan/40 hover:shadow-sm hover:shadow-cyan/20 text-[11px] font-mono font-semibold text-white/90 hover:text-white hover:scale-105 transition-all duration-200 cursor-default select-none"
                               >
                                 {size}
                               </span>
@@ -460,7 +1228,7 @@ export function ProductShowcase({
                             PRODUCT CATEGORY
                           </span>
                           <p className="text-white/80 text-[12px] font-normal leading-snug">
-                            {String(selectedCategory.orderNumber).padStart(2, '0')} • {selectedCategory.name}
+                            {activeCategory ? `${String(activeCategory.orderNumber).padStart(2, '0')} • ` : ''}{currentProduct.categoryName}
                           </p>
                         </div>
                       </div>
@@ -470,7 +1238,7 @@ export function ProductShowcase({
               </div>
             </div>
           ) : (
-            /* Empty State for Categories with No Products (e.g. Tile Coat) */
+            /* Empty State when no products match filters */
             <div
               className="rounded-xl p-8 sm:p-12 bg-gradient-to-b from-white/[0.04] to-transparent border border-white/10 text-center mb-16 max-w-3xl mx-auto shadow-2xl"
               data-reveal
@@ -479,50 +1247,57 @@ export function ProductShowcase({
                 <Paintbrush className="w-8 h-8" />
               </div>
               <span className="text-xs font-mono font-bold text-magenta uppercase tracking-widest block mb-1">
-                Division {String(selectedCategory.orderNumber).padStart(2, '0')} • {selectedCategory.name}
+                {activeCategory ? `Division ${String(activeCategory.orderNumber).padStart(2, '0')} • ${activeCategory.name}` : 'Catalog Filter'}
               </span>
               <h3 className="font-display text-2xl sm:text-3xl text-white font-bold mb-2">
-                Formulations Under Active Development
+                {activeCategory ? 'Formulations Under Active Development' : 'No Products Match Selected Filters'}
               </h3>
               <p className="text-white/70 text-sm max-w-lg mx-auto leading-relaxed mb-6">
-                No product is uploaded for Tile Coat currently. New formulations, technical datasheets, and container imagery are under development.
+                {activeCategory
+                  ? `No product is uploaded for ${activeCategory.name} currently. New formulations, technical datasheets, and container imagery are under development.`
+                  : 'Try clearing your search query or selecting a different category/surface filter.'}
               </p>
-              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 border border-white/15 text-xs text-white/80">
-                <Sparkles className="w-3.5 h-3.5 text-cyan" /> Inquire for Custom Batch Orders &amp; Tile Coat Requirements
-              </div>
+              <button
+                onClick={resetAllFilters}
+                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-white/10 hover:bg-white/20 border border-white/20 text-xs font-bold text-white transition-all cursor-pointer"
+              >
+                <Sparkles className="w-3.5 h-3.5 text-cyan" /> Show All Mathulac Products
+              </button>
             </div>
           )}
 
           {/* Clean In-Page Action Strip below the Card */}
-          <div className="max-w-3xl mx-auto flex flex-wrap items-center justify-center gap-3 mb-16" data-reveal>
-            <Link
-              to={`/product/${currentProduct.id}`}
-              className="paint-button py-3.5 px-6 rounded-xl bg-gradient-to-r from-magenta via-purple-600 to-cyan text-white font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 cursor-pointer shadow-xl shadow-magenta/30 hover:scale-105 transition-all"
-            >
-              <Sparkles className="w-4 h-4" />
-              <span>Open {currentProduct.name} Full Page</span>
-              <ArrowRight className="w-4 h-4" />
-            </Link>
+          {currentProduct && (
+            <div className="max-w-3xl mx-auto flex flex-wrap items-center justify-center gap-3 mb-16" data-reveal>
+              <Link
+                to={`/product/${currentProduct.id}`}
+                className="paint-button py-3.5 px-6 rounded-xl bg-gradient-to-r from-magenta via-purple-600 to-cyan text-white font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 cursor-pointer shadow-xl shadow-magenta/30 hover:scale-105 transition-all"
+              >
+                <Sparkles className="w-4 h-4" />
+                <span>Open {currentProduct.name} Full Page</span>
+                <ArrowRight className="w-4 h-4" />
+              </Link>
 
-            <button
-              onClick={handleConsult}
-              className="paint-button paint-button--blue py-3.5 px-6 rounded-xl bg-gradient-to-r from-cyan via-teal-500 to-blue-600 text-white font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 shadow-xl shadow-cyan/30 cursor-pointer"
-            >
-              <Phone className="w-4 h-4" />
-              <span>Request Consultation</span>
-            </button>
+              <button
+                onClick={handleConsult}
+                className="paint-button paint-button--blue py-3.5 px-6 rounded-xl bg-gradient-to-r from-cyan via-teal-500 to-blue-600 text-white font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 shadow-xl shadow-cyan/30 cursor-pointer"
+              >
+                <Phone className="w-4 h-4" />
+                <span>Request Consultation</span>
+              </button>
 
-            <button
-              onClick={() => {
-                const el = document.getElementById('category-lineup');
-                if (el) el.scrollIntoView({ behavior: 'smooth' });
-              }}
-              className="paint-button py-3.5 px-6 rounded-xl bg-white/[0.08] hover:bg-white/[0.16] text-white font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 cursor-pointer border border-white/20 backdrop-blur-md shadow-lg transition-all hover:scale-105"
-            >
-              <Layers className="w-4 h-4 text-cyan" />
-              <span>All {selectedCategory.name} ({categoryProducts.length})</span>
-            </button>
-          </div>
+              <button
+                onClick={() => {
+                  const el = document.getElementById('category-lineup');
+                  if (el) el.scrollIntoView({ behavior: 'smooth' });
+                }}
+                className="paint-button py-3.5 px-6 rounded-xl bg-white/[0.08] hover:bg-white/[0.16] text-white font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 cursor-pointer border border-white/20 backdrop-blur-md shadow-lg transition-all hover:scale-105"
+              >
+                <Layers className="w-4 h-4 text-cyan" />
+                <span>All {activeCategory ? activeCategory.name : 'Products'} ({displayedProducts.length})</span>
+              </button>
+            </div>
+          )}
 
           {/* ============================================================ */}
           {/* CATEGORY PRODUCTS SHOWCASE FULL-PAGE GALLERY */}
@@ -531,23 +1306,47 @@ export function ProductShowcase({
             <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3 mb-6 pb-3 border-b border-white/10">
               <div>
                 <span className="text-xs font-extrabold uppercase tracking-widest text-cyan flex items-center gap-2">
-                  <Sparkles className="w-3.5 h-3.5 text-magenta" /> {selectedCategory.name} Formulation Lineup
+                  <Sparkles className="w-3.5 h-3.5 text-magenta" />{' '}
+                  {activeCategory
+                    ? `${activeCategory.name} Formulation Lineup`
+                    : selectedCategoryIds.length > 1
+                    ? `${selectedCategoryIds.length} Selected Categories Lineup`
+                    : 'Mathulac Complete Lineup'}
                 </span>
                 <h3 className="font-display text-2xl sm:text-3xl text-white font-bold mt-1">
-                  {selectedCategory.name} Products ({categoryProducts.length} Systems)
+                  {activeCategory
+                    ? `${activeCategory.name} Products`
+                    : selectedCategoryIds.length > 1
+                    ? 'Selected Formulations'
+                    : 'All Mathulac Formulations'}{' '}
+                  ({displayedProducts.length} Systems)
                 </h3>
                 <p className="text-white/60 text-xs sm:text-sm mt-1 max-w-2xl">
-                  {selectedCategory.description}
+                  {activeCategory
+                    ? activeCategory.description
+                    : selectedCategoryIds.length > 1
+                    ? `Showing formulations from ${selectedCategoryIds.length} selected product categories.`
+                    : 'Thinners, primers, putty, emulsions, enamels, and wood coatings engineered for Indian weather.'}
                 </p>
               </div>
-              <span className="text-xs font-mono font-bold text-white/50 bg-white/5 px-3 py-1.5 rounded-full border border-white/10 self-start sm:self-auto">
-                Division {String(selectedCategory.orderNumber).padStart(2, '0')}
-              </span>
+              {activeCategory ? (
+                <span className="text-xs font-mono font-bold text-white/50 bg-white/5 px-3 py-1.5 rounded-full border border-white/10 self-start sm:self-auto">
+                  Division {String(activeCategory.orderNumber).padStart(2, '0')}
+                </span>
+              ) : selectedCategoryIds.length > 1 ? (
+                <span className="text-xs font-mono font-bold text-magenta bg-magenta/10 px-3 py-1.5 rounded-full border border-magenta/20 self-start sm:self-auto">
+                  {selectedCategoryIds.length} Categories ({displayedProducts.length})
+                </span>
+              ) : (
+                <span className="text-xs font-mono font-bold text-cyan bg-cyan/10 px-3 py-1.5 rounded-full border border-cyan/20 self-start sm:self-auto">
+                  Complete Catalog ({displayedProducts.length})
+                </span>
+              )}
             </div>
 
-            {categoryProducts.length > 0 ? (
+            {displayedProducts.length > 0 ? (
               <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-                {categoryProducts.map((p, idx) => {
+                {displayedProducts.map((p, idx) => {
                   const isSelected = p.id === currentProduct?.id;
                   const activeImg = productAssetMap[p.id] || p.image;
                   return (
@@ -561,6 +1360,18 @@ export function ProductShowcase({
                     >
                       {/* Top Header */}
                       <div>
+                        {/* Category Badge */}
+                        <div className="flex items-center justify-between mb-3">
+                          <span className="text-[10px] font-mono font-semibold uppercase tracking-wider px-2 py-0.5 rounded-md bg-white/[0.08] border border-white/15 text-cyan">
+                            {p.categoryName}
+                          </span>
+                          {isSelected && (
+                            <span className="text-[9px] font-bold uppercase tracking-wider text-magenta bg-magenta/10 border border-magenta/25 px-2 py-0.5 rounded-md">
+                              Active
+                            </span>
+                          )}
+                        </div>
+
                         {/* Image Container with high quality product asset */}
                         <div
                           onClick={() => {
@@ -611,7 +1422,7 @@ export function ProductShowcase({
                             {p.availableSizes.map((size, sIdx) => (
                               <span
                                 key={sIdx}
-                                className="px-2.5 py-0.5 rounded-md bg-white/[0.06] border border-white/10 text-[10px] font-mono font-semibold text-white/85"
+                                className="px-2.5 py-0.5 rounded-md bg-white/[0.06] hover:bg-white/[0.14] border border-white/10 hover:border-cyan/40 hover:shadow-sm hover:shadow-cyan/20 text-[10px] font-mono font-semibold text-white/85 hover:text-white hover:scale-105 transition-all duration-200 cursor-default select-none"
                               >
                                 {size}
                               </span>
@@ -646,13 +1457,22 @@ export function ProductShowcase({
                 })}
               </div>
             ) : (
-              <div className="p-8 rounded-xl bg-white/[0.02] border border-white/10 text-center py-10">
+              <div className="p-8 rounded-xl bg-white/[0.02] border border-white/10 text-center py-12">
+                <div className="w-12 h-12 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center mx-auto mb-3 text-white/40">
+                  <Search className="w-6 h-6" />
+                </div>
                 <span className="text-sm text-white/70 block font-semibold mb-1">
-                  No products uploaded for {selectedCategory.name} currently.
+                  No products found matching your search or filters.
                 </span>
-                <span className="text-xs text-white/40">
-                  New formulations and catalog updates are under development.
+                <span className="text-xs text-white/40 block mb-4">
+                  Try adjusting your filter criteria or search query.
                 </span>
+                <button
+                  onClick={resetAllFilters}
+                  className="px-4 py-2 rounded-xl bg-red-600/20 hover:bg-red-600/30 text-red-300 border border-red-500/40 text-xs font-bold transition-all cursor-pointer"
+                >
+                  Reset All Filters
+                </button>
               </div>
             )}
           </div>

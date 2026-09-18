@@ -1,4 +1,4 @@
-import { CompanyStory, TrustSection } from '../features/about';
+import { CompanyStory, TrustSection, AboutLocationMap } from '../features/about';
 
 export function AboutPage() {
   return (
@@ -6,8 +6,11 @@ export function AboutPage() {
       {/* 20-Year Heritage & Coimbatore Story */}
       <CompanyStory />
 
-      {/* Trust Pillars & Certifications */}
+      {/* Trust Pillars & ISO Certification Showcase */}
       <TrustSection />
+
+      {/* Manufacturing Facility Location & Factory Visit */}
+      <AboutLocationMap />
     </div>
   );
 }
